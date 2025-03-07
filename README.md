@@ -82,22 +82,41 @@
 
 ---
 
-## 🛠️ 기술 스택
+## Tech Stack 🛠️
 
--   **Frontend:** Dart, Flutter
--   **Backend:** Spring Boot, Spring Data JPA, Spring Security
--   **DB:** MySQL, Redis
--   **Infra:** AWS EC2, Jenkins, Docker, Nginx, GitLab
+### FE
+
+[![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev/)  
+[![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev/)
+
+### BE
+
+[![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)](https://spring.io/projects/spring-boot)  
+[![Spring Data JPA](https://img.shields.io/badge/Spring_Data_JPA-6DB33F?style=for-the-badge&logo=spring&logoColor=white)](https://spring.io/projects/spring-data-jpa)  
+[![Spring Security](https://img.shields.io/badge/Spring_Security-6DB33F?style=for-the-badge&logo=spring&logoColor=white)](https://spring.io/projects/spring-security)
+
+### DB
+
+[![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com/)  
+[![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io/)
+
+### Infra
+
+[![AWS EC2](https://img.shields.io/badge/AWS_EC2-FF9900?style=for-the-badge&logo=amazon-aws&logoColor=white)](https://aws.amazon.com/ec2/)  
+[![Jenkins](https://img.shields.io/badge/Jenkins-D24939?style=for-the-badge&logo=jenkins&logoColor=white)](https://www.jenkins.io/)  
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)  
+[![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white)](https://www.nginx.com/)
 
 ---
 
-## 👥 역할 분담
+## Member 👨‍👩‍👧‍👦
 
--   **Frontend:** 김지훈, 오승원, 이가영, 조현희
--   **Backend:** 윤수빈, 김두철, 이가영
--   **Infra** 김두철, 윤수빈
+|                                Backend, Infra / 팀장                                 |                                Backend / 백엔드 리드                                 |                               Frontend / 프론트엔드 리드                               |                                   Frontend / DevOps                                    |                           Frontend, Backend / UI&UX, 디자인                           |                                 Frontend / Data, AI                                  |
+| :----------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------: |
+| <img src="https://avatars.githubusercontent.com/Doocheol" width=400px alt="김두철"/> | <img src="https://avatars.githubusercontent.com/king0104" width=400px alt="윤수빈"/> | <img src="https://avatars.githubusercontent.com/kimnerd625" width=400px alt="김지훈"/> | <img src="https://avatars.githubusercontent.com/gaebalja123" width=400px alt="오승원"> | <img src="https://avatars.githubusercontent.com/gayoung000" width=400px alt="이가영"> | <img src="https://avatars.githubusercontent.com/hyunheeya" width=400px alt="조현희"> |
+|                        [김두철](https://github.com/Doocheol)                         |                        [윤수빈](https://github.com/king0104)                         |                        [김지훈](https://github.com/kimnerd625)                         |                        [오승원](https://github.com/gaebalja123)                        |                        [이가영](https://github.com/gayoung000)                        |                        [조현희](https://github.com/hyunheeya)                        |
 
----
+<br>
 
 ## 🗺️ 향후 기능 및 로드맵
 
@@ -118,5 +137,5 @@
 
 ---
 
-> 손미정은 차량 관리의 새로운 패러다임을 제시하며,
+> 손미정은 차량 관리의 새로운 패러다임을 제시하며, <br>
 > AI와 최신 기술을 접목해 사용자가 언제 어디서나 차량 상태를 쉽고 편리하게 관리할 수 있도록 돕습니다.
