@@ -69,7 +69,7 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
                   child: Text(
                     "OBD2 상세",
                     style: TextStyle(
-                      fontSize: 10.sp, // ✅ ListToggle 내부와 동일한 폰트 크기
+                      fontSize: 14.sp, // ✅ ListToggle 내부와 동일한 폰트 크기
                       fontWeight: FontWeight.w500, // ✅ 동일한 Weight 설정
                       fontFamily: 'YourFontFamily', // ✅ 동일한 폰트 패밀리 설정 (필요시 추가)
                       color: const Color(0xFF747474),

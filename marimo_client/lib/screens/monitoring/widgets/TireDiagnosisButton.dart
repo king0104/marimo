@@ -45,7 +45,7 @@ class TireDiagnosisButton extends StatelessWidget {
                 child: Text(
                   "마지막 점검 후 20000km 주행",
                   style: TextStyle(
-                    fontSize: 12.sp,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.w500,
                     color: Colors.black,
                   ),
@@ -58,7 +58,7 @@ class TireDiagnosisButton extends StatelessWidget {
               Text(
                 "AI 진단 받기",
                 style: TextStyle(
-                  fontSize: 10.sp,
+                  fontSize: 14.sp,
                   fontWeight: FontWeight.w300,
                   color: const Color(0xFF0E0E0E),
                 ),
@@ -66,7 +66,7 @@ class TireDiagnosisButton extends StatelessWidget {
               SizedBox(width: 4.w),
               Icon(
                 Icons.chevron_right,
-                size: 15.sp,
+                size: 18.sp,
                 color: const Color(0xFF0E0E0E),
               ),
             ],

@@ -87,9 +87,9 @@ class _MainScreenState extends State<MainScreen> {
             label: "프로필",
           ),
         ],
-        selectedLabelStyle: TextStyle(fontSize: 12.sp), // 📌 선택된 텍스트 크기 조정
+        selectedLabelStyle: TextStyle(fontSize: 16.sp), // 📌 선택된 텍스트 크기 조정
         unselectedLabelStyle: TextStyle(
-          fontSize: 10.sp,
+          fontSize: 14.sp,
         ), // 📌 선택되지 않은 텍스트 크기 조정
       ),
     );

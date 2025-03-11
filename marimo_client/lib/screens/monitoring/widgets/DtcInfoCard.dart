@@ -22,7 +22,7 @@ class DtcInfoCard extends StatelessWidget {
           Text(
             code,
             style: TextStyle(
-              fontSize: 8.sp,
+              fontSize: 14.sp,
               fontWeight: FontWeight.w300,
               color: const Color(0xFF7E7E7E),
             ),
@@ -32,7 +32,7 @@ class DtcInfoCard extends StatelessWidget {
           Text(
             description,
             style: TextStyle(
-              fontSize: 12.sp,
+              fontSize: 16.sp,
               fontWeight: FontWeight.w500,
               color: const Color(0xFF000000),
             ),

@@ -26,12 +26,12 @@ class StatusInfoCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(icon, size: 16.sp, color: const Color(0xFF4888FF)),
+              Icon(icon, size: 18.sp, color: const Color(0xFF4888FF)),
               SizedBox(width: 8.w),
               Text(
                 title,
                 style: TextStyle(
-                  fontSize: 12.sp,
+                  fontSize: 16.sp,
                   fontWeight: FontWeight.w500,
                   color: const Color(0xFF7E7E7E),
                 ),
@@ -41,7 +41,7 @@ class StatusInfoCard extends StatelessWidget {
           Text(
             value,
             style: TextStyle(
-              fontSize: 12.sp,
+              fontSize: 16.sp,
               fontWeight: FontWeight.w600,
               color: const Color(0xFF000000),
             ),

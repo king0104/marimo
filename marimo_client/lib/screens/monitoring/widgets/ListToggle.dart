@@ -15,30 +15,27 @@ class ListToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 180.w, // ✅ 토글 너비 고정
-      height: 24.h, // ✅ 토글 높이 고정
+    return Container(
+      width: 180.w, // ✅ 고정된 너비로 설정
+      height: 32.h, // ✅ 고정된 높이 (텍스트와 맞춤)
+      padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 3.w),
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(color: const Color(0xffACACAC), width: 0.5),
+      ),
       child: Stack(
         children: [
-          // ✅ 배경 박스 (연한 회색)
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(20.r),
-              border: Border.all(color: const Color(0xffACACAC)),
-            ),
-          ),
-
-          // ✅ 애니메이션 이동하는 검은색 선택 박스
+          // ✅ 애니메이션으로 이동하는 검은색 선택 박스 (텍스트와 함께 움직임)
           AnimatedAlign(
             duration: const Duration(milliseconds: 250),
             curve: Curves.easeInOut,
             alignment:
                 isLeftSelected ? Alignment.centerLeft : Alignment.centerRight,
             child: Container(
-              width: 88.w,
+              width: 84.w, // ✅ 선택 박스 너비를 텍스트 크기에 맞춤
               height: 24.h,
-              margin: EdgeInsets.all(3.h),
+              margin: EdgeInsets.symmetric(horizontal: 2.w),
               decoration: BoxDecoration(
                 color: Colors.black,
                 borderRadius: BorderRadius.circular(20.r),
@@ -46,21 +43,20 @@ class ListToggle extends StatelessWidget {
             ),
           ),
 
-          // ✅ 텍스트 및 클릭 가능 영역 확장
-          Positioned.fill(
-            child: Row(
-              children: [
-                _buildToggleText("고장 정보", isLeft: true, onTap: onLeftTap),
-                _buildToggleText("상태 정보", isLeft: false, onTap: onRightTap),
-              ],
-            ),
+          // ✅ 텍스트를 같은 Row 안에 배치하여 이동 시 정렬 유지
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildToggleText("고장 정보", isLeft: true, onTap: onLeftTap),
+              _buildToggleText("상태 정보", isLeft: false, onTap: onRightTap),
+            ],
           ),
         ],
       ),
     );
   }
 
-  /// ✅ **터치 가능한 전체 영역을 `GestureDetector`로 감싸기 + 글자 찌부 방지**
+  /// ✅ **터치 가능한 전체 영역을 `GestureDetector`로 감싸기 + 정렬 유지**
   Widget _buildToggleText(
     String title, {
     required bool isLeft,
@@ -70,12 +66,13 @@ class ListToggle extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque, // ✅ 빈 공간도 터치 가능
         onTap: onTap,
-        child: Center(
+        child: Align(
+          alignment: Alignment.center,
           child: Text(
             title,
             style: TextStyle(
-              fontSize: 10.sp, // ✅ OBD2 상세와 동일한 크기
-              fontWeight: FontWeight.w500, // ✅ 동일한 Weight 설정
+              fontSize: 14.sp, // ✅ 폰트 크기를 유지하면서 적절한 크기 조정
+              fontWeight: FontWeight.w500,
               color:
                   (isLeftSelected == isLeft)
                       ? Colors.white
