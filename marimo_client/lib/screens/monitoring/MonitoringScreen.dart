@@ -5,8 +5,11 @@ class MonitoringScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Monitoring Screen")),
-      body: Center(child: TireDiagnosisButton()),
+      appBar: AppBar(title: const Text("Monitoring Screen")),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20), // ✅ 좌우 패딩 20px 적용
+        child: Center(child: TireDiagnosisButton()),
+      ),
     );
   }
 }
