@@ -2,6 +2,81 @@
 
 <br>
 
+### 2025.03.11 (Tue)
+
+## ✅ Today We've done
+
+### FE 공통 작업
+
+-   와이어프레임 완성
+-   screen 단위 ui 개발
+-   flutter 학습한 내용 문서화
+-   개발하면서 발생하는 트러블 슈팅
+
+### BE 공통 작업
+
+-   ERD 작성
+-   API 명세서에 Request, Response 필드 전부 넣어두기
+-   프로젝트 생성
+
+### 공통
+
+-   (가능하면) 팀 미팅
+
+<br>
+
+## ❣️ Today We've Learned
+
+### 오승원
+
+-   마이 페이지 자동차 보험관리 와이어 프레임 보완 제작
+-   보험사별 구간별 할인 자료 조사
+    (노션 도메인 문서에 기록함)
+-   DART 강의 80% 수강
+
+### 김지훈
+
+-   모니터링 뷰 컴포넌트 ui 개발
+
+### 윤수빈
+
+-   ERD 95% 완료
+-   외부 API 조사/데이터 연결 테스트
+
+### 김두철
+
+-   ERD 95% 완료
+-   외부 API 조사/데이터 연결 테스트
+
+### 조현희
+
+-   타이어 데이터셋 줍줍
+-   다트 공부 아주 조금
+
+### 이가영
+
+-   주요 화면단(홈, 모니터링. 지도) 기획 회의 후 UI 픽스
+-   마이 페이지 보험 쪽 보완
+-   실제 뷰 개발과 맞추면서 수정 작업
+-   화면 UI 80% 완성
+
+<hr>
+<img src="images/20250311_wireframe_0.png" alt="0" width="150" height="300">
+<img src="images/20250311_wireframe_1.png" alt="1" width="150" height="300">
+<img src="images/20250311_wireframe_2.png" alt="2" width="150" height="300">
+<img src="images/20250311_wireframe_3.png" alt="3" width="150" height="300">
+<img src="images/20250311_wireframe_4.png" alt="4" width="150" height="300">
+<img src="images/20250311_wireframe_5.png" alt="5" width="150" height="300">
+<img src="images/20250311_wireframe_6.png" alt="6" width="150" height="300">
+<img src="images/20250311_wireframe_7.png" alt="7" width="150" height="300">
+<img src="images/20250311_wireframe_8.png" alt="8" width="150" height="300">
+<img src="images/20250311_wireframe_9.png" alt="9" width="150" height="300">
+<img src="images/20250311_wireframe_10.png" alt="10" width="150" height="300">
+<hr>
+
+<br>
+<br>
+
 ### 2025.03.10 (Mon)
 
 ## ✅ Today We've done
