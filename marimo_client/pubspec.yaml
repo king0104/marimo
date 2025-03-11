@@ -10,6 +10,8 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
+  flutter_svg: ^2.0.17
+  flutter_screenutil: ^5.9.3
 
 dev_dependencies:
   flutter_test:
@@ -21,4 +23,26 @@ flutter:
   fonts:
     - family: Freesentation
       fonts:
-        - asset: assets/fonts/FreesentationVariable.ttf
+        - asset: assets/fonts/Freesentation-1Thin.ttf
+          weight: 100
+        - asset: assets/fonts/Freesentation-2ExtraLight.ttf
+          weight: 200
+        - asset: assets/fonts/Freesentation-3Light.ttf
+          weight: 300
+        - asset: assets/fonts/Freesentation-4Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Freesentation-5Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Freesentation-6SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Freesentation-7Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Freesentation-8ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/Freesentation-9Black.ttf
+          weight: 900
+
+  assets:
+    - assets/images/
+    - assets/images/icons/icon_tire.svg
+    - assets/images/icons/icon_tire.webp
