@@ -1,23 +1,29 @@
-# 내 손안에 차량 미니 정비사! "손미정"
+# <img src="https://i.namu.wiki/i/glc3dzjaC39w71F6q1R3nI7hmtdnKG1xGEvBT0zsW4AAwCgItKHRZNrbu8C43Dyo9WrwV9IHv_bgL9qEv59lkNkLyw5PbjNcSzwxHV1PA7A3i9y8zT20wMKYrvkRfcgr6-1W1uQnxflMMWyEJ2hgYQ.webp" alt="Marimo Logo" width="30" height="30"> 마리모: 마이 리틀 모빌리티
 
 **AI 기반 차량 상태 정밀진단 서비스**
 
-[![Website](https://img.shields.io/badge/Link-손미정-blue?style=flat-square)](https://www.juice-fintech.com) [![API Status](https://img.shields.io/badge/API-Swagger-green?style=flat-square)](https://api.juice-fintech.com/swagger-ui/index.html) ![Version](https://img.shields.io/badge/Version-0.1.0-yellow?style=flat-square)
+[![Website](https://img.shields.io/badge/Link-marimo-blue?style=flat-square)](https://www.juice-fintech.com) [![API Status](https://img.shields.io/badge/API-Swagger-green?style=flat-square)](https://api.juice-fintech.com/swagger-ui/index.html) ![Version](https://img.shields.io/badge/Version-0.1.0-yellow?style=flat-square)
 
 ---
 
-<img src="images/README/readme_main_1.png" alt="리드미 메인1" width="150" height="300">
-<img src="images/README/readme_main_2.png" alt="리드미 메인2" width="150" height="300">
-<img src="images/README/readme_main_3.png" alt="리드미 메인3" width="150" height="300">
-<img src="images/README/readme_main_4.png" alt="리드미 메인4" width="150" height="300">
-<img src="images/README/readme_main_5.png" alt="리드미 메인5" width="150" height="300">
+<img src="images/README/20250311_wireframe_0.png" alt="리드미 메인0" width="150" height="300">
+<img src="images/README/20250311_wireframe_1.png" alt="리드미 메인1" width="150" height="300">
+<img src="images/README/20250311_wireframe_2.png" alt="리드미 메인2" width="150" height="300">
+<img src="images/README/20250311_wireframe_3.png" alt="리드미 메인3" width="150" height="300">
+<img src="images/README/20250311_wireframe_4.png" alt="리드미 메인4" width="150" height="300">
+<img src="images/README/20250311_wireframe_5.png" alt="리드미 메인5" width="150" height="300">
+<img src="images/README/20250311_wireframe_6.png" alt="리드미 메인6" width="150" height="300">
+<img src="images/README/20250311_wireframe_7.png" alt="리드미 메인7" width="150" height="300">
+<img src="images/README/20250311_wireframe_8.png" alt="리드미 메인8" width="150" height="300">
+<img src="images/README/20250311_wireframe_9.png" alt="리드미 메인9" width="150" height="300">
+<img src="images/README/20250311_wireframe_10.png" alt="리드미 메인10" width="150" height="300">
 
 ## ✨ 소개
 
-**손미정**은 AI 기술과 실시간 차량 데이터 모니터링을 접목한 차량 진단 서비스입니다.  
-사용자는 별도의 서비스센터 방문 없이도 언제 어디서나 자신의 차량 상태를 정밀하게 진단할 수 있으며,  
-차량의 고장 여부, 소모품 교체 필요성, 최적의 연료 구매 시점 등 다양한 정보를 한눈에 확인할 수 있습니다.  
-또한, 주행 기록 및 사고 이력을 기반으로 자동차 보험 관리까지 지원하여 비용 절감과 편리한 차량 관리를 실현합니다.
+**마리모**는 AI와 실시간 차량 데이터 모니터링을 접목한 차세대 차량 진단 및 관리 솔루션입니다.  
+사용자는 별도의 서비스센터 방문 없이도 언제 어디서나 차량의 상태를 실시간으로 자세하게 진단하고,  
+최적의 연료 구매 시점, 소모품 교체 알림, 소모품 견적 제공 이미지 인식 AI 기반 타이어 마모 분석 등 다양한 정보를 한눈에 확인할 수 있습니다.
+또한, 주행 기록 및 사고 이력을 기반으로 자동차 보험 관리, 음성 알림 및 AI 챗봇 어드바이저 기능까지 지원하며 다방면에서 비용을 절약하고 스마트하게 차량을 관리할 수 있도록 도와줍니다.
 
 ---
 
@@ -109,24 +115,17 @@
 
 <br>
 
-## 🗺️ 향후 기능 및 로드맵
+## 🚀 향후 로드맵
 
--   **확장된 진단 기능**  
-    보다 다양한 차량 부품 및 센서 데이터를 활용한 진단 기능 추가.
+마리모는 지속적인 기능 확장을 통해 더욱 스마트하고 편리한 차량 관리 경험을 제공할 예정입니다:
 
--   **예측 정비 및 예약 서비스**  
-    AI 기반 예측 정비 알림과 연계하여 정비 예약 시스템 도입.
-
--   **사용자 맞춤형 알림 및 대시보드**  
-    개인 차량 사용 패턴에 기반한 맞춤형 정비 알림 및 비용 분석 대시보드 제공.
-
--   **커넥티드 카 및 IoT 연동**  
-    IoT 디바이스와의 연동을 통해 차량 외부 환경과 상태를 통합 모니터링.
-
--   **보험 연계 서비스 강화**  
-    주행 기록과 사고 이력을 더욱 심도 있게 분석하여, 보험사와 협업한 맞춤형 보험 혜택 제공.
+-   **진단 기능 확장**: 더 다양한 센서 데이터 및 차량 부품 진단 기능 추가
+-   **예측 정비 및 예약 시스템**: AI 기반 예측 정비 알림과 연계한 정비 예약 서비스 도입
+-   **사용자 맞춤형 대시보드**: 개인 차량 사용 패턴에 따른 맞춤 알림 및 비용 분석 제공
+-   **IoT 및 커넥티드 카 연동**: 차량 외부 환경 및 상태 통합 모니터링 기능 강화
+-   **보험 연계 서비스 강화**: 주행 기록 및 사고 이력 분석을 통한 보험 혜택 최적화 고도화
 
 ---
 
-> 손미정은 차량 관리의 새로운 패러다임을 제시하며, <br>
-> AI와 최신 기술을 접목해 사용자가 언제 어디서나 차량 상태를 쉽고 편리하게 관리할 수 있도록 돕습니다.
+> **마리모**는 차량 관리의 새로운 패러다임을 제시하며, <br>
+> AI와 최신 기술을 접목해 사용자가 언제 어디서나 차량 상태를 쉽고 스마트하게 관리할 수 있도록 돕습니다.
