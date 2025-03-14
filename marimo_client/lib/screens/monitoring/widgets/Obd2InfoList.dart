@@ -35,10 +35,11 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8.r),
+        border: Border.all(color: const Color(0xFFD7D7D7), width: 0.2),
         boxShadow: [
           BoxShadow(
-            color: const Color(0x1A4888FF),
-            blurRadius: 4.r,
+            color: const Color(0x1A000000),
+            blurRadius: 3.r,
             offset: Offset(0, 2.h),
           ),
         ],

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart'; // 📌 ScreenUtil 추가
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/screens/monitoring/MonitoringScreen.dart';
+import 'package:marimo_client/screens/monitoring/Obd2TestScreen.dart';
+import 'package:marimo_client/screens/monitoring/BluetoothTestScreen.dart';
 
 void main() {
   runApp(
@@ -22,7 +24,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
         fontFamily: 'Freesentation', // 📌 전역 폰트 적용
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        scaffoldBackgroundColor: const Color(0xFFFBFBFB),
       ),
       home: const MainScreen(),
     );
@@ -42,8 +44,8 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     MonitoringScreen(),
     MonitoringScreen(),
-    MonitoringScreen(),
-    MonitoringScreen(),
+    BluetoothTestScreen(),
+    Obd2TestScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -55,23 +57,24 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFFBFBFB),
       appBar: AppBar(
-        title: Text(
-          "App Title",
-          style: TextStyle(fontSize: 16.sp),
-        ), // 📌 폰트 크기 자동 조정
+        title: Text("손미정", style: TextStyle(fontSize: 16.sp)),
+        backgroundColor: const Color(0xFFFBFBFB),
       ),
       body: _screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed, // ✅ 고정 타입으로 설정 (배경색 유지)
+        elevation: 0, // ✅ 그림자 제거
+        backgroundColor: const Color(0xFFFBFBFB), // ✅ 배경색 적용
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        backgroundColor: Colors.grey[900], // 📌 배경색 어둡게
-        selectedItemColor: Colors.white, // 📌 선택된 아이템 색상 밝게
-        unselectedItemColor: Colors.grey[400], // 📌 선택되지 않은 아이콘 색상 회색
-        showUnselectedLabels: true, // 📌 선택 안 된 아이템도 텍스트 보이게 설정
+        selectedItemColor: const Color(0xFF4888FF), // ✅ 선택된 아이콘 색상
+        unselectedItemColor: Colors.grey[400], // ✅ 선택되지 않은 아이콘 색상
+        showUnselectedLabels: true,
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home, size: 24.sp), // 📌 아이콘 크기 조정
+            icon: Icon(Icons.home, size: 24.sp),
             label: "홈",
           ),
           BottomNavigationBarItem(
@@ -87,10 +90,8 @@ class _MainScreenState extends State<MainScreen> {
             label: "프로필",
           ),
         ],
-        selectedLabelStyle: TextStyle(fontSize: 16.sp), // 📌 선택된 텍스트 크기 조정
-        unselectedLabelStyle: TextStyle(
-          fontSize: 14.sp,
-        ), // 📌 선택되지 않은 텍스트 크기 조정
+        selectedLabelStyle: TextStyle(fontSize: 16.sp),
+        unselectedLabelStyle: TextStyle(fontSize: 14.sp),
       ),
     );
   }
