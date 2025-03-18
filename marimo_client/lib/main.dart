@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/screens/monitoring/MonitoringScreen.dart';
-import 'package:marimo_client/screens/monitoring/Obd2TestScreen.dart';
 import 'package:marimo_client/screens/monitoring/BluetoothTestScreen.dart';
+import 'package:marimo_client/screens/signin/SignInScreen.dart';
 
 void main() {
   runApp(
@@ -45,7 +45,7 @@ class _MainScreenState extends State<MainScreen> {
     MonitoringScreen(),
     MonitoringScreen(),
     BluetoothTestScreen(),
-    Obd2TestScreen(),
+    SignInScreen(),
   ];
 
   void _onItemTapped(int index) {
