@@ -1,4 +1,4 @@
-# 1단계 Java 21 기반 빌드 환경
+# 1. Java 21 기반 빌드 환경
 FROM eclipse-temurin:21.0.6_7-jdk AS build
 
 # 기본 패키지 설치
@@ -20,7 +20,7 @@ RUN ./gradlew dependencies --no-daemon
 COPY src src
 RUN ./gradlew clean build -x test --no-daemon
 
-# 2단계 실행 환경 (최소한의 Java 런타임만 포함)
+# 2. 실행 환경 (최소한의 Java 런타임만 포함)
 FROM eclipse-temurin:21.0.6_7-jdk
 
 WORKDIR /app
