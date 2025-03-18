@@ -48,7 +48,9 @@ flutter:
           weight: 900
 
   assets:
-    - assets/images/icons/
+    - assets/images/
+    - assets/images/cars/
+    - assets/images/logo/
     - assets/models/uber_car.obj
     - assets/models/uber_car.mtl
     - assets/models/uberBlack.dae.glb
