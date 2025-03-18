@@ -70,6 +70,7 @@ flutter:
     - assets/images/
     - assets/images/cars/
     - assets/images/logo/
+    - assets/images/icons/
     - assets/models/uber_car.obj
     - assets/models/uber_car.mtl
     - assets/models/uberBlack.dae.glb
