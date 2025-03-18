@@ -1,9 +1,9 @@
-server:
+spring:
   config:
     activate:
       on-profile: local
+    import: optional:file:dev.env[.properties]
 
-spring:
   datasource:
     driver-class-name: ${DB_DRIVER_CLASS_NAME}
     url: ${DB_URL}
