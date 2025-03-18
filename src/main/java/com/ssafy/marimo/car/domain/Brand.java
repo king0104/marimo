@@ -10,11 +10,13 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Filter;
 
 @Getter
 @Entity
 @Table(name = "brand")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Filter(name = "deletedFilter", condition = "deleted = :isDeleted")
 public class Brand extends BaseTimeEntity {
 
     @Id

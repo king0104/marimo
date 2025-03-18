@@ -16,11 +16,13 @@ import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Filter;
 
 @Getter
 @Entity
 @Table(name = "insurance")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Filter(name = "deletedFilter", condition = "deleted = :isDeleted")
 public class Insurance extends BaseTimeEntity {
 
     @Id

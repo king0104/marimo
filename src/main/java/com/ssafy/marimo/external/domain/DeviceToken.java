@@ -14,11 +14,13 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Filter;
 
 @Getter
 @Entity
 @Table(name = "device_token")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Filter(name = "deletedFilter", condition = "deleted = :isDeleted")
 public class DeviceToken extends BaseTimeEntity {
 
     @Id

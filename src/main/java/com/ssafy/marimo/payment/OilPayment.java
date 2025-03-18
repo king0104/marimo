@@ -10,12 +10,14 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Filter;
 
 @Getter
 @Entity
 @Table(name = "oil_payment")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DiscriminatorValue("OIL")
+@Filter(name = "deletedFilter", condition = "deleted = :isDeleted")
 public class OilPayment extends Payment {
 
     @Enumerated(EnumType.STRING)

@@ -25,7 +25,6 @@ import org.hibernate.annotations.Where;
 @Table(name = "obd2_dtc")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE obd2_dtc SET deleted = true, deleted_at = NOW() WHERE id = ?")
-@FilterDef(name = "deletedFilter", parameters = @ParamDef(name = "isDeleted", type = Boolean.class))
 @Filter(name = "deletedFilter", condition = "deleted = :isDeleted")
 public class Obd2Dtc {
 
@@ -39,7 +38,7 @@ public class Obd2Dtc {
     private Obd2 obd2;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "obd2_id", nullable = false)
+    @JoinColumn(name = "dtc_id", nullable = false)
     private Dtc dtc;
 
 

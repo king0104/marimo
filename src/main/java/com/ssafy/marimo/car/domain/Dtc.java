@@ -22,7 +22,6 @@ import org.hibernate.annotations.SQLDelete;
 @Table(name = "dtc")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE dtc SET deleted = true, deleted_at = NOW() WHERE id = ?")
-@FilterDef(name = "deletedFilter", parameters = @ParamDef(name = "isDeleted", type = Boolean.class))
 @Filter(name = "deletedFilter", condition = "deleted = :isDeleted")
 public class Dtc extends BaseTimeEntity {
 
