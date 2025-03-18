@@ -57,11 +57,20 @@ flutter:
           weight: 800
         - asset: assets/fonts/Freesentation-9Black.ttf
           weight: 900
+    - family: Esamanru
+      fonts:
+        - asset: assets/fonts/esamanru_light.ttf
+          weight: 300
+        - asset: assets/fonts/esamanru_medium.ttf
+          weight: 500
+        - asset: assets/fonts/esamanru_bold.ttf
+          weight: 700
 
   assets:
     - assets/images/
     - assets/images/cars/
     - assets/images/logo/
+    - assets/images/icons/
     - assets/models/uber_car.obj
     - assets/models/uber_car.mtl
     - assets/models/uberBlack.dae.glb
