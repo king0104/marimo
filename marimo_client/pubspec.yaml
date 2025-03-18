@@ -9,6 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  image_picker: ^1.0.7
   cupertino_icons: ^1.0.8
   flutter_svg: ^2.0.17
   flutter_screenutil: ^5.9.3
@@ -71,6 +72,7 @@ flutter:
     - assets/images/cars/
     - assets/images/logo/
     - assets/images/icons/
+    - assets/images/tires/
     - assets/models/uber_car.obj
     - assets/models/uber_car.mtl
     - assets/models/uberBlack.dae.glb
