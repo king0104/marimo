@@ -1,7 +1,6 @@
 // InstructionItemList.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'InstructionItem.dart';
 
 class InstructionItemList extends StatelessWidget {
@@ -10,15 +9,15 @@ class InstructionItemList extends StatelessWidget {
   // 타이어 아이템 리스트 정의
   static final List<InstructionItem> instructionItems = [
     InstructionItem(
-      imagePath: 'assets/images/icons/icon_back.svg',
+      imagePath: 'assets/images/tires/tire_right.png',
       isGood: true,
     ),
     InstructionItem(
-      imagePath: 'assets/images/tires/tire_wrong_1.svg',
+      imagePath: 'assets/images/tires/tire_wrong_1.png', // .svg에서 .png로 변경
       isGood: false,
     ),
     InstructionItem(
-      imagePath: 'assets/images/tires/tire_wrong_2.svg',
+      imagePath: 'assets/images/tires/tire_wrong_2.png', // .svg에서 .png로 변경
       isGood: false,
     ),
   ];

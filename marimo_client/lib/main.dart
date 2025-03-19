@@ -47,6 +47,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     HomeScreen(),
     MonitoringScreen(),
+    MonitoringScreen(),
     BluetoothTestScreen(),
     SignInScreen(),
   ];
