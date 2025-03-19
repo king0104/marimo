@@ -48,12 +48,12 @@ public class Notification extends BaseTimeEntity {
     private String message;
 
     @Column(nullable = false)
-    private String related_url;
+    private String relatedUrl;
 
     @Column(nullable = false)
-    private Boolean read;
+    private Boolean readStatus;
 
     @Column(nullable = false)
-    private Integer related_id;
+    private Integer relatedId;
 
 }
