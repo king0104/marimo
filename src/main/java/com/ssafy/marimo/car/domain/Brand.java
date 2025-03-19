@@ -28,6 +28,6 @@ public class Brand extends BaseTimeEntity {
     private String name;
 
     @Column(nullable = true)
-    private String part_shop_url;
+    private String partShopUrl;
 
 }

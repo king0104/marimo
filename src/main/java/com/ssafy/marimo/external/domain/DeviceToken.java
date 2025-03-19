@@ -33,6 +33,6 @@ public class DeviceToken extends BaseTimeEntity {
     private Member member;
 
     @Column(nullable = false)
-    private String device_token;
+    private String deviceToken;
 
 }
