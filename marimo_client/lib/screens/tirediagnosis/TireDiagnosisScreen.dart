@@ -1,4 +1,3 @@
-// TireDiagnosisScreen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
@@ -56,23 +55,29 @@ class _TireDiagnosisScreenState extends State<TireDiagnosisScreen> {
               ),
               SizedBox(height: 16.h),
               
-              // 타이어 진단 카드
-              TireDiagnosisCard(
-                selectedImages: _selectedImages,
-                onAddImage: addImage,
-                onRemoveImage: removeImage,
-                onAnalysisPressed: () {
-                  // 타이어 분석 로직 구현
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('타이어 분석 시작')),
-                  );
-                },
+              // 타이어 진단 카드 - 가로로 전체 화면 채우기
+              SizedBox(
+                width: MediaQuery.of(context).size.width - 40, // 좌우 패딩 각 20을 제외한 전체 너비
+                child: TireDiagnosisCard(
+                  selectedImages: _selectedImages,
+                  onAddImage: addImage,
+                  onRemoveImage: removeImage,
+                  onAnalysisPressed: () {
+                    // 타이어 분석 로직 구현
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('타이어 분석 시작')),
+                    );
+                  },
+                ),
               ),
               
               SizedBox(height: 33.h),
               
-              // 유의사항 섹션
-              const Instruction(),
+              // 유의사항 섹션 - 가로로 전체 화면 채우기
+              SizedBox(
+                width: MediaQuery.of(context).size.width - 40, // 좌우 패딩 각 20을 제외한 전체 너비
+                child: const Instruction(),
+              ),
             ],
           ),
         ),
