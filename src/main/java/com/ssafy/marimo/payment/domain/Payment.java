@@ -1,4 +1,4 @@
-package com.ssafy.marimo.payment;
+package com.ssafy.marimo.payment.domain;
 
 import com.ssafy.marimo.car.domain.Car;
 import com.ssafy.marimo.common.auditing.BaseTimeEntity;
@@ -17,6 +17,7 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Filter;
 
 @Getter
@@ -26,6 +27,7 @@ import org.hibernate.annotations.Filter;
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "payment_type")
 @Filter(name = "deletedFilter", condition = "deleted = :isDeleted")
+@SuperBuilder
 public abstract class Payment extends BaseTimeEntity {
 
     @Id

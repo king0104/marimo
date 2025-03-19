@@ -1,5 +1,6 @@
-package com.ssafy.marimo.payment;
+package com.ssafy.marimo.payment.domain;
 
+import com.ssafy.marimo.car.domain.Car;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -7,6 +8,7 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Filter;
 
 @Getter
@@ -15,8 +17,19 @@ import org.hibernate.annotations.Filter;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DiscriminatorValue("REPAIR")
 @Filter(name = "deletedFilter", condition = "deleted = :isDeleted")
+@SuperBuilder
 public class RepairPayment extends Payment {
 
     @Column(nullable = true, length = 50)
     private String repairPart;
+
+    public static RepairPayment of(Car car, Integer price, String location, String memo, String repairPart) {
+        return RepairPayment.builder()
+                .car(car)
+                .price(price)
+                .location(location)
+                .memo(memo)
+                .repairPart(repairPart)
+                .build();
+    }
 }
