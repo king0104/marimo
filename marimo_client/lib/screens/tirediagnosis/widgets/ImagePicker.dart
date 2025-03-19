@@ -1,7 +1,9 @@
+// ImagePicker.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
+import 'TireCameraPage.dart';
 
 class TireImagePicker extends StatelessWidget {
   final List<XFile> selectedImages;
@@ -20,17 +22,33 @@ class TireImagePicker extends StatelessWidget {
     this.buttonSize = 35, // 기본값 설정
   }) : super(key: key);
 
-  Future<void> _pickImage(BuildContext context, ImageSource source) async {
-    // 최대 1장만 허용
-    final ImagePicker picker = ImagePicker();
-    final XFile? pickedImage = await picker.pickImage(source: source);
-    
-    if (pickedImage != null) {
-      // 기존 이미지가 있으면 제거하고 새 이미지 추가
-      if (selectedImages.isNotEmpty) {
-        onRemoveImage(0);
+    Future<void> _pickImage(BuildContext context, ImageSource source) async {
+    if (source == ImageSource.camera) {
+      // 카메라로 촬영 선택 시 TireCameraPage로 이동
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => TireCameraPage(
+            onImageCaptured: (XFile image) {
+              // 기존 이미지가 있으면 제거하고 새 이미지 추가
+              if (selectedImages.isNotEmpty) {
+                onRemoveImage(0);
+              }
+              onAddImage(image);
+            },
+          ),
+        ),
+      );
+    } else {
+      // 갤러리에서 선택하는 경우 기존 코드 유지
+      final ImagePicker picker = ImagePicker();
+      final XFile? pickedImage = await picker.pickImage(source: source);
+      
+      if (pickedImage != null) {
+        if (selectedImages.isNotEmpty) {
+          onRemoveImage(0);
+        }
+        onAddImage(pickedImage);
       }
-      onAddImage(pickedImage);
     }
   }
   
@@ -94,17 +112,14 @@ class TireImagePicker extends StatelessWidget {
   }
 
   Widget _buildImageView(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _showPickerOptions(context),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(8.r),
-        child: Image.file(
-          File(selectedImages[0].path),
-          fit: BoxFit.cover,
-        ),
-      ),
-    );
-  }
+  return GestureDetector(
+    onTap: () => _showPickerOptions(context),
+    child: Image.file(
+      File(selectedImages[0].path),
+      fit: BoxFit.cover,
+    ),
+  );
+}
 }
 
 // 커스텀 '+' 아이콘 - 선 굵기를 조절할 수 있음

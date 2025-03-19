@@ -59,7 +59,7 @@ class TireDiagnosisCard extends StatelessWidget {
           children: [
             Center(
               child: Text(
-                '타이어 사진을 1장 등록해주세요.',
+                '타이어 사진을 1장 등록해 주세요.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14.sp,
