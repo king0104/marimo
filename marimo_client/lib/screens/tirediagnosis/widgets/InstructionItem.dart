@@ -32,11 +32,7 @@ class InstructionItemWidget extends StatelessWidget {
             width: 64.w,
             height: 64.h,
             color: Colors.grey.withOpacity(0.1),
-            child: SvgPicture.asset(
-              item.imagePath,
-              fit: BoxFit.contain,
-              placeholderBuilder: (context) => const CircularProgressIndicator(), // 로딩 상태 표시
-            ),
+            child: _buildImage(item.imagePath),
           ),
         ),
         SizedBox(height: 5.h),
@@ -55,6 +51,25 @@ class InstructionItemWidget extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+  
+  // 이미지 확장자에 따라 적절한 위젯 반환
+  Widget _buildImage(String path) {
+  if (path.toLowerCase().endsWith('.svg')) {
+    return SvgPicture.asset(
+      path,
+      width: 64.w,
+      height: 64.h,
+      fit: BoxFit.fill, 
+    );
+  } else {
+    return Image.asset(
+      path,
+      width: 64.w,
+      height: 64.h,
+      fit: BoxFit.fill, 
     );
   }
 }
