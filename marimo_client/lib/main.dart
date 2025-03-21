@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/screens/monitoring/MonitoringScreen.dart';
-import 'package:marimo_client/screens/monitoring/Obd2TestScreen.dart';
 import 'package:marimo_client/screens/monitoring/BluetoothTestScreen.dart';
+import 'package:marimo_client/screens/signin/SignInScreen.dart';
 import 'package:marimo_client/screens/home/HomeScreen.dart';
 import 'commons/AppBar.dart';
 import 'commons/BottomNavigationBar.dart';
@@ -60,7 +60,7 @@ class _MainScreenState extends State<MainScreen> {
     MonitoringScreen(),
     MonitoringScreen(),
     BluetoothTestScreen(),
-    Obd2TestScreen(),
+    SignInScreen(),
   ];
 
   void _onItemTapped(int index) {
