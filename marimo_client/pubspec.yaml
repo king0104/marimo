@@ -9,6 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  image_picker: ^1.0.7
   cupertino_icons: ^1.0.8
   flutter_svg: ^2.0.17
   flutter_screenutil: ^5.9.3
@@ -18,6 +19,7 @@ dependencies:
   flutter_blue_plus: ^1.35.3
   permission_handler: ^11.4.0
   flutter_native_splash: ^2.4.5
+  camera: ^0.11.1
 
 dev_dependencies:
   flutter_test:
@@ -70,7 +72,11 @@ flutter:
     - assets/images/
     - assets/images/cars/
     - assets/images/logo/
+    - assets/images/icons/connect.png
+    - assets/images/icons/icon_tire.svg
+    - assets/images/icons/icon_tire.webp
     - assets/images/icons/
+    - assets/images/tires/
     - assets/models/uber_car.obj
     - assets/models/uber_car.mtl
     - assets/models/uberBlack.dae.glb

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -8,13 +9,18 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: Colors.transparent,
+      systemOverlayStyle: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarBrightness: Brightness.dark,
+        statusBarIconBrightness: Brightness.dark,
+      ),
       elevation: 0,
       leading: Padding(
-        padding: EdgeInsets.all(12.w),
+        padding: EdgeInsets.only(left: 24.w),
         child: Image.asset(
           'assets/images/logo/marimo_logo.png',
-          width: 24.w,
-          height: 24.w,
+          width: 60.w,
+          height: 60.w,
         ),
       ),
       actions: [
@@ -23,7 +29,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
           onPressed: () {},
         ),
         IconButton(
-          icon: Icon(Icons.notifications_outlined, size: 24.w),
+          icon: Icon(Icons.notifications, size: 24.w),
           onPressed: () {},
         ),
         SizedBox(width: 8.w),
@@ -32,5 +38,5 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(56.h);
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
