@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:marimo_client/screens/signin/RegisterCarScreen.dart';
 import 'package:marimo_client/screens/signin/widgets/SignUpInput.dart'; // 공통 입력 필드 import
-import 'package:marimo_client/screens/signin/widgets/SignUpInputWithButton.dart'; // 버튼 포함 입력 필드 import
+import 'package:marimo_client/screens/signin/widgets/SignUpInputWithButton.dart';
+import 'package:marimo_client/screens/signin/widgets/CustomTitleText.dart'; // 버튼 포함 입력 필드 import
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -39,25 +41,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const SizedBox(height: 32),
-                          const Text.rich(
-                            TextSpan(
-                              text: "안녕하세요!\n먼저 ",
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF19181D),
-                              ),
-                              children: [
-                                TextSpan(
-                                  text: "내 정보",
-                                  style: TextStyle(color: Color(0xFF4888FF)),
-                                ),
-                                TextSpan(
-                                  text: "를 등록해주세요",
-                                  style: TextStyle(color: Color(0xFF19181D)),
-                                ),
-                              ],
-                            ),
+                          CustomTitleText(
+                            text: "안녕하세요!\n먼저 내 정보를 등록해주세요",
+                            highlight: "내 정보",
                           ),
                           const SizedBox(height: 32),
                           SignUpInput(
@@ -115,7 +101,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             height: 50,
                             child: ElevatedButton(
                               onPressed: () {
-                                // TODO: 저장 버튼 기능 추가
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => const RegisterCarScreen(),
+                                  ),
+                                );
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Color(0xFF4888FF),
