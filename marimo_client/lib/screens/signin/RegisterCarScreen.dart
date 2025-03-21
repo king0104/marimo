@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:marimo_client/screens/signin/widgets/CustomTitleText.dart';
+import 'package:marimo_client/screens/signin/CarRegistrationStepperScreen.dart';
 
 class RegisterCarScreen extends StatefulWidget {
   const RegisterCarScreen({super.key});
@@ -37,6 +38,7 @@ class _RegisterCarScreenState extends State<RegisterCarScreen> {
                           ),
                           const SizedBox(height: 120),
 
+                          // 🚗 버튼 (차량 여부 선택)
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -45,7 +47,14 @@ class _RegisterCarScreenState extends State<RegisterCarScreen> {
                                   height: 50,
                                   child: ElevatedButton(
                                     onPressed: () {
-                                      // TODO: 차 등록 화면 이동
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) =>
+                                                  CarRegistrationStepperScreen(),
+                                        ),
+                                      );
                                     },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xFF4888FF),
@@ -64,13 +73,13 @@ class _RegisterCarScreenState extends State<RegisterCarScreen> {
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 12), // 버튼 사이 간격
+                              const SizedBox(width: 12),
                               Expanded(
                                 child: SizedBox(
                                   height: 50,
                                   child: ElevatedButton(
                                     onPressed: () {
-                                      // TODO: 다음 화면 이동
+                                      // TODO: "차 없어요" 클릭 시 다른 화면 이동 처리
                                     },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xFF4888FF),

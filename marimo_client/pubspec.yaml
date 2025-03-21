@@ -77,3 +77,6 @@ flutter:
     - assets/models/generic_sedan.glb
     - assets/models/uberXL.glb
     - assets/images/logo-splash.png
+    - assets/images/logo/logo_hyundai.png
+    - assets/images/logo/logo_kia.png
+    - assets/images/logo/logo_kgm.png
