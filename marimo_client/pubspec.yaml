@@ -72,6 +72,9 @@ flutter:
     - assets/images/
     - assets/images/cars/
     - assets/images/logo/
+    - assets/images/icons/connect.png
+    - assets/images/icons/icon_tire.svg
+    - assets/images/icons/icon_tire.webp
     - assets/images/icons/
     - assets/images/tires/
     - assets/models/uber_car.obj

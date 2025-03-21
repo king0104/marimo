@@ -21,13 +21,14 @@ class CarProfileCard extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           _buildProfileItem('모델명', '현대 팰리세이드'),
-          SizedBox(height: 8.h),
+          SizedBox(height: 12.h),
           _buildProfileItem('차대번호', 'KNAGM4AD3CS034567'),
-          SizedBox(height: 8.h),
+          SizedBox(height: 12.h),
           _buildProfileItem('연료 타입', '가솔린'),
-          SizedBox(height: 8.h),
+          SizedBox(height: 12.h),
           _buildProfileItem('마지막 점검', '차계부 내역 없음'),
         ],
       ),
@@ -35,22 +36,14 @@ class CarProfileCard extends StatelessWidget {
   }
 
   Widget _buildProfileItem(String label, String value) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14.sp,
-            color: Colors.grey[600],
-          ),
-        ),
-        SizedBox(width: 12.w),
+        Text(label, style: TextStyle(fontSize: 12.sp, color: Colors.grey[600])),
+        SizedBox(height: 4.h),
         Text(
           value,
-          style: TextStyle(
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w500,
-          ),
+          style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500),
         ),
       ],
     );

@@ -12,28 +12,43 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: Column(
+      child: Stack(
         children: [
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.w),
+            padding: EdgeInsets.only(left: 20.w, top: 12.h, right: 20.w), // ✅ 기존 패딩 유지
             child: Column(
               children: [
-                SizedBox(height: 12.h),
-                const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Row(
                   children: [
-                    WeatherWidget(),
-                    NotificationBadges(),
+                    const WeatherWidget(),
+                    const Spacer(), // ✅ 중간 띄우기 (알림 제외)
                   ],
                 ),
-                SizedBox(height: 20.h),
-                const CarImageWidget(),
-                SizedBox(height: 20.h),
-                const CarProfileCard(),
+                SizedBox(height: 40.h),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Container(
+                        height: 280.h,
+                        child: const CarImageWidget(), // ✅ BoxFit.cover 사용한 이미지 제외
+                      ),
+                    ),
+                    Expanded(flex: 2, child: const CarProfileCard()),
+                  ],
+                ),
                 SizedBox(height: 20.h),
                 const CarStatusWidget(),
               ],
             ),
+          ),
+
+          // ✅ NotificationBadges만 패딩을 무시하고 오른쪽 끝으로 배치
+          Positioned(
+            top: 12.h, // 기존 상단 패딩과 맞추기
+            right: 0, // 오른쪽 끝에 배치 (부모 패딩 무시)
+            child: NotificationBadges(),
           ),
         ],
       ),
