@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:marimo_client/screens/signin/widgets/car/CarBrandSelector.dart';
+import 'package:marimo_client/screens/signin/widgets/car/BrandSelector.dart';
 import 'package:marimo_client/screens/signin/widgets/CustomTitleText.dart';
 
 class CarBrandScreen extends StatelessWidget {
@@ -22,8 +22,8 @@ class CarBrandScreen extends StatelessWidget {
             SizedBox(height: 60),
             CustomTitleText(text: "제조사를 선택해주세요.", highlight: "제조사"),
             const SizedBox(height: 22),
-            CarBrandSelector(
-              manufacturers: manufacturers,
+            BrandSelector(
+              brands: manufacturers,
               onSelected: (selected) {
                 print("선택된 제조사: $selected");
               },
