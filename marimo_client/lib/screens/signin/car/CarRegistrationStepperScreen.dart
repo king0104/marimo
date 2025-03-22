@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:marimo_client/screens/signin/CarBrandScreen.dart';
-import 'package:marimo_client/screens/signin/CarNumberScreen.dart';
-import 'package:marimo_client/screens/signin/CarVinScreen.dart';
-import 'package:marimo_client/screens/signin/CarModelScreen.dart';
-import 'package:marimo_client/screens/signin/widgets/CarConfirmationSheet.dart';
+import 'package:marimo_client/screens/signin/car/CarBrandScreen.dart';
+import 'package:marimo_client/screens/signin/car/CarNumberScreen.dart';
+import 'package:marimo_client/screens/signin/car/CarVinScreen.dart';
+import 'package:marimo_client/screens/signin/car/CarModelScreen.dart';
+import 'package:marimo_client/screens/signin/widgets/car/CarConfirmationSheet.dart';
 
 class CarRegistrationStepperScreen extends StatefulWidget {
   @override

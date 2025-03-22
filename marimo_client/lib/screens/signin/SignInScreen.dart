@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:marimo_client/screens/signin/widgets/LoginButton.dart';
-import 'package:marimo_client/screens/signin/widgets/LoginHero.dart';
-import 'package:marimo_client/screens/signin/widgets/LoginInput.dart';
-import 'package:marimo_client/screens/signin/widgets/LoginLinkRow.dart';
-import 'package:marimo_client/screens/signin/widgets/LoginSlogan.dart';
-import 'package:marimo_client/screens/signin/widgets/OauthButtons.dart';
+import 'package:marimo_client/screens/signin/widgets/sign_in/LoginButton.dart';
+import 'package:marimo_client/screens/signin/widgets/sign_in/LoginHero.dart';
+import 'package:marimo_client/screens/signin/widgets/sign_in/LoginInput.dart';
+import 'package:marimo_client/screens/signin/widgets/sign_in/LoginLinkRow.dart';
+import 'package:marimo_client/screens/signin/widgets/sign_in/LoginSlogan.dart';
+import 'package:marimo_client/screens/signin/widgets/sign_in/OauthButtons.dart';
 
 class SignInScreen extends StatelessWidget {
   const SignInScreen({super.key});

@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:marimo_client/screens/signin/widgets/CarInput.dart';
+import 'package:marimo_client/screens/signin/widgets/car/CarInput.dart';
 import 'package:marimo_client/screens/signin/widgets/CustomTitleText.dart';
 
-class CarModelScreen extends StatefulWidget {
-  const CarModelScreen({super.key});
+class CarVinScreen extends StatefulWidget {
+  const CarVinScreen({super.key});
 
   @override
-  _CarModelScreenState createState() => _CarModelScreenState();
+  _CarVinScreenState createState() => _CarVinScreenState();
 }
 
-class _CarModelScreenState extends State<CarModelScreen> {
+class _CarVinScreenState extends State<CarVinScreen> {
   final TextEditingController carNumberController = TextEditingController();
 
   @override
@@ -21,7 +21,7 @@ class _CarModelScreenState extends State<CarModelScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 60),
-            CustomTitleText(text: "모델을 선택해주세요.", highlight: "모델"),
+            CustomTitleText(text: "차대 번호를 입력해주세요.", highlight: "차대 번호"),
             SizedBox(height: 20),
             CarInput(controller: carNumberController),
           ],
