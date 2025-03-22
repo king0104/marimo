@@ -20,8 +20,8 @@ class _CarBrandSelectorState extends State<CarBrandSelector> {
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      spacing: 12,
-      runSpacing: 12,
+      spacing: 20,
+      runSpacing: 20,
       children:
           widget.manufacturers.map((manufacturer) {
             bool isSelected = selectedManufacturer == manufacturer["name"];
