@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:marimo_client/screens/signin/car/CarAdditionalInfoScreen.dart';
 import 'package:marimo_client/screens/signin/car/CarBrandScreen.dart';
+import 'package:marimo_client/screens/signin/car/CarLastInspectionScreen.dart';
 import 'package:marimo_client/screens/signin/car/CarNumberScreen.dart';
 import 'package:marimo_client/screens/signin/car/CarVinScreen.dart';
 import 'package:marimo_client/screens/signin/car/CarModelScreen.dart';
+import 'package:marimo_client/screens/signin/car/CardBrandScreen.dart';
+import 'package:marimo_client/screens/signin/car/CardSelectScreen.dart';
 import 'package:marimo_client/screens/signin/widgets/car/CarConfirmationSheet.dart';
+import 'package:marimo_client/theme.dart';
 
 class CarRegistrationStepperScreen extends StatefulWidget {
   @override
@@ -22,6 +27,10 @@ class _CarRegistrationStepperScreenState
     const CarVinScreen(), // 2단계: 차대 번호 입력
     const CarBrandScreen(), // 3단계: 제조사 선택
     const CarModelScreen(), // 4단계: 자동차 모델 선택
+    const CarAdditionalInfoScreen(), // 5단계: 추가 정보 입력
+    const CarLastInspectionScreen(), // 6단계: 마지막 차량 점검일 선택
+    const CardBrandScreen(), // 7단계: 카드사 선택
+    const CardSelectScreen(), // 8단계: 주유 카드 선택
   ];
 
   // 🔹 바텀 팝업 표시
@@ -29,7 +38,7 @@ class _CarRegistrationStepperScreenState
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
-      barrierColor: const Color(0xFF19181D).withOpacity(0.5),
+      barrierColor: backgroundBlackColor.withAlpha(51),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),

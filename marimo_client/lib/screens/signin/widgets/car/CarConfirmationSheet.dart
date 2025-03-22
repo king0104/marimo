@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:marimo_client/theme.dart';
 
 class CarConfirmationSheet extends StatelessWidget {
   final String carNumber;
@@ -31,7 +32,7 @@ class CarConfirmationSheet extends StatelessWidget {
             "김두철님 명의 차량인가요?",
             style: TextStyle(
               fontSize: 20,
-              color: Color(0xFF19181D),
+              color: backgroundBlackColor,
               fontWeight: FontWeight.w500,
             ),
           ),

@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:marimo_client/theme.dart'; // ✅ brandColor 등 불러오기
 
-class CarBrandSelector extends StatefulWidget {
-  final List<Map<String, String?>> manufacturers;
+class BrandSelector extends StatefulWidget {
+  final List<Map<String, String?>> brands;
   final Function(String) onSelected;
 
-  const CarBrandSelector({
+  const BrandSelector({
     super.key,
-    required this.manufacturers,
+    required this.brands,
     required this.onSelected,
   });
 
   @override
-  State<CarBrandSelector> createState() => _CarBrandSelectorState();
+  State<BrandSelector> createState() => _BrandSelectorState();
 }
 
-class _CarBrandSelectorState extends State<CarBrandSelector> {
+class _BrandSelectorState extends State<BrandSelector> {
   String? selectedManufacturer;
 
   @override
@@ -24,7 +24,7 @@ class _CarBrandSelectorState extends State<CarBrandSelector> {
       spacing: 20,
       runSpacing: 20,
       children:
-          widget.manufacturers.map((manufacturer) {
+          widget.brands.map((manufacturer) {
             bool isSelected = selectedManufacturer == manufacturer["name"];
 
             return GestureDetector(
@@ -35,24 +35,35 @@ class _CarBrandSelectorState extends State<CarBrandSelector> {
                 widget.onSelected(selectedManufacturer!);
               },
               child: Container(
-                width: 80,
-                height: 80,
+                width: 65,
+                height: 65,
+                clipBehavior: Clip.hardEdge,
                 decoration: BoxDecoration(
                   color: white,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: isSelected ? brandColor : iconColor,
-                    width: isSelected ? 2 : 0.5,
+                    color: isSelected ? Colors.transparent : iconColor,
+                    width: 0.5,
                   ),
+                  boxShadow:
+                      isSelected
+                          ? [
+                            BoxShadow(
+                              color: brandColor, // ✅ 강조 색상
+                              spreadRadius: 1.5, // ✅ 테두리 두께 느낌
+                              blurRadius: 0, // ✅ 흐림 없이 딱 떨어지게
+                            ),
+                          ]
+                          : [],
                 ),
                 child: Center(
                   child:
                       manufacturer["logo"] != null
                           ? Image.asset(
                             manufacturer["logo"]!,
-                            width: 60,
-                            height: 60,
-                            color: isSelected ? null : iconColor,
+                            width: 65,
+                            height: 65,
+                            fit: BoxFit.contain,
                           )
                           : const Icon(Icons.add, color: iconColor, size: 30),
                 ),

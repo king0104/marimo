@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:marimo_client/theme.dart';
 
 class CustomTitleText extends StatelessWidget {
   final String text;
@@ -12,10 +13,10 @@ class CustomTitleText extends StatelessWidget {
     super.key,
     required this.text,
     required this.highlight,
-    this.highlightColor = const Color(0xFF4888FF),
+    this.highlightColor = brandColor,
     this.fontSize = 20,
     this.fontWeight = FontWeight.w700,
-    this.textColor = const Color(0xFF19181D),
+    this.textColor = backgroundBlackColor,
   });
 
   @override
