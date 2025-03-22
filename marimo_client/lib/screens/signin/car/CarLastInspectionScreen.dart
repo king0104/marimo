@@ -49,6 +49,7 @@ class _CarLastInspectionScreenState extends State<CarLastInspectionScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   TableCalendar(
+                    rowHeight: 44,
                     firstDay: DateTime.utc(2000, 1, 1),
                     lastDay: DateTime.utc(2100, 12, 31),
                     focusedDay: selectedDate,
@@ -83,6 +84,10 @@ class _CarLastInspectionScreenState extends State<CarLastInspectionScreen> {
                         shape: BoxShape.circle,
                         border: Border.all(color: brandColor),
                       ),
+                      todayTextStyle: const TextStyle(
+                        color: black, // ✅ 오늘 날짜도 잘 보이게
+                        fontWeight: FontWeight.w500,
+                      ),
                       selectedDecoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: brandColor,
@@ -94,6 +99,7 @@ class _CarLastInspectionScreenState extends State<CarLastInspectionScreen> {
                       defaultTextStyle: const TextStyle(color: black),
                       weekendTextStyle: const TextStyle(color: black),
                     ),
+                    daysOfWeekHeight: 44,
                     daysOfWeekStyle: const DaysOfWeekStyle(
                       weekdayStyle: TextStyle(color: Colors.black54),
                       weekendStyle: TextStyle(color: Colors.black54),
