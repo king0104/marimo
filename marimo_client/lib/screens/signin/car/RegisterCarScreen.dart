@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:marimo_client/screens/signin/widgets/CustomTitleText.dart';
-import 'package:marimo_client/screens/signin/CarRegistrationStepperScreen.dart';
+import 'package:marimo_client/screens/signin/car/CarRegistrationStepperScreen.dart';
 
 class RegisterCarScreen extends StatefulWidget {
   const RegisterCarScreen({super.key});

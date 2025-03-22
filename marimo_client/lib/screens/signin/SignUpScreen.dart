@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:marimo_client/screens/signin/RegisterCarScreen.dart';
-import 'package:marimo_client/screens/signin/widgets/SignUpInput.dart'; // 공통 입력 필드 import
-import 'package:marimo_client/screens/signin/widgets/SignUpInputWithButton.dart';
+import 'package:marimo_client/screens/signin/car/RegisterCarScreen.dart';
+import 'package:marimo_client/screens/signin/widgets/sign_up/SignUpInput.dart'; // 공통 입력 필드 import
+import 'package:marimo_client/screens/signin/widgets/sign_up/SignUpInputWithButton.dart';
 import 'package:marimo_client/screens/signin/widgets/CustomTitleText.dart'; // 버튼 포함 입력 필드 import
 
 class SignUpScreen extends StatefulWidget {
