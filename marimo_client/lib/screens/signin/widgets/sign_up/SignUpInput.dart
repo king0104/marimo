@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:marimo_client/theme.dart';
 
 class SignUpInput extends StatelessWidget {
   final String label;
@@ -25,7 +26,7 @@ class SignUpInput extends StatelessWidget {
             fontSize: 16,
             fontWeight: FontWeight.w300,
             height: 1.2,
-            color: Color(0xFF7E7E7E),
+            color: iconColor,
           ),
         ),
         const SizedBox(height: 8),
@@ -35,31 +36,22 @@ class SignUpInput extends StatelessWidget {
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: const TextStyle(
-              color: Color(0xFFBEBFC0),
+              color: lightgrayColor,
               fontSize: 14,
               fontWeight: FontWeight.w400,
               height: 1.65,
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(
-                color: Color(0xFFBEBFC0),
-                width: 1.0,
-              ),
+              borderSide: const BorderSide(color: lightgrayColor, width: 1.0),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(
-                color: Color(0xFFBEBFC0),
-                width: 1.0,
-              ),
+              borderSide: const BorderSide(color: lightgrayColor, width: 1.0),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(
-                color: Color(0xFFBEBFC0),
-                width: 1.0,
-              ),
+              borderSide: const BorderSide(color: lightgrayColor, width: 1.0),
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,

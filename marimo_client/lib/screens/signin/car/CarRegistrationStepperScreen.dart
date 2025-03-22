@@ -4,6 +4,7 @@ import 'package:marimo_client/screens/signin/car/CarNumberScreen.dart';
 import 'package:marimo_client/screens/signin/car/CarVinScreen.dart';
 import 'package:marimo_client/screens/signin/car/CarModelScreen.dart';
 import 'package:marimo_client/screens/signin/widgets/car/CarConfirmationSheet.dart';
+import 'package:marimo_client/theme.dart';
 
 class CarRegistrationStepperScreen extends StatefulWidget {
   @override
@@ -29,7 +30,7 @@ class _CarRegistrationStepperScreenState
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
-      barrierColor: const Color(0xFF19181D).withOpacity(0.5),
+      barrierColor: backgroundBlackColor.withAlpha(51),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
