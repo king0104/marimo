@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:marimo_client/screens/signin/car/CarAdditionalInfoScreen.dart';
 import 'package:marimo_client/screens/signin/car/CarBrandScreen.dart';
 import 'package:marimo_client/screens/signin/car/CarNumberScreen.dart';
 import 'package:marimo_client/screens/signin/car/CarVinScreen.dart';
@@ -23,6 +24,7 @@ class _CarRegistrationStepperScreenState
     const CarVinScreen(), // 2단계: 차대 번호 입력
     const CarBrandScreen(), // 3단계: 제조사 선택
     const CarModelScreen(), // 4단계: 자동차 모델 선택
+    const CarAdditionalInfoScreen(), // 5단계: 추가 정보 입력
   ];
 
   // 🔹 바텀 팝업 표시
