@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:marimo_client/theme.dart'; // ✅ brandColor 등 불러오기
 
 class CarBrandSelector extends StatefulWidget {
   final List<Map<String, String?>> manufacturers;
@@ -15,7 +16,7 @@ class CarBrandSelector extends StatefulWidget {
 }
 
 class _CarBrandSelectorState extends State<CarBrandSelector> {
-  String? selectedManufacturer; // 선택된 제조사
+  String? selectedManufacturer;
 
   @override
   Widget build(BuildContext context) {
@@ -37,31 +38,23 @@ class _CarBrandSelectorState extends State<CarBrandSelector> {
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  color: isSelected ? Colors.white : Colors.grey[100],
+                  color: white,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: isSelected ? Colors.blue : Colors.transparent,
-                    width: 2,
+                    color: isSelected ? brandColor : iconColor,
+                    width: isSelected ? 2 : 0.5,
                   ),
-                  boxShadow: [
-                    if (!isSelected)
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.2),
-                        blurRadius: 4,
-                        spreadRadius: 1,
-                      ),
-                  ],
                 ),
                 child: Center(
                   child:
                       manufacturer["logo"] != null
                           ? Image.asset(
                             manufacturer["logo"]!,
-                            width: 50,
-                            height: 50,
-                            color: isSelected ? null : Colors.grey[400],
+                            width: 60,
+                            height: 60,
+                            color: isSelected ? null : iconColor,
                           )
-                          : const Icon(Icons.add, color: Colors.grey, size: 30),
+                          : const Icon(Icons.add, color: iconColor, size: 30),
                 ),
               ),
             );
