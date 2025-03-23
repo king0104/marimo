@@ -1,5 +1,5 @@
 # 1. Java 21 기반 빌드 환경 Test
-FROM openjdk:21-jdk-alpine AS build
+FROM openjdk:21-slim AS build
 
 # 기본 패키지 설치
 RUN apt-get update && apt-get install -y bash
@@ -21,7 +21,7 @@ COPY src src
 RUN ./gradlew clean build -x test --no-daemon
 
 # 2. 실행 환경 (최소한의 Java 런타임만 포함)
-FROM openjdk:21-jdk-alpine
+FROM openjdk:21-slim
 
 WORKDIR /app
 
