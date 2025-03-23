@@ -20,6 +20,11 @@
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true"> <!-- ✅ HTTP 요청 허용 -->
 
+        <!-- ✅ 네이버 지도 클라이언트 ID 등록 (필수) -->
+        <meta-data
+            android:name="com.naver.maps.map.CLIENT_ID"
+            android:value="${naverClientId}" />
+
         <!-- ✅ WebView 하드웨어 가속 활성화 -->
         <meta-data
             android:name="android.webkit.WebView.EnableSafeBrowsing"
