@@ -26,6 +26,4 @@ public class OilPaymentController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(postOilPaymentResponse);
     }
-
-
 }

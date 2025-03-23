@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Builder
 public record PostPaymentResponse(
         String carId,
-        int price,
+        Integer price,
         LocalDateTime paymentDate,
         String location,
         String memo
