@@ -1,4 +1,4 @@
-# 1. Java 21 기반 빌드 환경
+# 1. Java 21 기반 빌드 환경 Test
 FROM openjdk:21-jdk-alpine AS build
 
 # 기본 패키지 설치
