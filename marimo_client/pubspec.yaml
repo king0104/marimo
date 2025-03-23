@@ -19,6 +19,9 @@ dependencies:
   flutter_blue_plus: ^1.35.3
   permission_handler: ^11.4.0
   flutter_native_splash: ^2.4.5
+  camera: ^0.11.1
+  dropdown_button2: ^2.3.9
+  table_calendar: ^3.2.0
   flutter_naver_map: ^1.3.0
   flutter_dotenv: ^5.2.1
   http: 1.3.0
@@ -75,6 +78,9 @@ flutter:
     - assets/images/
     - assets/images/cars/
     - assets/images/logo/
+    - assets/images/icons/connect.png
+    - assets/images/icons/icon_tire.svg
+    - assets/images/icons/icon_tire.webp
     - assets/images/icons/
     - assets/images/tires/
     - assets/models/uber_car.obj
@@ -83,3 +89,6 @@ flutter:
     - assets/models/generic_sedan.glb
     - assets/models/uberXL.glb
     - assets/images/logo-splash.png
+    - assets/images/logo/logo_hyundai.png
+    - assets/images/logo/logo_kia.png
+    - assets/images/logo/logo_kgm.png

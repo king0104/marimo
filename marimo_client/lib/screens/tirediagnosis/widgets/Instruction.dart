@@ -16,7 +16,7 @@ class Instruction extends StatelessWidget {
           '유의사항',
           style: TextStyle(
             fontSize: 16.sp,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w500,
           ),
         ),
         SizedBox(height: 13.h),

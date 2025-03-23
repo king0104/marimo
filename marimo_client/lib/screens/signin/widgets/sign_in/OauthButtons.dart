@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:marimo_client/theme.dart';
 
 class OauthButtons extends StatelessWidget {
   final VoidCallback? onGoogleLogin;
@@ -14,7 +15,7 @@ class OauthButtons extends StatelessWidget {
           "SNS 계정으로 로그인",
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: Color(0xFF757575),
+            color: iconColor, // 피그마에는 #757575인데,
             fontWeight: FontWeight.w300,
             fontSize: 12,
           ),

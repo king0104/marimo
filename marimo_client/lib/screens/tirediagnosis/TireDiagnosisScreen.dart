@@ -1,3 +1,4 @@
+// TireDiagnosisScreen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
@@ -38,7 +39,7 @@ class _TireDiagnosisScreenState extends State<TireDiagnosisScreen> {
         title: 'AI 진단',  // 여기에 원하는 문구 입력
         onBackPressed: () => Navigator.of(context).pop(),
       ),
-      backgroundColor: Colors.grey[50],
+      backgroundColor: Color(0xFFFBFBFB),
       body: SafeArea(
         child: Padding(
           // top 패딩을 16으로 설정하여 헤더와의 여백 조정
@@ -50,7 +51,7 @@ class _TireDiagnosisScreenState extends State<TireDiagnosisScreen> {
                 'AI 타이어 마모도 진단',
                 style: TextStyle(
                   fontSize: 16.sp,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               SizedBox(height: 16.h),

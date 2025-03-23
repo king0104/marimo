@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:marimo_client/theme.dart';
 
 class LoginInput extends StatelessWidget {
   final String hintText;
@@ -19,27 +20,27 @@ class LoginInput extends StatelessWidget {
       obscureText: isPassword, // 비밀번호 필드 여부
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: const TextStyle(color: Color(0xFFBEBFc0), fontSize: 16),
+        hintStyle: const TextStyle(color: lightgrayColor, fontSize: 16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFFBEBFC0), width: 1.0),
+          borderSide: const BorderSide(color: lightgrayColor, width: 1.0),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: const BorderSide(
-            color: Color(0xFFBEBFC0), // ✅ 테두리 색상을 명확하게 설정
+            color: lightgrayColor, // ✅ 테두리 색상을 명확하게 설정
             width: 1.0,
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: const BorderSide(
-            color: Color(0xFFBEBFC0), // ✅ 포커스 상태에서도 같은 색 유지
+            color: lightgrayColor, // ✅ 포커스 상태에서도 같은 색 유지
             width: 1.0,
           ),
         ),
         filled: true,
-        fillColor: Color(0xFFFFFFFF),
+        fillColor: white,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 14,
