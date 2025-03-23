@@ -1,9 +1,5 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
-import 'package:http/http.dart' as http;
-import 'package:url_launcher/url_launcher.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -13,196 +9,216 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  List<dynamic> gasStations = [];
+  final List<Map<String, dynamic>> gasStations = [
+    {"name": "GS 칼텍스 방이점", "lat": 37.5153, "lng": 127.1059},
+    {"name": "해뜨는 주유소", "lat": 37.5124, "lng": 127.1023},
+  ];
 
-  @override
-  void initState() {
-    super.initState();
-    fetchGasStations();
-  }
+  late NaverMapController _mapController;
 
-  // ✅ [Mock 데이터] 실제 API가 없을 때 사용되는 테스트용 함수
-  Future<void> fetchGasStations() async {
-    await Future.delayed(const Duration(seconds: 1)); // 네트워크 지연 흉내
-
-    final mockData = [
-      {
-        "name": "GS 칼텍스 방이점",
-        "price": 1805,
-        "distance": "3km",
-        "rating": 4.8,
-        "lat": 37.5153,
-        "lng": 127.1059,
-      },
-      {
-        "name": "해뜨는 주유소",
-        "price": 1750,
-        "distance": "0.2km",
-        "rating": 4.4,
-        "lat": 37.5124,
-        "lng": 127.1023,
-      },
-    ];
-
-    setState(() {
-      gasStations = mockData;
-    });
-  }
-
-  void openKakaoNavi(double lat, double lng, String name) async {
-    final url =
-        'kakaonavi://navigate?name=$name&x=$lng&y=$lat&coord_type=wgs84';
-    if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url));
-    } else {
-      throw '카카오내비 실행 불가';
-    }
-  }
+  // 필터 상태
+  bool _gasStationFilter = false;
+  bool _repairFilter = false;
+  bool _carWashFilter = false;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: [
-          Expanded(
-            child:
-                gasStations.isEmpty
-                    ? const Center(child: CircularProgressIndicator())
-                    : MyNaverMap(
-                      addX: gasStations.first['lng'],
-                      addY: gasStations.first['lat'],
-                      gasStations: gasStations,
-                    ),
-          ),
-          SizedBox(
-            height: 180,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: gasStations.length,
-              itemBuilder: (context, index) {
-                final station = gasStations[index];
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Container(
-                      width: 250,
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            station["name"],
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text("휘발유: ${station['price']}원"),
-                          Text("거리: ${station['distance']}"),
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.star,
-                                color: Colors.amber,
-                                size: 16,
-                              ),
-                              Text(
-                                "${station['rating']}",
-                                style: const TextStyle(fontSize: 14),
-                              ),
-                            ],
-                          ),
-
-                          const Spacer(),
-                          ElevatedButton(
-                            onPressed:
-                                () => openKakaoNavi(
-                                  station["lat"],
-                                  station["lng"],
-                                  station["name"],
-                                ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
-                            ),
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.navigation,
-                                  size: 18,
-                                  color: Colors.white,
-                                ),
-                                SizedBox(width: 4),
-                                Text(
-                                  "카카오내비",
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+    return Stack(
+      children: [
+        /// 🗺 지도
+        Positioned.fill(
+          child: NaverMap(
+            options: NaverMapViewOptions(
+              initialCameraPosition: NCameraPosition(
+                target: NLatLng(
+                  gasStations.first['lat'],
+                  gasStations.first['lng'],
+                ),
+                zoom: 15,
+              ),
+              mapType: NMapType.basic,
+              locationButtonEnable: false, // 위치 버튼 비활성화
+            ),
+            onMapReady: (controller) {
+              _mapController = controller;
+              for (var station in gasStations) {
+                final marker = NMarker(
+                  id: station['name'],
+                  position: NLatLng(station['lat'], station['lng']),
                 );
-              },
+                controller.addOverlay(marker);
+              }
+            },
+          ),
+        ),
+
+        /// 🧾 마커 정보 카드
+        Positioned(
+          left: 16,
+          right: 16,
+          bottom: 20, // 하단바 높이보다 위로
+          child: _buildStationCard(),
+        ),
+
+        /// 현위치 버튼 (지도 우측 상단)
+        Positioned(
+          top: 16,
+          right: 16,
+          child: Column(
+            children: [
+              FloatingActionButton(
+                mini: true,
+                elevation: 4.0,
+                backgroundColor: Colors.white,
+                onPressed: _moveToCurrentLocation,
+                child: const Icon(Icons.my_location, color: Colors.black),
+              ),
+              const SizedBox(height: 8), // 버튼 간 간격
+              /// 🎛 필터 버튼 추가
+              FloatingActionButton(
+                mini: true,
+                elevation: 4.0,
+                backgroundColor: Colors.white,
+                onPressed: _onFilterPressed,
+                child: const Icon(
+                  Icons.filter_alt_outlined,
+                  color: Colors.black,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        /// 필터 아이콘들 (왼쪽 상단)
+        Positioned(
+          top: 16,
+          left: 16,
+          child: Row(
+            children: [
+              _buildFilterIcon(
+                icon: Icons.local_gas_station,
+                isActive: _gasStationFilter,
+                onTap:
+                    () =>
+                        setState(() => _gasStationFilter = !_gasStationFilter),
+              ),
+              const SizedBox(width: 8),
+              _buildFilterIcon(
+                icon: Icons.build,
+                isActive: _repairFilter,
+                onTap: () => setState(() => _repairFilter = !_repairFilter),
+              ),
+              const SizedBox(width: 12),
+              _buildFilterIcon(
+                icon: Icons.cleaning_services,
+                isActive: _carWashFilter,
+                onTap: () => setState(() => _carWashFilter = !_carWashFilter),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// 현재 위치로 이동
+  void _moveToCurrentLocation() async {
+    // 위치 권한, 실제 위치 가져오기 로직은 생략 (추가 가능)
+    // 예시: 임시 위치
+    final currentLatLng = NLatLng(37.5143, 127.1045); // 예: 석촌호수 근처
+
+    await _mapController.updateCamera(
+      NCameraUpdate.withParams(target: currentLatLng, zoom: 15),
+    );
+  }
+
+  /// 필터 바텀시트
+  void _onFilterPressed() {
+    // TODO: 필터 다이얼로그, 바텀시트 등 띄우기
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder:
+          (context) => SizedBox(
+            height: 300,
+            child: Center(
+              child: Text(
+                '필터 기능은 여기에 표시됩니다.',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
             ),
           ),
-        ],
+    );
+  }
+
+  /// 마커 정보 카드
+  Widget _buildStationCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.95),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [BoxShadow(blurRadius: 6, color: Colors.black12)],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children:
+            gasStations.map((station) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  children: [
+                    Icon(Icons.local_gas_station, color: Colors.grey[700]),
+                    const SizedBox(width: 8),
+                    Text(
+                      station['name'],
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
       ),
     );
   }
-}
 
-class MyNaverMap extends StatefulWidget {
-  final double addX;
-  final double addY;
-  final List<dynamic> gasStations;
-
-  const MyNaverMap({
-    super.key,
-    required this.addX,
-    required this.addY,
-    required this.gasStations,
-  });
-
-  @override
-  State<MyNaverMap> createState() => _MyNaverMapState();
-}
-
-class _MyNaverMapState extends State<MyNaverMap> {
-  NaverMapController? _mapController;
-
-  @override
-  Widget build(BuildContext context) {
-    final cameraUpdate = NCameraUpdate.withParams(
-      target: NLatLng(widget.addY, widget.addX),
-      zoom: 13,
-    );
-
-    return NaverMap(
-      options: NaverMapViewOptions(
-        initialCameraPosition: NCameraPosition(
-          target: NLatLng(widget.addY, widget.addX),
-          zoom: 13,
+  /// 좌측 상단 필터 아이콘 버튼
+  Widget _buildFilterIcon({
+    required IconData icon,
+    required bool isActive,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: isActive ? Colors.black : Colors.white,
+          borderRadius: BorderRadius.circular(12), // FloatingActionButton과 동일
+          boxShadow: const [
+            BoxShadow(
+              blurRadius: 4,
+              color: Colors.black12,
+              offset: Offset(0, 1),
+            ),
+          ],
+          border: Border.all(color: Colors.grey.shade300),
         ),
-        mapType: NMapType.basic,
+        child: Center(
+          child: Icon(
+            icon,
+            color: isActive ? Colors.white : Colors.black,
+            size: 24,
+          ),
+        ),
       ),
-      onMapReady: (controller) async {
-        _mapController = controller;
-        for (var station in widget.gasStations) {
-          final marker = NMarker(
-            id: station['name'],
-            position: NLatLng(station['lat'], station['lng']),
-          );
-          _mapController!.addOverlay(marker);
-        }
-      },
     );
   }
 }
