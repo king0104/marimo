@@ -1,16 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/screens/monitoring/MonitoringScreen.dart';
 import 'package:marimo_client/screens/monitoring/BluetoothTestScreen.dart';
 import 'package:marimo_client/screens/signin/SignInScreen.dart';
 import 'package:marimo_client/screens/home/HomeScreen.dart';
+import 'package:marimo_client/screens/map/MapScreen.dart';
 import 'package:marimo_client/theme.dart';
 import 'commons/AppBar.dart';
 import 'commons/BottomNavigationBar.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // 추가: Flutter 바인딩 초기화
+
+  await dotenv.load(fileName: ".env"); // .env 파일 초기화 (.env 명확한 경로 지정)
+  await NaverMapSdk.instance.initialize(
+    clientId: dotenv.env['NAVER_MAP_CLIENT_ID']!,
+    onAuthFailed: (ex) {
+      print("네이버 지도 인증 오류: $ex");
+    },
+  );
 
   // 추가: 앱 시작 시 상태바 스타일 설정
   SystemChrome.setSystemUIOverlayStyle(
@@ -58,8 +69,8 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     HomeScreen(),
     MonitoringScreen(),
-    MonitoringScreen(),
     BluetoothTestScreen(),
+    MapScreen(),
     SignInScreen(),
   ];
 
