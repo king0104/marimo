@@ -40,10 +40,10 @@ public abstract class Payment extends BaseTimeEntity {
     @Column(nullable = false)
     private Integer price;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = true, length = 100)
     private String location;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String memo;
 
     protected Payment(Car car, Integer price, String location, String memo) {
