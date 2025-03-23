@@ -1,4 +1,4 @@
-package com.ssafy.marimo.payment;
+package com.ssafy.marimo.payment.domain;
 
 import com.ssafy.marimo.car.domain.Car;
 import com.ssafy.marimo.common.auditing.BaseTimeEntity;
@@ -17,6 +17,7 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Filter;
 
 @Getter
@@ -39,10 +40,17 @@ public abstract class Payment extends BaseTimeEntity {
     @Column(nullable = false)
     private Integer price;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = true, length = 100)
     private String location;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String memo;
+
+    protected Payment(Car car, Integer price, String location, String memo) {
+        this.car = car;
+        this.price = price;
+        this.location = location;
+        this.memo = memo;
+    }
 
 }

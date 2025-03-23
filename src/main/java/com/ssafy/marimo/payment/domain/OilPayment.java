@@ -1,5 +1,6 @@
-package com.ssafy.marimo.payment;
+package com.ssafy.marimo.payment.domain;
 
+import com.ssafy.marimo.car.domain.Car;
 import com.ssafy.marimo.car.domain.FuelType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
@@ -8,8 +9,10 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Filter;
 
 @Getter
@@ -23,4 +26,21 @@ public class OilPayment extends Payment {
     @Enumerated(EnumType.STRING)
     @Column(nullable = true, length = 50)
     private FuelType fuelType;
+
+
+    @Builder
+    public OilPayment(Car car, Integer price, String location, String memo, FuelType fuelType) {
+        super(car, price, location, memo);
+        this.fuelType = fuelType;
+    }
+
+    public static OilPayment create(Car car, Integer price, String location, String memo, FuelType fuelType) {
+        return OilPayment.builder()
+                .car(car)
+                .price(price)
+                .location(location)
+                .memo(memo)
+                .fuelType(fuelType)
+                .build();
+    }
 }

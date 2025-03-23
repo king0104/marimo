@@ -39,7 +39,7 @@ public enum ErrorStatus {
     /**
      * 404 NOT_FOUND
      */
-
+    CAR_NOT_FOUND("해당 차량을 찾을 수 없습니다"),
 
     /**
      * 405 METHOD_NOT_ALLOWED
