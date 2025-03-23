@@ -1,24 +1,46 @@
 package com.ssafy.marimo.payment.service;
 
+import com.ssafy.marimo.car.domain.Car;
 import com.ssafy.marimo.car.repository.CarRepository;
+import com.ssafy.marimo.common.util.IdEncryptionUtil;
+import com.ssafy.marimo.exception.ErrorStatus;
+import com.ssafy.marimo.exception.NotFoundException;
+import com.ssafy.marimo.payment.domain.OilPayment;
 import com.ssafy.marimo.payment.dto.PostOilPaymentResponse;
 import com.ssafy.marimo.payment.dto.PostOilPaymentRequest;
 import com.ssafy.marimo.payment.repository.OilPaymentRepository;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class OilPaymentService {
 
-    private static OilPaymentRepository oilPaymentRepository;
-    private static CarRepository carRepository;
+    private final OilPaymentRepository oilPaymentRepository;
+    private final CarRepository carRepository;
+    private final IdEncryptionUtil idEncryptionUtil;
 
+    @Transactional
     public PostOilPaymentResponse postOilPayment(PostOilPaymentRequest postOilPaymentRequest) {
 
-        carRepository.findById(postOilPaymentRequest.carId()); // decrept 관련 코드 작성 필요
+        Car car = carRepository.findById(idEncryptionUtil.decrypt(postOilPaymentRequest.carId()))
+                .orElseThrow(() -> new NotFoundException(ErrorStatus.CAR_NOT_FOUND.getErrorCode()));
 
-        oilPaymentRepository.save()
+        OilPayment oilPayment = oilPaymentRepository.save(
+                OilPayment.create(
+                        car,
+                        postOilPaymentRequest.price(),
+                        postOilPaymentRequest.location(),
+                        postOilPaymentRequest.memo(),
+                        postOilPaymentRequest.fuelType()
+                )
+        );
+
+        return PostOilPaymentResponse.of(
+                idEncryptionUtil.encrypt(oilPayment.getId()));
     }
+
 }

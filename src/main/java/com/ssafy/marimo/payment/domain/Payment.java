@@ -27,7 +27,6 @@ import org.hibernate.annotations.Filter;
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "payment_type")
 @Filter(name = "deletedFilter", condition = "deleted = :isDeleted")
-@SuperBuilder
 public abstract class Payment extends BaseTimeEntity {
 
     @Id
@@ -46,5 +45,12 @@ public abstract class Payment extends BaseTimeEntity {
 
     @Column(nullable = false)
     private String memo;
+
+    protected Payment(Car car, Integer price, String location, String memo) {
+        this.car = car;
+        this.price = price;
+        this.location = location;
+        this.memo = memo;
+    }
 
 }
