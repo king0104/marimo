@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'widgets/TireDiagnosisCard.dart';
 import 'widgets/Instruction.dart';
 import 'package:marimo_client/commons/CustomAppHeader.dart';
+import 'TireDiagnosisResult.dart';
 
 class TireDiagnosisScreen extends StatefulWidget {
   const TireDiagnosisScreen({Key? key}) : super(key: key);
@@ -13,9 +14,10 @@ class TireDiagnosisScreen extends StatefulWidget {
   _TireDiagnosisScreenState createState() => _TireDiagnosisScreenState();
 }
 
-class _TireDiagnosisScreenState extends State<TireDiagnosisScreen> with AutomaticKeepAliveClientMixin, WidgetsBindingObserver {
+class _TireDiagnosisScreenState extends State<TireDiagnosisScreen>
+    with AutomaticKeepAliveClientMixin, WidgetsBindingObserver {
   final List<XFile> _selectedImages = [];
-  
+
   @override
   void initState() {
     super.initState();
@@ -39,7 +41,7 @@ class _TireDiagnosisScreenState extends State<TireDiagnosisScreen> with Automati
   // AutomaticKeepAliveClientMixin 구현
   @override
   bool get wantKeepAlive => true;
-  
+
   void addImage(XFile image) {
     setState(() {
       if (_selectedImages.isNotEmpty) {
@@ -48,18 +50,18 @@ class _TireDiagnosisScreenState extends State<TireDiagnosisScreen> with Automati
       _selectedImages.add(image);
     });
   }
-  
+
   void removeImage(int index) {
     setState(() {
       _selectedImages.clear();
     });
   }
-  
+
   @override
   Widget build(BuildContext context) {
     // AutomaticKeepAliveClientMixin 사용 시 필수
     super.build(context);
-    
+
     // 화면 너비 계산 (패딩 제외)
     final screenWidth = MediaQuery.of(context).size.width;
     final contentWidth = screenWidth - 40; // 좌우 패딩 각 20을 제외한 전체 너비
@@ -72,7 +74,12 @@ class _TireDiagnosisScreenState extends State<TireDiagnosisScreen> with Automati
       backgroundColor: Color(0xFFFBFBFB),
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.only(left: 20, right: 20, top: 16.h, bottom: 16.h),
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+            top: 16.h,
+            bottom: 16.h,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -80,13 +87,10 @@ class _TireDiagnosisScreenState extends State<TireDiagnosisScreen> with Automati
               Text(
                 'AI 타이어 마모도 진단',
                 key: ValueKey('title_text'),
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
               ),
               SizedBox(height: 16.h),
-              
+
               // 타이어 진단 카드 - 가로로 전체 화면 채우기
               SizedBox(
                 width: contentWidth,
@@ -96,22 +100,21 @@ class _TireDiagnosisScreenState extends State<TireDiagnosisScreen> with Automati
                   onAddImage: addImage,
                   onRemoveImage: removeImage,
                   onAnalysisPressed: () {
-                    // 타이어 분석 로직 구현
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('타이어 분석 시작')),
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const TireDiagnosisResult(),
+                      ),
                     );
                   },
                 ),
               ),
-              
+
               SizedBox(height: 33.h),
-              
+
               // 유의사항 섹션 - 가로로 전체 화면 채우기
               SizedBox(
                 width: contentWidth,
-                child: const Instruction(
-                  key: ValueKey('instruction'),
-                ),
+                child: const Instruction(key: ValueKey('instruction')),
               ),
             ],
           ),
