@@ -5,22 +5,19 @@ import 'package:marimo_client/screens/monitoring/MonitoringScreen.dart';
 import 'package:marimo_client/screens/monitoring/BluetoothTestScreen.dart';
 import 'package:marimo_client/screens/signin/SignInScreen.dart';
 import 'package:marimo_client/screens/home/HomeScreen.dart';
-import 'package:marimo_client/theme.dart';
 import 'commons/AppBar.dart';
 import 'commons/BottomNavigationBar.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized(); // 추가: Flutter 바인딩 초기화
-
+  WidgetsFlutterBinding.ensureInitialized();  // 추가: Flutter 바인딩 초기화
+  
   // 추가: 앱 시작 시 상태바 스타일 설정
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.black,
-      statusBarIconBrightness: Brightness.light,
-      systemNavigationBarColor: Colors.black, // 하단 네비게이션 바 색상도 설정
-      systemNavigationBarIconBrightness: Brightness.light,
-    ),
-  );
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.black,
+    statusBarIconBrightness: Brightness.light,
+    systemNavigationBarColor: Colors.black, // 하단 네비게이션 바 색상도 설정
+    systemNavigationBarIconBrightness: Brightness.light,
+  ));
 
   runApp(
     ScreenUtilInit(
@@ -39,7 +36,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: appTheme,
+      theme: ThemeData(
+        fontFamily: 'Freesentation', // 📌 전역 폰트 적용
+        scaffoldBackgroundColor: const Color(0xFFFBFBFB),
+      ),
       home: const MainScreen(),
     );
   }
@@ -73,14 +73,12 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     // 추가: 화면 진입 시 상태바 스타일 다시 설정
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        statusBarColor: Colors.black,
-        statusBarIconBrightness: Brightness.light,
-        systemNavigationBarColor: Colors.black,
-        systemNavigationBarIconBrightness: Brightness.light,
-      ),
-    );
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.black,
+      statusBarIconBrightness: Brightness.light,
+      systemNavigationBarColor: Colors.black,
+      systemNavigationBarIconBrightness: Brightness.light,
+    ));
   }
 
   @override

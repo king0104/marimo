@@ -1,7 +1,7 @@
 // TireCameraPage.dart
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'TireCameraGuide.dart';
+import 'widgets/TireCameraGuide.dart';
 import 'package:marimo_client/commons/CustomAppHeader.dart';
 
 class TireCameraPage extends StatelessWidget {
