@@ -1,6 +1,6 @@
 name: marimo_client
 description: "A new Flutter project."
-publish_to: "none" # Remove this line if you wish to publish to pub.dev
+publish_to: "none"
 version: 1.0.0+1
 
 environment:
@@ -9,20 +9,35 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
+  # 📦 Core
+  provider: ^6.1.2
+  http: ^1.3.0
+  flutter_dotenv: ^5.2.1
+
+  # 📷 Media & Files
   image_picker: ^1.0.7
+  path_provider: ^2.1.1
+  image: ^4.1.3
+
+  # 🖼️ UI
   cupertino_icons: ^1.0.8
   flutter_svg: ^2.0.17
   flutter_screenutil: ^5.9.3
+  dropdown_button2: ^2.3.9
+  table_calendar: ^3.2.0
+
+  # 📍 지도 & 3D
+  flutter_naver_map: ^1.3.0
   flutter_cube: ^0.1.1
   model_viewer_plus: ^1.9.1
   webview_flutter: ^4.10.0
+
+  # 📱 디바이스 기능
   flutter_blue_plus: ^1.35.3
   permission_handler: ^11.4.0
   flutter_native_splash: ^2.4.5
   camera: ^0.11.1
-  dropdown_button2: ^2.3.9
-  table_calendar: ^3.2.0
-  provider: ^6.1.2
 
 dev_dependencies:
   flutter_test:
@@ -41,6 +56,7 @@ flutter_native_splash:
 
 flutter:
   uses-material-design: true
+
   fonts:
     - family: Freesentation
       fonts:
@@ -72,6 +88,7 @@ flutter:
           weight: 700
 
   assets:
+    - .env
     - assets/images/
     - assets/images/cars/
     - assets/images/logo/
