@@ -1,13 +1,23 @@
+// Dependencies
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
+
+import 'package:marimo_client/theme.dart';
+
+// Screens
+import 'package:marimo_client/screens/home/HomeScreen.dart';
+import 'package:marimo_client/screens/signin/SignInScreen.dart';
 import 'package:marimo_client/screens/monitoring/MonitoringScreen.dart';
 import 'package:marimo_client/screens/monitoring/BluetoothTestScreen.dart';
-import 'package:marimo_client/screens/signin/SignInScreen.dart';
-import 'package:marimo_client/screens/home/HomeScreen.dart';
-import 'package:marimo_client/theme.dart';
+
+// Commons
 import 'commons/AppBar.dart';
 import 'commons/BottomNavigationBar.dart';
+
+// Providers
+import 'providers/car_provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized(); // 추가: Flutter 바인딩 초기화
@@ -23,11 +33,16 @@ void main() {
   );
 
   runApp(
-    ScreenUtilInit(
-      designSize: const Size(360, 800), // 📌 Figma mdpi 기준 크기
-      minTextAdapt: true, // 📌 텍스트 자동 조정
-      splitScreenMode: true, // 📌 가로/세로 모드 대응
-      builder: (context, child) => const MyApp(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => CarProvider()), // CarProvider
+      ],
+      child: ScreenUtilInit(
+        designSize: const Size(360, 800), // 📌 Figma mdpi 기준 크기
+        minTextAdapt: true, // 📌 텍스트 자동 조정
+        splitScreenMode: true, // 📌 가로/세로 모드 대응
+        builder: (context, child) => const MyApp(),
+      ),
     ),
   );
 }

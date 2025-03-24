@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:marimo_client/screens/signin/widgets/car/CarInput.dart';
 import 'package:marimo_client/screens/signin/widgets/CustomTitleText.dart';
 import 'package:marimo_client/theme.dart';
 
