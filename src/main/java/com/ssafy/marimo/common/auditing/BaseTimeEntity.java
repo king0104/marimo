@@ -14,7 +14,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
-@FilterDef(name = "deletedFilter", parameters = @ParamDef(name = "isDeleted", type = Boolean.class))
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseTimeEntity {
@@ -27,10 +26,5 @@ public abstract class BaseTimeEntity {
     @Column(nullable = false)
     protected LocalDateTime updatedAt;
 
-    @Column(nullable = false)
-    protected boolean deleted = false;
-
-    @Column
-    protected LocalDateTime deletedAt;
 
 }

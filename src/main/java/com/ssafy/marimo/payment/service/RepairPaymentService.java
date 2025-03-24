@@ -11,6 +11,7 @@ import com.ssafy.marimo.payment.dto.PatchRepairPaymentResponse;
 import com.ssafy.marimo.payment.dto.PostRepairPaymentRequest;
 import com.ssafy.marimo.payment.dto.PostRepairPaymentResponse;
 import com.ssafy.marimo.payment.repository.RepairPaymentRepository;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,7 +41,6 @@ public class RepairPaymentService {
         );
 
         return PostRepairPaymentResponse.of(idEncryptionUtil.encrypt(repairPayment.getId()));
-
     }
 
     @Transactional

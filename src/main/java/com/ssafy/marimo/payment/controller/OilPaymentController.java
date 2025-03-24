@@ -6,10 +6,12 @@ import com.ssafy.marimo.payment.dto.PatchWashPaymentResponse;
 import com.ssafy.marimo.payment.dto.PostOilPaymentResponse;
 import com.ssafy.marimo.payment.dto.PostOilPaymentRequest;
 import com.ssafy.marimo.payment.service.OilPaymentService;
+import jakarta.persistence.criteria.CriteriaBuilder.In;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,5 +45,14 @@ public class OilPaymentController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(patchOilPaymentResponse);
+    }
+
+    @DeleteMapping("/{paymentId}")
+    public ResponseEntity<Void> deleteOilPayment(
+            @PathVariable("paymentId") @DecryptedId Integer paymentId
+    ) {
+        oilPaymentService.deleteOilPayment(paymentId);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

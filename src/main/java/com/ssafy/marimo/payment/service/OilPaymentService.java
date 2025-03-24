@@ -55,4 +55,8 @@ public class OilPaymentService {
 
     }
 
+    public void deleteOilPayment(Integer paymentId) {
+        oilPaymentRepository.deleteById(paymentId);
+    }
+
 }

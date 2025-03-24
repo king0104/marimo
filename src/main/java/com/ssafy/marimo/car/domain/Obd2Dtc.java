@@ -24,8 +24,6 @@ import org.hibernate.annotations.Where;
 @Entity
 @Table(name = "obd2_dtc")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE obd2_dtc SET deleted = true, deleted_at = NOW() WHERE id = ?")
-@Filter(name = "deletedFilter", condition = "deleted = :isDeleted")
 public class Obd2Dtc {
 
     @Id
