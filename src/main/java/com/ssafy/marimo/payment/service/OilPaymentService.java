@@ -48,7 +48,7 @@ public class OilPaymentService {
         OilPayment oilPayment = oilPaymentRepository.findById(paymentId)
                 .orElseThrow(() -> new NotFoundException(ErrorStatus.OIL_PAYMENT_NOT_FOUND.getErrorCode()));
 
-        oilPayment.updateFromDto(patchOilPaymentRequest);
+        oilPayment.updateFromRequestDto(patchOilPaymentRequest);
 
         return PatchWashPaymentResponse.of(
                 idEncryptionUtil.encrypt(paymentId));

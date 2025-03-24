@@ -51,7 +51,7 @@ public class RepairPaymentService {
         RepairPayment repairPayment = repairPaymentRepository.findById(paymentId)
                 .orElseThrow(() -> new NotFoundException(ErrorStatus.REPAIR_PAYMENT_NOT_FOUND.getErrorCode()));
 
-        repairPayment.updateFromDto(patchRepairPaymentRequest);
+        repairPayment.updateFromRequestDto(patchRepairPaymentRequest);
 
         return PatchRepairPaymentResponse.of(idEncryptionUtil.encrypt(paymentId));
     }

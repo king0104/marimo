@@ -1,9 +1,7 @@
 package com.ssafy.marimo.payment.domain;
 
 import com.ssafy.marimo.car.domain.Car;
-import com.ssafy.marimo.navigation.WashType;
 import com.ssafy.marimo.payment.dto.PatchRepairPaymentRequest;
-import com.ssafy.marimo.payment.dto.PatchWashPaymentRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -13,7 +11,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Filter;
 
 @Getter
@@ -48,9 +45,9 @@ public class RepairPayment extends Payment {
         if (repairPart != null) this.repairPart = repairPart;
     }
 
-    public void updateFromDto(PatchRepairPaymentRequest dto) {
-        changePayment(dto.price(), dto.paymentDate(), dto.location(), dto.memo());
-        changeRepairPart(dto.repairPart());
+    public void updateFromRequestDto(PatchRepairPaymentRequest patchRepairPaymentRequest) {
+        changePayment(patchRepairPaymentRequest.price(), patchRepairPaymentRequest.paymentDate(), patchRepairPaymentRequest.location(), patchRepairPaymentRequest.memo());
+        changeRepairPart(patchRepairPaymentRequest.repairPart());
     }
 
 }

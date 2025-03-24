@@ -2,9 +2,7 @@ package com.ssafy.marimo.payment.domain;
 
 
 import com.ssafy.marimo.car.domain.Car;
-import com.ssafy.marimo.car.domain.FuelType;
 import com.ssafy.marimo.navigation.WashType;
-import com.ssafy.marimo.payment.dto.PatchOilPaymentRequest;
 import com.ssafy.marimo.payment.dto.PatchWashPaymentRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
@@ -17,7 +15,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Filter;
 
 @Getter
@@ -54,8 +51,8 @@ public class WashPayment extends Payment {
         if (washType != null) this.washType = washType;
     }
 
-    public void updateFromDto(PatchWashPaymentRequest dto) {
-        changePayment(dto.price(), dto.paymentDate(), dto.location(), dto.memo());
-        changeWashType(dto.washType());
+    public void updateFromRequestDto(PatchWashPaymentRequest patchWashPaymentRequest) {
+        changePayment(patchWashPaymentRequest.price(), patchWashPaymentRequest.paymentDate(), patchWashPaymentRequest.location(), patchWashPaymentRequest.memo());
+        changeWashType(patchWashPaymentRequest.washType());
     }
 }
