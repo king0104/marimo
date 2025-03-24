@@ -1,3 +1,4 @@
+// AnalysiButton.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -36,7 +37,7 @@ class AnalysisButton extends StatelessWidget {
           child: Text(
             '타이어 마모도 측정하기',
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
           ),

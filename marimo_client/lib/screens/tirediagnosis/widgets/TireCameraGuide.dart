@@ -1,17 +1,17 @@
-// TireCameraGuide.dart
 import 'dart:io';
+import 'dart:ui';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:marimo_client/theme.dart';
 
 class TireCameraGuide extends StatefulWidget {
   final Function(XFile) onImageCaptured;
 
-  const TireCameraGuide({
-    Key? key,
-    required this.onImageCaptured,
-  }) : super(key: key);
+  const TireCameraGuide({Key? key, required this.onImageCaptured})
+    : super(key: key);
 
   @override
   State<TireCameraGuide> createState() => _TireCameraGuideState();
@@ -21,7 +21,6 @@ class _TireCameraGuideState extends State<TireCameraGuide> {
   CameraController? _cameraController;
   List<CameraDescription>? _cameras;
   bool _isCameraInitialized = false;
-  int _selectedCameraIndex = 0; // 현재 선택된 카메라 (0 = 후면, 1 = 전면)
 
   @override
   void initState() {
@@ -29,12 +28,12 @@ class _TireCameraGuideState extends State<TireCameraGuide> {
     _initializeCamera();
   }
 
-  /// 📸 **카메라 초기화**
   Future<void> _initializeCamera() async {
     _cameras = await availableCameras();
     if (_cameras != null && _cameras!.isNotEmpty) {
+      // 기본 후면 카메라(0) 사용
       _cameraController = CameraController(
-        _cameras![_selectedCameraIndex],
+        _cameras!.first,
         ResolutionPreset.high,
       );
 
@@ -47,25 +46,6 @@ class _TireCameraGuideState extends State<TireCameraGuide> {
     }
   }
 
-  /// 🔄 **카메라 전환 (후면 ↔ 전면)**
-  Future<void> _switchCamera() async {
-    if (_cameras == null || _cameras!.length < 2) return;
-
-    _selectedCameraIndex = _selectedCameraIndex == 0 ? 1 : 0;
-
-    await _cameraController?.dispose();
-    _cameraController = CameraController(
-      _cameras![_selectedCameraIndex],
-      ResolutionPreset.high,
-    );
-
-    await _cameraController!.initialize();
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
-  /// 📷 **사진 촬영 (파란색 버튼 클릭 시)**
   Future<void> _captureImage() async {
     if (!_isCameraInitialized || _cameraController == null) return;
 
@@ -82,119 +62,131 @@ class _TireCameraGuideState extends State<TireCameraGuide> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black, // 📌 배경색을 검은색으로 설정
-      body: Stack(
-        children: [
-          // 📸 **비율이 정상적인 카메라 미리보기**
-          Positioned.fill(child: _buildCameraPreview()),
+      backgroundColor: Colors.black,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final double guidePadding = 30.w;
+          final double guideTop = 100.h; // "타이어 사진 촬영" 아래에서 100px 띄움
+          final double guideWidth = constraints.maxWidth - (guidePadding * 2);
+          final double guideHeight = guideWidth;
 
-          // 📏 가이드 박스 및 텍스트
-          Positioned(
-            top: 70.h,
-            left: 0,
-            right: 0,
-            child: Column(
-              children: [
-                Text(
-                  '타이어 트레드(홈) 부분이 잘 보이도록 촬영하세요.',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
+          final Rect guideRect = Rect.fromLTWH(
+            guidePadding,
+            guideTop,
+            guideWidth,
+            guideHeight,
+          );
+
+          return Stack(
+            children: [
+              // 카메라 미리보기
+              Positioned.fill(child: _buildCameraPreview()),
+
+              // 오버레이 + 가이드 박스
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: TireOverlayPainter(
+                    guideRect: guideRect,
+                    overlayColor: const Color.fromRGBO(25, 24, 29, 0.7),
+                    borderColor: brandColor,
+                    strokeWidth: 2.w,
                   ),
                 ),
-                SizedBox(height: 16.h),
-                Center(
-                  child: Container(
-                    width: 250.w,
-                    height: 250.h,
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Color(0xFF4888FF),
-                        width: 2.w,
-                      ),
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+              ),
 
-          // 📌 하단 촬영 가이드 아이콘 및 텍스트
-          Positioned(
-            bottom: 120.h,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildGuideIcon(Icons.swap_horiz, "적절한 거리에서\n촬영해주세요."),
-                _buildGuideIcon(Icons.visibility_outlined, "밝고 선명하게\n촬영해주세요."),
-              ],
-            ),
-          ),
-
-          // 📸 하단 촬영 버튼 (파란색)
-          Positioned(
-            bottom: 40.h,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: GestureDetector(
-                onTap: _captureImage, // 🔹 버튼 클릭 시 촬영
-                child: Container(
-                  width: 64.w,
-                  height: 64.h,
-                  decoration: BoxDecoration(
-                    color: Color(0xFF4888FF), // 브랜드 색상
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: Container(
-                      width: 56.w,
-                      height: 56.h,
-                      decoration: BoxDecoration(
-                        color: Color(0xFF4888FF),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.8),
-                          width: 2.w,
-                        ),
-                      ),
+              // 가이드 텍스트
+              Positioned(
+                top: guideTop - 52.h,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: Text(
+                    '타이어 트레드(홈) 부분이 잘 보이도록 촬영하세요.',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
                     ),
                   ),
                 ),
               ),
-            ),
-          ),
-        ],
+
+              // 하단 안내 텍스트
+              // 📌 가이드 박스 하단 기준으로 32px 아래 위치
+              Positioned(
+                top: guideTop + guideHeight + 32.h,
+                left: 0,
+                right: 0,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(left: 69.w),
+                      child: _buildGuideIcon(
+                        'assets/images/icons/icon_distance.png',
+                        "적절한 거리에서\n촬영해주세요.",
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(right: 69.w),
+                      child: _buildGuideIcon(
+                        'assets/images/icons/icon_eye.png',
+                        "밝고 선명하게\n촬영해주세요.",
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // 촬영 버튼
+              Positioned(
+                bottom: 40.h,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: GestureDetector(
+                    onTap: _captureImage,
+                    child: Image.asset(
+                      'assets/images/icons/icon_camerabutton.png',
+                      width: 66.w,
+                      height: 66.h,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
-  /// 📌 **비율을 올바르게 유지하는 카메라 미리보기**
   Widget _buildCameraPreview() {
     if (!_isCameraInitialized || _cameraController == null) {
       return Container(color: Colors.black);
     }
-
-    return Center(
-      child: AspectRatio(
-        aspectRatio: 1 / _cameraController!.value.aspectRatio,
-        child: CameraPreview(_cameraController!),
-      ),
-    );
+    return CameraPreview(_cameraController!);
   }
 
-  /// 📌 가이드 아이콘 및 텍스트
-  Widget _buildGuideIcon(IconData icon, String text) {
+  Widget _buildGuideIcon(String assetPath, String text) {
+    double width = 24.w;
+    double height = 24.h;
+
+    if (assetPath.contains('icon_distance')) {
+      width = 28.w;
+      height = 14.h;
+    } else if (assetPath.contains('icon_eye')) {
+      width = 21.w;
+      height = 18.h;
+    }
+
     return Column(
       children: [
-        Icon(
-          icon,
+        Image.asset(
+          assetPath,
+          width: width,
+          height: height,
           color: Colors.white,
-          size: 24.sp,
         ),
         SizedBox(height: 8.h),
         Text(
@@ -209,4 +201,66 @@ class _TireCameraGuideState extends State<TireCameraGuide> {
       ],
     );
   }
+}
+
+class TireOverlayPainter extends CustomPainter {
+  final Rect guideRect;
+  final Color overlayColor;
+  final Color borderColor;
+  final double strokeWidth;
+
+  TireOverlayPainter({
+    required this.guideRect,
+    required this.overlayColor,
+    required this.borderColor,
+    required this.strokeWidth,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // 1. 새 레이어 생성 (blendMode를 위해)
+    final Paint overlayPaint = Paint()..color = overlayColor;
+    canvas.saveLayer(Offset.zero & size, Paint());
+
+    // 2. 전체 반투명 오버레이 먼저 그림
+    canvas.drawRect(Offset.zero & size, overlayPaint);
+
+    // 3. guideRect 영역을 clear로 뚫어줌 (카메라 원본 그대로 보이게)
+    final Paint clearPaint = Paint()..blendMode = BlendMode.clear;
+    canvas.drawRect(guideRect, clearPaint);
+
+    // 4. dashed border 그리기 (guideRect 기준)
+    final Paint dashedPaint =
+        Paint()
+          ..color = borderColor
+          ..strokeWidth = strokeWidth
+          ..style = PaintingStyle.stroke;
+
+    final Path path = Path()..addRect(guideRect);
+    final Path dashedPath = _createDashedPath(path, 3.0, 2.0); // 피그마 기준 dash
+
+    // 반드시 clear 처리 이후에 그려야 정상 표시됨
+    canvas.drawPath(dashedPath, dashedPaint);
+
+    // 5. 레이어 복원
+    canvas.restore();
+  }
+
+  Path _createDashedPath(Path source, double dashWidth, double dashSpace) {
+    final Path dashedPath = Path();
+    for (final PathMetric metric in source.computeMetrics()) {
+      double distance = 0.0;
+      while (distance < metric.length) {
+        dashedPath.addPath(
+          metric.extractPath(distance, distance + dashWidth),
+          Offset.zero,
+        );
+        distance += dashWidth + dashSpace;
+      }
+    }
+    return dashedPath;
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

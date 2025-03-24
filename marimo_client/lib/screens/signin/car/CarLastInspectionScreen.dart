@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:marimo_client/screens/signin/widgets/car/CarInput.dart';
+import 'package:marimo_client/providers/car_registration_provider.dart';
 import 'package:marimo_client/screens/signin/widgets/CustomTitleText.dart';
 import 'package:marimo_client/theme.dart';
 
@@ -13,10 +14,30 @@ class CarLastInspectionScreen extends StatefulWidget {
 }
 
 class _CarLastInspectionScreenState extends State<CarLastInspectionScreen> {
-  DateTime selectedDate = DateTime.now();
+  late DateTime selectedDate;
+
+  @override
+  void initState() {
+    super.initState();
+    final provider = Provider.of<CarRegistrationProvider>(
+      context,
+      listen: false,
+    );
+    selectedDate = provider.lastCheckedDate ?? DateTime.now(); // ✅ 기존 값 있으면 불러옴
+  }
 
   @override
   Widget build(BuildContext context) {
+    // ✅ 화면이 그려진 직후 키보드 내리기
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FocusScope.of(context).unfocus();
+    });
+
+    final provider = Provider.of<CarRegistrationProvider>(
+      context,
+      listen: false,
+    );
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -29,19 +50,17 @@ class _CarLastInspectionScreenState extends State<CarLastInspectionScreen> {
               highlight: "마지막 차량 점검일",
             ),
             const SizedBox(height: 51),
-
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 10),
-              padding: const EdgeInsets.all(10), // ✅ padding 30
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: white,
                 borderRadius: BorderRadius.circular(10),
                 boxShadow: [
                   BoxShadow(
-                    color: black.withAlpha((0.12 * 255).toInt()), // 12% 투명도
-                    offset: const Offset(0, 3.14), // X: 0, Y: 3.14
-                    blurRadius: 12.55, // Blur: 12.55
-                    spreadRadius: 0, // Spread: 0
+                    color: black.withAlpha((0.12 * 255).toInt()),
+                    offset: const Offset(0, 3.14),
+                    blurRadius: 12.55,
                   ),
                 ],
               ),
@@ -54,13 +73,12 @@ class _CarLastInspectionScreenState extends State<CarLastInspectionScreen> {
                     lastDay: DateTime.utc(2100, 12, 31),
                     focusedDay: selectedDate,
                     calendarFormat: CalendarFormat.month,
-                    selectedDayPredicate: (day) {
-                      return isSameDay(selectedDate, day);
-                    },
+                    selectedDayPredicate: (day) => isSameDay(selectedDate, day),
                     onDaySelected: (selected, focused) {
                       setState(() {
                         selectedDate = selected;
                       });
+                      provider.setLastCheckedDate(selectedDate);
                     },
                     headerStyle: HeaderStyle(
                       formatButtonVisible: false,
@@ -76,7 +94,7 @@ class _CarLastInspectionScreenState extends State<CarLastInspectionScreen> {
                       ),
                       rightChevronIcon: const Icon(
                         Icons.chevron_right,
-                        color: Colors.black,
+                        color: black,
                       ),
                     ),
                     calendarStyle: CalendarStyle(
@@ -85,7 +103,7 @@ class _CarLastInspectionScreenState extends State<CarLastInspectionScreen> {
                         border: Border.all(color: brandColor),
                       ),
                       todayTextStyle: const TextStyle(
-                        color: black, // ✅ 오늘 날짜도 잘 보이게
+                        color: black,
                         fontWeight: FontWeight.w500,
                       ),
                       selectedDecoration: BoxDecoration(
@@ -96,8 +114,6 @@ class _CarLastInspectionScreenState extends State<CarLastInspectionScreen> {
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
-                      defaultTextStyle: const TextStyle(color: black),
-                      weekendTextStyle: const TextStyle(color: black),
                     ),
                     daysOfWeekHeight: 44,
                     daysOfWeekStyle: const DaysOfWeekStyle(
@@ -105,15 +121,15 @@ class _CarLastInspectionScreenState extends State<CarLastInspectionScreen> {
                       weekendStyle: TextStyle(color: Colors.black54),
                     ),
                   ),
-
                   const SizedBox(height: 18),
-
-                  /// ✅ 확인 버튼을 컨테이너 안에 넣음
                   Align(
                     alignment: Alignment.bottomRight,
                     child: ElevatedButton(
                       onPressed: () {
-                        print("선택된 날짜: $selectedDate");
+                        provider.setLastCheckedDate(selectedDate);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('마지막 점검일이 저장되었습니다.')),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black,
