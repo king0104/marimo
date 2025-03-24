@@ -21,8 +21,6 @@ import org.hibernate.annotations.SQLDelete;
 @Entity
 @Table(name = "obd2")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE obd2 SET deleted = true, deleted_at = NOW() WHERE id = ?")
-@Filter(name = "deletedFilter", condition = "deleted = :isDeleted")
 public class Obd2 {
 
     @Id
