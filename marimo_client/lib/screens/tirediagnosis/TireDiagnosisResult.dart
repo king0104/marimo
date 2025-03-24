@@ -3,9 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/theme.dart';
 import 'widgets/ResultDetailCard.dart';
+import 'package:image_picker/image_picker.dart';
 
 class TireDiagnosisResult extends StatelessWidget {
-  const TireDiagnosisResult({Key? key}) : super(key: key);
+  final XFile? userImage;
+
+  const TireDiagnosisResult({super.key, this.userImage});
 
   @override
   Widget build(BuildContext context) {
@@ -58,6 +61,7 @@ class TireDiagnosisResult extends StatelessWidget {
                   child: ResultDetailCard(
                     cardHeight: availableHeight,
                     treadDepth: 5.6,
+                    userImage: userImage, // ✅ 이미지 전달
                   ),
                 ),
               ),

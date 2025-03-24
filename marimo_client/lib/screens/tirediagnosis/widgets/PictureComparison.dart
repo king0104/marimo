@@ -6,11 +6,13 @@ import 'package:marimo_client/theme.dart';
 class PictureComparison extends StatelessWidget {
   final double imageTextGap;
   final double pictureHeight;
+  final ImageProvider? myTireImage; // ✅ 내 타이어 이미지 추가
 
   const PictureComparison({
     super.key,
     required this.imageTextGap,
     required this.pictureHeight,
+    this.myTireImage, // ✅ 선택적 전달
   });
 
   @override
@@ -54,11 +56,22 @@ class PictureComparison extends StatelessWidget {
               SizedBox(height: imageTextGap),
               SizedBox(
                 height: pictureHeight,
-                child: Image.asset(
-                  'assets/images/tires/tire_mine.png',
-                  fit: BoxFit.cover,
-                  // width: double.infinity,
-                ),
+                child:
+                    myTireImage != null
+                        ? Image(
+                          image: myTireImage!,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                        )
+                        : Container(
+                          color: Colors.grey[300],
+                          child: Center(
+                            child: Text(
+                              '이미지 없음',
+                              style: TextStyle(fontSize: 12.sp),
+                            ),
+                          ),
+                        ),
               ),
             ],
           ),
