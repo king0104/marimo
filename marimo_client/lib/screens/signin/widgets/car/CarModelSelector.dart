@@ -4,11 +4,13 @@ import 'package:marimo_client/theme.dart'; // brandColor 등
 class CarModelSelector extends StatefulWidget {
   final List<String> models;
   final Function(String) onSelected;
+  final String? initiallySelectedModel;
 
   const CarModelSelector({
     super.key,
     required this.models,
     required this.onSelected,
+    this.initiallySelectedModel,
   });
 
   @override
@@ -16,13 +18,20 @@ class CarModelSelector extends StatefulWidget {
 }
 
 class _CarModelSelectorState extends State<CarModelSelector> {
-  String selectedModel = "직접 입력"; // 기본 선택값
+  late String selectedModel;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedModel = widget.initiallySelectedModel ?? "직접 입력";
+  }
 
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
+      padding: EdgeInsets.zero,
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(), // 부모 스크롤에 맡김
+      physics: const NeverScrollableScrollPhysics(),
       itemCount: widget.models.length,
       separatorBuilder:
           (_, __) => const Divider(thickness: 0.2, height: 1, color: iconColor),
@@ -33,7 +42,7 @@ class _CarModelSelectorState extends State<CarModelSelector> {
         return ListTile(
           title: Text(
             model,
-            style: TextStyle(
+            style: const TextStyle(
               fontWeight: FontWeight.w500,
               fontSize: 16,
               color: Colors.black,

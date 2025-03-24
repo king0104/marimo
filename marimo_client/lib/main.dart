@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:marimo_client/providers/car_registration_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 
@@ -51,6 +52,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => CarProvider()),
+        ChangeNotifierProvider(create: (_) => CarRegistrationProvider()),
         // 향후 다른 Provider들도 여기에 추가 가능
       ],
       child: ScreenUtilInit(
