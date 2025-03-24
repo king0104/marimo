@@ -24,7 +24,8 @@ public class RepairPaymentController {
 
     @PostMapping()
     public ResponseEntity<PostRepairPaymentResponse> postRepairPayment(
-            @Valid @RequestBody PostRepairPaymentRequest postRepairPaymentRequest) {
+            @Valid @RequestBody PostRepairPaymentRequest postRepairPaymentRequest
+    ) {
 
         PostRepairPaymentResponse postRepairPaymentResponse = repairPaymentService.postRepairPayment(
                 postRepairPaymentRequest);

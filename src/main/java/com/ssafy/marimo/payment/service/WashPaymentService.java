@@ -29,6 +29,7 @@ public class WashPaymentService {
                 WashPayment.create(
                         car,
                         postWashPaymentRequest.price(),
+                        postWashPaymentRequest.paymentDate(),
                         postWashPaymentRequest.location(),
                         postWashPaymentRequest.memo(),
                         postWashPaymentRequest.washType()

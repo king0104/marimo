@@ -40,7 +40,7 @@ public enum ErrorStatus {
      * 404 NOT_FOUND
      */
     CAR_NOT_FOUND("해당 차량을 찾을 수 없습니다"),
-
+    OIL_PAYMENT_NOT_FOUND("해당 주유 차계부 내역을 찾을 수 없습니다"),
     /**
      * 405 METHOD_NOT_ALLOWED
      */

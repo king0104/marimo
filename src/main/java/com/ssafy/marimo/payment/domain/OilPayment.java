@@ -2,12 +2,14 @@ package com.ssafy.marimo.payment.domain;
 
 import com.ssafy.marimo.car.domain.Car;
 import com.ssafy.marimo.car.domain.FuelType;
+import com.ssafy.marimo.payment.dto.PatchOilPaymentRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,10 +29,9 @@ public class OilPayment extends Payment {
     @Column(nullable = true, length = 50)
     private FuelType fuelType;
 
-
     @Builder
-    public OilPayment(Car car, Integer price, String location, String memo, FuelType fuelType) {
-        super(car, price, location, memo);
+    private OilPayment(Car car, Integer price, LocalDateTime paymentDate, String location, String memo, FuelType fuelType) {
+        super(car, price, paymentDate, location, memo);
         this.fuelType = fuelType;
     }
 
@@ -42,5 +43,14 @@ public class OilPayment extends Payment {
                 .memo(memo)
                 .fuelType(fuelType)
                 .build();
+    }
+
+    private void changeFuelType(FuelType fuelType) {
+        if (fuelType != null) this.fuelType = fuelType;
+    }
+
+    public void updateFromDto(PatchOilPaymentRequest dto) {
+        changePayment(dto.price(), dto.paymentDate(), dto.location(), dto.memo());
+        changeFuelType(dto.fuelType());
     }
 }

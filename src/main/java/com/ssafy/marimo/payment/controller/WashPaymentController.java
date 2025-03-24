@@ -1,10 +1,7 @@
 package com.ssafy.marimo.payment.controller;
 
-import com.ssafy.marimo.payment.dto.PostOilPaymentRequest;
-import com.ssafy.marimo.payment.dto.PostOilPaymentResponse;
 import com.ssafy.marimo.payment.dto.PostWashPaymentRequest;
 import com.ssafy.marimo.payment.dto.PostWashPaymentResponse;
-import com.ssafy.marimo.payment.service.OilPaymentService;
 import com.ssafy.marimo.payment.service.WashPaymentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +20,9 @@ public class WashPaymentController {
     private final WashPaymentService washPaymentService;
 
     @PostMapping()
-    public ResponseEntity<PostWashPaymentResponse> postPayment(@Valid @RequestBody PostWashPaymentRequest postWashPaymentRequest) {
+    public ResponseEntity<PostWashPaymentResponse> postWashPayment(
+            @Valid @RequestBody PostWashPaymentRequest postWashPaymentRequest
+    ) {
         PostWashPaymentResponse postWashPaymentResponse = washPaymentService.postWashPayment(postWashPaymentRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED)

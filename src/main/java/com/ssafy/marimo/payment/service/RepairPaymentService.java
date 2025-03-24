@@ -28,6 +28,7 @@ public class RepairPaymentService {
                 RepairPayment.create(
                         car,
                         postRepairPaymentRequest.price(),
+                        postRepairPaymentRequest.paymentDate(),
                         postRepairPaymentRequest.location(),
                         postRepairPaymentRequest.memo(),
                         postRepairPaymentRequest.repairPart()

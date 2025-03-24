@@ -6,11 +6,11 @@ import com.ssafy.marimo.common.util.IdEncryptionUtil;
 import com.ssafy.marimo.exception.ErrorStatus;
 import com.ssafy.marimo.exception.NotFoundException;
 import com.ssafy.marimo.payment.domain.OilPayment;
+import com.ssafy.marimo.payment.dto.PatchOilPaymentRequest;
+import com.ssafy.marimo.payment.dto.PatchOilPaymentResponse;
 import com.ssafy.marimo.payment.dto.PostOilPaymentResponse;
 import com.ssafy.marimo.payment.dto.PostOilPaymentRequest;
 import com.ssafy.marimo.payment.repository.OilPaymentRepository;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +41,18 @@ public class OilPaymentService {
 
         return PostOilPaymentResponse.of(
                 idEncryptionUtil.encrypt(oilPayment.getId()));
+    }
+
+    @Transactional
+    public PatchOilPaymentResponse patchOilPayment(Integer paymentId, PatchOilPaymentRequest patchOilPaymentRequest) {
+        OilPayment oilPayment = oilPaymentRepository.findById(paymentId)
+                .orElseThrow(() -> new NotFoundException(ErrorStatus.OIL_PAYMENT_NOT_FOUND.getErrorCode()));
+
+        oilPayment.updateFromDto(patchOilPaymentRequest);
+
+        return PatchOilPaymentResponse.of(
+                idEncryptionUtil.encrypt(paymentId));
+
     }
 
 }

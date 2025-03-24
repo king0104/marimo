@@ -5,6 +5,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,20 +24,21 @@ public class RepairPayment extends Payment {
     @Column(nullable = true, length = 50)
     private String repairPart;
 
-
     @Builder
-    public RepairPayment(Car car, Integer price, String location, String memo, String repairPart) {
-        super(car, price, location, memo);
+    private RepairPayment(Car car, Integer price, LocalDateTime paymentDate, String location, String memo, String repairPart) {
+        super(car, price, paymentDate, location, memo);
         this.repairPart = repairPart;
     }
 
-    public static RepairPayment create(Car car, Integer price, String location, String memo, String repairPart) {
+    public static RepairPayment create(Car car, Integer price, LocalDateTime paymentDate, String location, String memo, String repairPart) {
         return RepairPayment.builder()
                 .car(car)
                 .price(price)
+                .paymentDate(paymentDate)
                 .location(location)
                 .memo(memo)
                 .repairPart(repairPart)
                 .build();
     }
+
 }
