@@ -11,7 +11,6 @@ import com.ssafy.marimo.payment.dto.PatchWashPaymentResponse;
 import com.ssafy.marimo.payment.dto.PostWashPaymentRequest;
 import com.ssafy.marimo.payment.dto.PostWashPaymentResponse;
 import com.ssafy.marimo.payment.repository.WashPaymentRepository;
-import jakarta.persistence.Table;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,7 +53,7 @@ public class WashPaymentService {
         WashPayment washPayment = washPaymentRepository.findById(paymentId)
                 .orElseThrow(() -> new NotFoundException(ErrorStatus.WASH_PAYMENT_NOT_FOUND.getErrorCode()));
 
-        washPayment.updateFromDto(patchWashPaymentRequest);
+        washPayment.updateFromRequestDto(patchWashPaymentRequest);
 
         return PatchWashPaymentResponse.of(
                 idEncryptionUtil.encrypt(paymentId));

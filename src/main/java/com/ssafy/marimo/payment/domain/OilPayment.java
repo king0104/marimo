@@ -14,7 +14,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Filter;
 
 @Getter
@@ -49,8 +48,8 @@ public class OilPayment extends Payment {
         if (fuelType != null) this.fuelType = fuelType;
     }
 
-    public void updateFromDto(PatchOilPaymentRequest dto) {
-        changePayment(dto.price(), dto.paymentDate(), dto.location(), dto.memo());
-        changeFuelType(dto.fuelType());
+    public void updateFromRequestDto(PatchOilPaymentRequest patchOilPaymentRequest) {
+        changePayment(patchOilPaymentRequest.price(), patchOilPaymentRequest.paymentDate(), patchOilPaymentRequest.location(), patchOilPaymentRequest.memo());
+        changeFuelType(patchOilPaymentRequest.fuelType());
     }
 }
