@@ -7,7 +7,7 @@ import com.ssafy.marimo.exception.ErrorStatus;
 import com.ssafy.marimo.exception.NotFoundException;
 import com.ssafy.marimo.payment.domain.OilPayment;
 import com.ssafy.marimo.payment.dto.PatchOilPaymentRequest;
-import com.ssafy.marimo.payment.dto.PatchOilPaymentResponse;
+import com.ssafy.marimo.payment.dto.PatchWashPaymentResponse;
 import com.ssafy.marimo.payment.dto.PostOilPaymentResponse;
 import com.ssafy.marimo.payment.dto.PostOilPaymentRequest;
 import com.ssafy.marimo.payment.repository.OilPaymentRepository;
@@ -44,13 +44,13 @@ public class OilPaymentService {
     }
 
     @Transactional
-    public PatchOilPaymentResponse patchOilPayment(Integer paymentId, PatchOilPaymentRequest patchOilPaymentRequest) {
+    public PatchWashPaymentResponse patchOilPayment(Integer paymentId, PatchOilPaymentRequest patchOilPaymentRequest) {
         OilPayment oilPayment = oilPaymentRepository.findById(paymentId)
                 .orElseThrow(() -> new NotFoundException(ErrorStatus.OIL_PAYMENT_NOT_FOUND.getErrorCode()));
 
         oilPayment.updateFromDto(patchOilPaymentRequest);
 
-        return PatchOilPaymentResponse.of(
+        return PatchWashPaymentResponse.of(
                 idEncryptionUtil.encrypt(paymentId));
 
     }

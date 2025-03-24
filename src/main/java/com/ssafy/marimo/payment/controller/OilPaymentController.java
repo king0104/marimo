@@ -2,7 +2,7 @@ package com.ssafy.marimo.payment.controller;
 
 import com.ssafy.marimo.common.annotation.DecryptedId;
 import com.ssafy.marimo.payment.dto.PatchOilPaymentRequest;
-import com.ssafy.marimo.payment.dto.PatchOilPaymentResponse;
+import com.ssafy.marimo.payment.dto.PatchWashPaymentResponse;
 import com.ssafy.marimo.payment.dto.PostOilPaymentResponse;
 import com.ssafy.marimo.payment.dto.PostOilPaymentRequest;
 import com.ssafy.marimo.payment.service.OilPaymentService;
@@ -35,11 +35,11 @@ public class OilPaymentController {
     }
 
     @PatchMapping("/{paymentId}")
-    public ResponseEntity<PatchOilPaymentResponse> patchOilPayment(
+    public ResponseEntity<PatchWashPaymentResponse> patchOilPayment(
             @PathVariable("paymentId") @DecryptedId Integer paymentId,
             @Valid @RequestBody PatchOilPaymentRequest patchOilPaymentRequest
     ) {
-        PatchOilPaymentResponse patchOilPaymentResponse = oilPaymentService.patchOilPayment(paymentId, patchOilPaymentRequest);
+        PatchWashPaymentResponse patchOilPaymentResponse = oilPaymentService.patchOilPayment(paymentId, patchOilPaymentRequest);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(patchOilPaymentResponse);

@@ -3,7 +3,7 @@ package com.ssafy.marimo.payment.dto;
 import lombok.Builder;
 
 @Builder
-public record PatchOilPaymentResponse(
+public record PatchWashPaymentResponse(
         String paymentId
 ) {
     public static PatchWashPaymentResponse of(String paymentId) {

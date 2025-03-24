@@ -2,7 +2,10 @@ package com.ssafy.marimo.payment.domain;
 
 
 import com.ssafy.marimo.car.domain.Car;
+import com.ssafy.marimo.car.domain.FuelType;
 import com.ssafy.marimo.navigation.WashType;
+import com.ssafy.marimo.payment.dto.PatchOilPaymentRequest;
+import com.ssafy.marimo.payment.dto.PatchWashPaymentRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -45,5 +48,14 @@ public class WashPayment extends Payment {
                 .memo(memo)
                 .washType(washType)
                 .build();
+    }
+
+    private void changeWashType(WashType washType) {
+        if (washType != null) this.washType = washType;
+    }
+
+    public void updateFromDto(PatchWashPaymentRequest dto) {
+        changePayment(dto.price(), dto.paymentDate(), dto.location(), dto.memo());
+        changeWashType(dto.washType());
     }
 }
