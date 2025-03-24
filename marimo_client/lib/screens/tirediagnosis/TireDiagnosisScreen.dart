@@ -73,56 +73,61 @@ class _TireDiagnosisScreenState extends State<TireDiagnosisScreen>
       ),
       backgroundColor: Color(0xFFFBFBFB),
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.only(
-            left: 20,
-            right: 20,
-            top: 16.h,
-            bottom: 16.h,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 텍스트를 Key로 감싸서 리빌드 시 항상 새로 생성되도록 합니다
-              Text(
-                'AI 타이어 마모도 진단',
-                key: ValueKey('title_text'),
-                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
-              ),
-              SizedBox(height: 16.h),
-
-              // 타이어 진단 카드 - 가로로 전체 화면 채우기
-              SizedBox(
-                width: contentWidth,
-                child: TireDiagnosisCard(
-                  key: ValueKey('diagnosis_card'),
-                  selectedImages: _selectedImages,
-                  onAddImage: addImage,
-                  onRemoveImage: removeImage,
-                  onAnalysisPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder:
-                            (_) => TireDiagnosisResult(
-                              userImage:
-                                  _selectedImages.isNotEmpty
-                                      ? _selectedImages[0]
-                                      : null,
-                            ),
-                      ),
-                    );
-                  },
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.only(
+              left: 20,
+              right: 20,
+              top: 16.h,
+              bottom: 16.h,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 텍스트를 Key로 감싸서 리빌드 시 항상 새로 생성되도록 합니다
+                Text(
+                  'AI 타이어 마모도 진단',
+                  key: ValueKey('title_text'),
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
+                SizedBox(height: 16.h),
 
-              SizedBox(height: 33.h),
+                // 타이어 진단 카드 - 가로로 전체 화면 채우기
+                SizedBox(
+                  width: contentWidth,
+                  child: TireDiagnosisCard(
+                    key: ValueKey('diagnosis_card'),
+                    selectedImages: _selectedImages,
+                    onAddImage: addImage,
+                    onRemoveImage: removeImage,
+                    onAnalysisPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder:
+                              (_) => TireDiagnosisResult(
+                                userImage:
+                                    _selectedImages.isNotEmpty
+                                        ? _selectedImages[0]
+                                        : null,
+                              ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
 
-              // 유의사항 섹션 - 가로로 전체 화면 채우기
-              SizedBox(
-                width: contentWidth,
-                child: const Instruction(key: ValueKey('instruction')),
-              ),
-            ],
+                SizedBox(height: 33.h),
+
+                // 유의사항 섹션 - 가로로 전체 화면 채우기
+                SizedBox(
+                  width: contentWidth,
+                  child: const Instruction(key: ValueKey('instruction')),
+                ),
+              ],
+            ),
           ),
         ),
       ),
