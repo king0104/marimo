@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:marimo_client/providers/car_registration_provider.dart';
 import 'package:marimo_client/theme.dart';
+import 'package:provider/provider.dart';
 
 class CarInput extends StatefulWidget {
   final TextEditingController controller;
   final String labelText;
   final String hintText;
+  final FocusNode? focusNode; // ✅ focusNode 추가
 
   const CarInput({
     super.key,
     required this.controller,
     this.labelText = "차량 번호",
     this.hintText = "아이디를 입력해주세요.",
+    this.focusNode, // ✅ 선택적 매개변수로 등록
   });
 
   @override
@@ -41,10 +45,26 @@ class _CarInputState extends State<CarInput> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<CarRegistrationProvider>(
+      context,
+      listen: false,
+    );
+
     return SizedBox(
       height: 50,
       child: TextField(
         controller: widget.controller,
+        focusNode: widget.focusNode, // ✅ focusNode 연결
+        onChanged: (value) {
+          switch (widget.labelText) {
+            case "차량 번호":
+              provider.setPlateNumber(value);
+              break;
+            case "차대 번호":
+              provider.setVin(value);
+              break;
+          }
+        },
         decoration: InputDecoration(
           hintText: widget.hintText,
           hintStyle: const TextStyle(

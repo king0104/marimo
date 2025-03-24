@@ -5,10 +5,14 @@ class BrandSelector extends StatefulWidget {
   final List<Map<String, String?>> brands;
   final Function(String) onSelected;
 
+  // ✅ 외부에서 현재 선택된 브랜드 전달
+  final String? selectedBrand;
+
   const BrandSelector({
     super.key,
     required this.brands,
     required this.onSelected,
+    this.selectedBrand, // ✅ 선택 브랜드 상태 주입
   });
 
   @override
@@ -16,7 +20,23 @@ class BrandSelector extends StatefulWidget {
 }
 
 class _BrandSelectorState extends State<BrandSelector> {
-  String? selectedManufacturer;
+  late String? selectedManufacturer;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedManufacturer = widget.selectedBrand;
+  }
+
+  @override
+  void didUpdateWidget(covariant BrandSelector oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.selectedBrand != widget.selectedBrand) {
+      setState(() {
+        selectedManufacturer = widget.selectedBrand;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,14 +45,15 @@ class _BrandSelectorState extends State<BrandSelector> {
       runSpacing: 20,
       children:
           widget.brands.map((manufacturer) {
-            bool isSelected = selectedManufacturer == manufacturer["name"];
+            final name = manufacturer["name"];
+            final isSelected = selectedManufacturer == name;
 
             return GestureDetector(
               onTap: () {
                 setState(() {
-                  selectedManufacturer = manufacturer["name"];
+                  selectedManufacturer = name;
                 });
-                widget.onSelected(selectedManufacturer!);
+                widget.onSelected(name!); // ✅ 부모에게 선택 전달
               },
               child: Container(
                 width: 65,
@@ -49,9 +70,9 @@ class _BrandSelectorState extends State<BrandSelector> {
                       isSelected
                           ? [
                             BoxShadow(
-                              color: brandColor, // ✅ 강조 색상
-                              spreadRadius: 1.5, // ✅ 테두리 두께 느낌
-                              blurRadius: 0, // ✅ 흐림 없이 딱 떨어지게
+                              color: brandColor,
+                              spreadRadius: 1.5,
+                              blurRadius: 0,
                             ),
                           ]
                           : [],
