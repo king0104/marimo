@@ -15,12 +15,12 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
         statusBarIconBrightness: Brightness.dark,
       ),
       elevation: 0,
+      leadingWidth: 70.w,
       leading: Padding(
-        padding: EdgeInsets.only(left: 24.w),
+        padding: EdgeInsets.only(left: 0.w),
         child: Image.asset(
           'assets/images/logo/marimo_logo.png',
-          width: 60.w,
-          height: 60.w,
+          width: 30.w,
         ),
       ),
       actions: [
