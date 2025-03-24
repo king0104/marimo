@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:marimo_client/screens/signin/widgets/car/CarInput.dart';
+import 'package:marimo_client/providers/car_registration_provider.dart';
 import 'package:marimo_client/screens/signin/widgets/CustomTitleText.dart';
 import 'package:marimo_client/theme.dart';
+import 'package:provider/provider.dart';
 
 class CarAdditionalInfoScreen extends StatefulWidget {
   const CarAdditionalInfoScreen({super.key});
@@ -17,8 +18,26 @@ class _CarAdditionalInfoScreenState extends State<CarAdditionalInfoScreen> {
   String selectedFuel = '휘발유';
 
   @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      final carProvider = Provider.of<CarRegistrationProvider>(
+        context,
+        listen: false,
+      );
+      selectedFuel = carProvider.fuelType ?? '휘발유';
+      carProvider.setFuelType(selectedFuel); // 초기값으로 저장
+      setState(() {});
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // ✅ 공통 border
+    final carProvider = Provider.of<CarRegistrationProvider>(
+      context,
+      listen: false,
+    );
+
     final OutlineInputBorder baseBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
       borderSide: const BorderSide(color: lightgrayColor, width: 1),
@@ -84,6 +103,7 @@ class _CarAdditionalInfoScreenState extends State<CarAdditionalInfoScreen> {
                   setState(() {
                     selectedFuel = value;
                   });
+                  carProvider.setFuelType(value); // ✅ Provider에도 저장
                 }
               },
               dropdownStyleData: DropdownStyleData(

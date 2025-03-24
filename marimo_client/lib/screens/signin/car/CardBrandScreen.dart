@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:marimo_client/screens/signin/widgets/car/BrandSelector.dart';
-import 'package:marimo_client/screens/signin/widgets/car/CarInput.dart';
 import 'package:marimo_client/screens/signin/widgets/CustomTitleText.dart';
 import 'package:marimo_client/theme.dart';
 

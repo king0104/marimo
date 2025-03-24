@@ -11,12 +11,12 @@ class TireDiagnosisButton extends StatelessWidget {
       width: double.infinity, // ✅ 버튼을 부모 크기만큼 확장
       child: ElevatedButton(
         onPressed: () {
-        // TireDiagnosis 화면으로 이동
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => const TireDiagnosisScreen(),
-          ),
-        );
+          // TireDiagnosis 화면으로 이동
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const TireDiagnosisScreen(),
+            ),
+          );
           debugPrint("🚀 AI 진단 받기 클릭!!");
         },
         style: ElevatedButton.styleFrom(

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:marimo_client/providers/car_registration_provider.dart';
+
 import 'package:marimo_client/screens/signin/car/CarAdditionalInfoScreen.dart';
 import 'package:marimo_client/screens/signin/car/CarBrandScreen.dart';
 import 'package:marimo_client/screens/signin/car/CarLastInspectionScreen.dart';
@@ -19,22 +22,40 @@ class CarRegistrationStepperScreen extends StatefulWidget {
 class _CarRegistrationStepperScreenState
     extends State<CarRegistrationStepperScreen> {
   int _currentStep = 0;
-  bool isCarConfirmed = false; // 🚗 차량 확인 여부
+  bool isCarConfirmed = false;
+  late PageController _pageController;
 
-  // 🚗 각 단계별 화면 리스트
   final List<Widget> _screens = [
-    const CarNumberScreen(), // 1단계: 차량 번호 입력
-    const CarVinScreen(), // 2단계: 차대 번호 입력
-    const CarBrandScreen(), // 3단계: 제조사 선택
-    const CarModelScreen(), // 4단계: 자동차 모델 선택
-    const CarAdditionalInfoScreen(), // 5단계: 추가 정보 입력
-    const CarLastInspectionScreen(), // 6단계: 마지막 차량 점검일 선택
-    const CardBrandScreen(), // 7단계: 카드사 선택
-    const CardSelectScreen(), // 8단계: 주유 카드 선택
+    CarNumberScreen(),
+    CarVinScreen(),
+    CarBrandScreen(),
+    CarModelScreen(),
+    CarAdditionalInfoScreen(),
+    CarLastInspectionScreen(),
+    CardBrandScreen(),
+    CardSelectScreen(),
   ];
 
-  // 🔹 바텀 팝업 표시
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: _currentStep);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
   void _showCarConfirmationSheet() {
+    final carNumber =
+        Provider.of<CarRegistrationProvider>(
+          context,
+          listen: false,
+        ).plateNumber ??
+        '차량번호 미입력';
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -45,11 +66,15 @@ class _CarRegistrationStepperScreenState
       isScrollControlled: true,
       builder: (context) {
         return CarConfirmationSheet(
-          carNumber: "259서8221", // 차량 번호 (실제 데이터와 연결 가능)
+          carNumber: carNumber,
           onConfirmed: () {
             setState(() {
-              isCarConfirmed = true; // ✅ 차량 확인 완료
+              isCarConfirmed = true;
               _currentStep += 1;
+              _pageController.nextPage(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+              );
             });
           },
         );
@@ -62,16 +87,24 @@ class _CarRegistrationStepperScreenState
     return Scaffold(
       body: Column(
         children: [
-          // 🔹 현재 단계 화면
-          Expanded(child: _screens[_currentStep]),
-
-          // 🔹 이전 / 다음 버튼
+          Expanded(
+            child: PageView(
+              controller: _pageController,
+              physics: const NeverScrollableScrollPhysics(),
+              onPageChanged: (index) {
+                setState(() {
+                  _currentStep = index;
+                });
+              },
+              children: _screens,
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // 🔹 이전 버튼
+                // 🔙 이전 버튼
                 Expanded(
                   child: SizedBox(
                     height: 50,
@@ -79,9 +112,10 @@ class _CarRegistrationStepperScreenState
                       onPressed:
                           _currentStep > 0
                               ? () {
-                                setState(() {
-                                  _currentStep -= 1;
-                                });
+                                _pageController.previousPage(
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                );
                               }
                               : null,
                       style: ElevatedButton.styleFrom(
@@ -108,18 +142,22 @@ class _CarRegistrationStepperScreenState
                 ),
                 const SizedBox(width: 20),
 
-                // 🔹 다음 버튼 (팝업 또는 다음 단계로 이동)
+                // ➡️ 다음 버튼
                 Expanded(
                   child: SizedBox(
                     height: 50,
                     child: ElevatedButton(
                       onPressed: () {
-                        if (!isCarConfirmed) {
-                          _showCarConfirmationSheet(); // ✅ 팝업 표시
+                        if (!isCarConfirmed && _currentStep == 0) {
+                          _showCarConfirmationSheet();
                         } else if (_currentStep < _screens.length - 1) {
                           setState(() {
-                            _currentStep += 1; // ✅ 다음 단계로 이동
+                            _currentStep += 1;
                           });
+                          _pageController.nextPage(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
                         }
                       },
                       style: ElevatedButton.styleFrom(
