@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:geolocator/geolocator.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -15,6 +17,7 @@ class _MapScreenState extends State<MapScreen> {
   ];
 
   late NaverMapController _mapController;
+  NMarker? _userLocationMarker;
 
   // 필터 상태
   bool _gasStationFilter = false;
@@ -29,6 +32,7 @@ class _MapScreenState extends State<MapScreen> {
         Positioned.fill(
           child: NaverMap(
             options: NaverMapViewOptions(
+              locationButtonEnable: false, // 지도 내 위치 버튼은 비활성화
               initialCameraPosition: NCameraPosition(
                 target: NLatLng(
                   gasStations.first['lat'],
@@ -37,7 +41,6 @@ class _MapScreenState extends State<MapScreen> {
                 zoom: 15,
               ),
               mapType: NMapType.basic,
-              locationButtonEnable: false, // 위치 버튼 비활성화
             ),
             onMapReady: (controller) {
               _mapController = controller;
@@ -48,6 +51,9 @@ class _MapScreenState extends State<MapScreen> {
                 );
                 controller.addOverlay(marker);
               }
+              // 🔥 오버레이 위치 지정 (자동 표시됨)
+              final overlay = controller.getLocationOverlay();
+              overlay.setPosition(NLatLng(37.5143, 127.1045));
             },
           ),
         ),
@@ -122,13 +128,43 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   /// 현재 위치로 이동
-  void _moveToCurrentLocation() async {
-    // 위치 권한, 실제 위치 가져오기 로직은 생략 (추가 가능)
-    // 예시: 임시 위치
-    final currentLatLng = NLatLng(37.5143, 127.1045); // 예: 석촌호수 근처
+  /// 위치 권한 체크 → 현재 위치 가져오기
+  /// 기존 마커 삭제 → 새로운 마커 추가
+  /// 지도 카메라 이동
+  Future<void> _moveToCurrentLocation() async {
+    final permissionGranted = await Permission.location.request();
+    if (!permissionGranted.isGranted) {
+      if (permissionGranted.isPermanentlyDenied) {
+        await openAppSettings();
+      }
+      return;
+    }
 
+    final position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+
+    final currentLatLng = NLatLng(position.latitude, position.longitude);
+
+    // 기존 마커 제거
+    if (_userLocationMarker != null) {
+      await _mapController.deleteOverlay(
+        NOverlayInfo(type: NOverlayType.marker, id: 'user_location'),
+      );
+    }
+
+    // 새 마커 생성 및 추가
+    _userLocationMarker = NMarker(
+      id: 'user_location',
+      position: currentLatLng,
+      caption: NOverlayCaption(text: 'Your Location'),
+    );
+
+    await _mapController.addOverlay(_userLocationMarker!);
+
+    // 카메라 이동
     await _mapController.updateCamera(
-      NCameraUpdate.withParams(target: currentLatLng, zoom: 15),
+      NCameraUpdate.scrollAndZoomTo(target: currentLatLng, zoom: 15),
     );
   }
 
