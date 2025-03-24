@@ -5,6 +5,7 @@ import 'package:marimo_client/screens/monitoring/MonitoringScreen.dart';
 import 'package:marimo_client/screens/monitoring/BluetoothTestScreen.dart';
 import 'package:marimo_client/screens/signin/SignInScreen.dart';
 import 'package:marimo_client/screens/home/HomeScreen.dart';
+import 'package:marimo_client/screens/my/MyScreen.dart';
 import 'package:marimo_client/theme.dart';
 import 'commons/AppBar.dart';
 import 'commons/BottomNavigationBar.dart';
@@ -54,14 +55,18 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
+  bool isLoggedIn = true;  // 로그인 상태 관리 (임시)
 
   final List<Widget> _screens = [
     HomeScreen(),
     MonitoringScreen(),
-    MonitoringScreen(),
     BluetoothTestScreen(),
-    SignInScreen(),
+    MonitoringScreen(),
   ];
+
+  Widget _getProfileScreen() {
+    return isLoggedIn ? const MyScreen() : const SignInScreen();
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -88,7 +93,7 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFFBFBFB),
       appBar: const CommonAppBar(),
-      body: _screens[_selectedIndex],
+      body: _selectedIndex == 4 ? _getProfileScreen() : _screens[_selectedIndex],
       bottomNavigationBar: CommonBottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
@@ -96,3 +101,4 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 }
+ 

@@ -73,17 +73,19 @@ flutter:
   assets:
     - assets/images/
     - assets/images/cars/
-    - assets/images/logo/
+    - assets/images/icons/
     - assets/images/icons/connect.png
     - assets/images/icons/icon_tire.svg
     - assets/images/icons/icon_tire.webp
-    - assets/images/icons/
+    - assets/images/icons/icon_moneybag.png
+    - assets/images/icons/icon_receipt.png
     - assets/images/tires/
     - assets/models/uber_car.obj
     - assets/models/uber_car.mtl
     - assets/models/uberBlack.dae.glb
     - assets/models/generic_sedan.glb
     - assets/models/uberXL.glb
+    - assets/images/logo/
     - assets/images/logo-splash.png
     - assets/images/logo/logo_hyundai.png
     - assets/images/logo/logo_kia.png
