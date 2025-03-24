@@ -102,7 +102,13 @@ class _TireDiagnosisScreenState extends State<TireDiagnosisScreen>
                   onAnalysisPressed: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (_) => const TireDiagnosisResult(),
+                        builder:
+                            (_) => TireDiagnosisResult(
+                              userImage:
+                                  _selectedImages.isNotEmpty
+                                      ? _selectedImages[0]
+                                      : null,
+                            ),
                       ),
                     );
                   },

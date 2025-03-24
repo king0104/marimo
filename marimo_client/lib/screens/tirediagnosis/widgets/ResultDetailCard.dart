@@ -6,15 +6,19 @@ import 'ResultInformation.dart';
 import 'CompleteButton.dart';
 import 'RepairshopButton.dart';
 import 'package:marimo_client/theme.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class ResultDetailCard extends StatelessWidget {
   final double cardHeight;
   final double treadDepth;
+  final XFile? userImage; // ✅ 추가
 
   const ResultDetailCard({
     super.key,
     required this.cardHeight,
     required this.treadDepth,
+    this.userImage,
   });
 
   @override
@@ -67,6 +71,10 @@ class ResultDetailCard extends StatelessWidget {
                   PictureComparison(
                     imageTextGap: pictureGap,
                     pictureHeight: pictureHeight,
+                    myTireImage:
+                        userImage != null
+                            ? FileImage(File(userImage!.path))
+                            : null,
                   ),
                   Expanded(
                     child: Padding(
