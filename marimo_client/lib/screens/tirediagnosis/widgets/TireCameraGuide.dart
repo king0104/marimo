@@ -1,3 +1,4 @@
+// TireCameraGuide.dart
 import 'dart:io';
 import 'dart:ui';
 
@@ -22,6 +23,8 @@ class _TireCameraGuideState extends State<TireCameraGuide> {
   List<CameraDescription>? _cameras;
   bool _isCameraInitialized = false;
 
+  final double baseHeight = 603.0; // 기준 해상도 height
+
   @override
   void initState() {
     super.initState();
@@ -31,12 +34,10 @@ class _TireCameraGuideState extends State<TireCameraGuide> {
   Future<void> _initializeCamera() async {
     _cameras = await availableCameras();
     if (_cameras != null && _cameras!.isNotEmpty) {
-      // 기본 후면 카메라(0) 사용
       _cameraController = CameraController(
         _cameras!.first,
         ResolutionPreset.high,
       );
-
       await _cameraController!.initialize();
       if (mounted) {
         setState(() {
@@ -48,7 +49,6 @@ class _TireCameraGuideState extends State<TireCameraGuide> {
 
   Future<void> _captureImage() async {
     if (!_isCameraInitialized || _cameraController == null) return;
-
     final XFile image = await _cameraController!.takePicture();
     widget.onImageCaptured(image);
   }
@@ -65,10 +65,64 @@ class _TireCameraGuideState extends State<TireCameraGuide> {
       backgroundColor: Colors.black,
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final double guidePadding = 30.w;
-          final double guideTop = 100.h; // "타이어 사진 촬영" 아래에서 100px 띄움
-          final double guideWidth = constraints.maxWidth - (guidePadding * 2);
+          final double screenHeight = constraints.maxHeight;
+          final double screenWidth = constraints.maxWidth;
+
+          // 1. 기준 해상도에서의 값
+          const double baseHeight = 603.0;
+          const double baseGuideTop = 100.0;
+          const double baseGuidePadding = 30.0;
+          const double baseTextMarginFromGuide = 52.0; // 152 - 100
+          const double baseIconMarginFromGuide = 32.0; // 하단 여백
+          const double baseButtonMarginFromGuide = 106.0; // 대략 버튼까지 여백
+
+          // 헤더 높이 비율에 맞춰 제외 (예: 45 / 603 ≈ 0.0746)
+          final double headerOffset = screenHeight * (45 / baseHeight);
+          final double cameraHeight = screenHeight - headerOffset;
+
+          // 2. 비율 계산
+          final double guideTop = screenHeight * (baseGuideTop / baseHeight);
+          final double guidePadding = baseGuidePadding.w;
+          final double guideWidth = screenWidth - (guidePadding * 2);
           final double guideHeight = guideWidth;
+
+          final double topTextTop =
+              guideTop - screenHeight * (baseTextMarginFromGuide / baseHeight);
+
+          // 가이드 박스 아래 여백 계산 (전체 화면 기준)
+          final double guideBottom = guideTop + guideHeight;
+          final double guideBottomSpace = screenHeight - guideBottom;
+
+          // 버튼 중심까지 거리 비율 적용 (비율: 106 / 203 ≈ 0.5221)
+          final double captureButtonMarginFromBottom =
+              guideBottomSpace * (30 / 203); // ← 아래 여백 30 유지하려면 이걸로
+          final double iconMarginFromGuide =
+              guideBottomSpace * (32 / 203); // 아이콘은 위 기준
+
+          final double buttonMarginFromGuide =
+              cameraHeight * (106.0 / baseHeight); // 106은 기준값
+          final double distanceIconTop = guideBottom + iconMarginFromGuide;
+          final double eyeIconTop = distanceIconTop;
+          final double captureButtonTop = guideBottom + buttonMarginFromGuide;
+          final double captureButtonBottom =
+              baseHeight -
+              (guideBottom +
+                  screenHeight * (baseButtonMarginFromGuide / baseHeight));
+          // final double captureButtonBottom =
+          //     screenHeight - (guideBottom + screenHeight * (105 / baseHeight));
+
+          // // 실제 cameraHeight를 기준으로 위치 계산
+          // final double topTextTop = cameraHeight * 0.0796;
+          // final double guideTop = cameraHeight * 0.1658;
+          // final double guidePadding = 30.w;
+          // final double guideWidth = constraints.maxWidth - (guidePadding * 2);
+          // final double guideHeight = guideWidth; // ✅ 정사각형으로 고정
+
+          // final double distanceIconTop =
+          //     guideTop + guideHeight + cameraHeight * 0.0545;
+          // final double eyeIconTop =
+          //     guideTop + guideHeight + cameraHeight * 0.0497;
+          // final double captureButtonBottom = cameraHeight * 0.0464;
 
           final Rect guideRect = Rect.fromLTWH(
             guidePadding,
@@ -96,7 +150,7 @@ class _TireCameraGuideState extends State<TireCameraGuide> {
 
               // 가이드 텍스트
               Positioned(
-                top: guideTop - 52.h,
+                top: topTextTop,
                 left: 0,
                 right: 0,
                 child: Center(
@@ -111,36 +165,29 @@ class _TireCameraGuideState extends State<TireCameraGuide> {
                 ),
               ),
 
-              // 하단 안내 텍스트
-              // 📌 가이드 박스 하단 기준으로 32px 아래 위치
+              // 거리 아이콘
               Positioned(
-                top: guideTop + guideHeight + 32.h,
-                left: 0,
-                right: 0,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(left: 69.w),
-                      child: _buildGuideIcon(
-                        'assets/images/icons/icon_distance.png',
-                        "적절한 거리에서\n촬영해주세요.",
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(right: 69.w),
-                      child: _buildGuideIcon(
-                        'assets/images/icons/icon_eye.png',
-                        "밝고 선명하게\n촬영해주세요.",
-                      ),
-                    ),
-                  ],
+                top: distanceIconTop,
+                left: 69.w,
+                child: _buildGuideIcon(
+                  'assets/images/icons/icon_distance.png',
+                  "적절한 거리에서\n촬영해주세요.",
+                ),
+              ),
+
+              // 눈 아이콘
+              Positioned(
+                top: eyeIconTop,
+                right: 69.w,
+                child: _buildGuideIcon(
+                  'assets/images/icons/icon_eye.png',
+                  "밝고 선명하게\n촬영해주세요.",
                 ),
               ),
 
               // 촬영 버튼
               Positioned(
-                bottom: 40.h,
+                bottom: captureButtonMarginFromBottom,
                 left: 0,
                 right: 0,
                 child: Center(
@@ -218,18 +265,14 @@ class TireOverlayPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    // 1. 새 레이어 생성 (blendMode를 위해)
     final Paint overlayPaint = Paint()..color = overlayColor;
     canvas.saveLayer(Offset.zero & size, Paint());
 
-    // 2. 전체 반투명 오버레이 먼저 그림
     canvas.drawRect(Offset.zero & size, overlayPaint);
 
-    // 3. guideRect 영역을 clear로 뚫어줌 (카메라 원본 그대로 보이게)
     final Paint clearPaint = Paint()..blendMode = BlendMode.clear;
     canvas.drawRect(guideRect, clearPaint);
 
-    // 4. dashed border 그리기 (guideRect 기준)
     final Paint dashedPaint =
         Paint()
           ..color = borderColor
@@ -237,12 +280,9 @@ class TireOverlayPainter extends CustomPainter {
           ..style = PaintingStyle.stroke;
 
     final Path path = Path()..addRect(guideRect);
-    final Path dashedPath = _createDashedPath(path, 3.0, 2.0); // 피그마 기준 dash
+    final Path dashedPath = _createDashedPath(path, 3.0, 2.0);
 
-    // 반드시 clear 처리 이후에 그려야 정상 표시됨
     canvas.drawPath(dashedPath, dashedPaint);
-
-    // 5. 레이어 복원
     canvas.restore();
   }
 

@@ -3,9 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/theme.dart';
 import 'widgets/ResultDetailCard.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:marimo_client/commons/CustomAppHeader.dart';
 
 class TireDiagnosisResult extends StatelessWidget {
-  const TireDiagnosisResult({Key? key}) : super(key: key);
+  final XFile? userImage;
+
+  const TireDiagnosisResult({super.key, this.userImage});
 
   @override
   Widget build(BuildContext context) {
@@ -18,22 +22,9 @@ class TireDiagnosisResult extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: backgroundColor,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: backgroundColor,
-        centerTitle: true,
-        title: Text(
-          'AI 진단',
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w500,
-            color: black,
-          ),
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: black),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+      appBar: CustomAppHeader(
+        title: 'AI 진단',
+        onBackPressed: () => Navigator.of(context).pop(),
       ),
       body: SafeArea(
         child: Padding(
@@ -52,16 +43,16 @@ class TireDiagnosisResult extends StatelessWidget {
               ),
               SizedBox(height: verticalPadding),
               Expanded(
-                // ✅ 여기로 감싸줘야 높이 계산이 의미 있어짐!
                 child: Align(
                   alignment: Alignment.topCenter,
                   child: ResultDetailCard(
                     cardHeight: availableHeight,
                     treadDepth: 5.6,
+                    userImage: userImage, // 사용자 이미지 전달
                   ),
                 ),
               ),
-              SizedBox(height: bottomOffset), // ✅ 정확히 104만큼 띄우기 위해 필요
+              SizedBox(height: bottomOffset),
             ],
           ),
         ),
