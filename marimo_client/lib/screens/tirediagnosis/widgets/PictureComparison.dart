@@ -1,9 +1,17 @@
 // PictureComparison.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:marimo_client/theme.dart';
 
 class PictureComparison extends StatelessWidget {
-  const PictureComparison({super.key});
+  final double imageTextGap;
+  final double pictureHeight;
+
+  const PictureComparison({
+    super.key,
+    required this.imageTextGap,
+    required this.pictureHeight,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -14,14 +22,20 @@ class PictureComparison extends StatelessWidget {
             children: [
               Text(
                 '비교',
-                style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500),
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w500,
+                  color: iconColor,
+                ),
               ),
-              SizedBox(height: 8.h),
-              Image.asset(
-                'assets/images/tires/tire_sample.png',
-                width: 130.w,
-                height: 130.w,
-                fit: BoxFit.cover,
+              SizedBox(height: imageTextGap),
+              SizedBox(
+                height: pictureHeight,
+                child: Image.asset(
+                  'assets/images/tires/tire_sample.png',
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                ),
               ),
             ],
           ),
@@ -31,14 +45,20 @@ class PictureComparison extends StatelessWidget {
             children: [
               Text(
                 '내 타이어',
-                style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500),
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w500,
+                  color: iconColor,
+                ),
               ),
-              SizedBox(height: 8.h),
-              Image.asset(
-                'assets/images/tires/tire_mine.png',
-                width: 130.w,
-                height: 130.w,
-                fit: BoxFit.cover,
+              SizedBox(height: imageTextGap),
+              SizedBox(
+                height: pictureHeight,
+                child: Image.asset(
+                  'assets/images/tires/tire_mine.png',
+                  fit: BoxFit.cover,
+                  // width: double.infinity,
+                ),
               ),
             ],
           ),
