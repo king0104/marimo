@@ -24,7 +24,7 @@ public class DecryptedIdConverter implements ConditionalGenericConverter {
     @Override
     public Set<ConvertiblePair> getConvertibleTypes() {
         return Set.of(
-                new ConvertiblePair(String.class, Long.class)
+                new ConvertiblePair(String.class, Integer.class)
         );
     }
 
