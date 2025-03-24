@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class CarWashIcon extends StatelessWidget {
+class RepairIcon extends StatelessWidget {
   final bool isActive;
   final VoidCallback onTap;
 
-  const CarWashIcon({super.key, required this.isActive, required this.onTap});
+  const RepairIcon({super.key, required this.isActive, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class CarWashIcon extends StatelessWidget {
         ),
         child: Center(
           child: Icon(
-            Icons.cleaning_services,
+            Icons.build,
             color: isActive ? Colors.white : Colors.black,
           ),
         ),
