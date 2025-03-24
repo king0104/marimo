@@ -112,7 +112,7 @@ class _CarLastInspectionScreenState extends State<CarLastInspectionScreen> {
                       ),
                       selectedTextStyle: const TextStyle(
                         color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                     daysOfWeekHeight: 44,
