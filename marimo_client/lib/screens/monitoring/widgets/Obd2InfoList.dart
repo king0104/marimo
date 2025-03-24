@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:marimo_client/screens/monitoring/Obd2DetailScreen.dart';
 import 'package:marimo_client/screens/monitoring/widgets/DtcInfoCard.dart';
 import 'package:marimo_client/screens/monitoring/widgets/StatusInfoCard.dart';
 import 'package:marimo_client/screens/monitoring/widgets/ListToggle.dart'; // ✅ ListToggle 추가
@@ -63,7 +64,12 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
               // ✅ OBD2 상세 버튼 (우측에 배치)
               GestureDetector(
                 onTap: () {
-                  debugPrint("🚀 OBD2 상세 버튼 클릭됨!");
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const Obd2DetailScreen(),
+                    ),
+                  );
                 },
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 8.w),
