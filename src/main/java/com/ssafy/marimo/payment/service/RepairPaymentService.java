@@ -62,6 +62,6 @@ public class RepairPaymentService {
     public void deleteRepairPayment(
             Integer paymentId
     ) {
-        oilPaymentRepository.deleteById(paymentId);
+        repairPaymentRepository.deleteById(paymentId);
     }
 }
