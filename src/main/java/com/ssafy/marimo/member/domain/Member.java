@@ -48,4 +48,5 @@ public class Member extends BaseTimeEntity {
     @Column(nullable = false)
     private Boolean termsAgreed;
 
+
 }

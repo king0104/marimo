@@ -24,7 +24,7 @@ public class OilPaymentController {
 
     private final OilPaymentService oilPaymentService;
 
-    @PostMapping()
+    @PostMapping
     public ResponseEntity<PostOilPaymentResponse> postOilPayment(
             @Valid @RequestBody PostOilPaymentRequest postOilPaymentRequest
     ) {
