@@ -40,6 +40,7 @@ class HomeScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 20.h),
                 const CarStatusWidget(),
+                SizedBox(height: 120),
               ],
             ),
           ),

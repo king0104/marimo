@@ -21,6 +21,7 @@ class MyScreen extends StatelessWidget {
             const ScoreGauge(),    // 봉봉이 점수 게이지
             SizedBox(height: 20.h),
             const MyPageMenu(),     // 메뉴 리스트
+            SizedBox(height: 120),
           ],
         ),
       ),
