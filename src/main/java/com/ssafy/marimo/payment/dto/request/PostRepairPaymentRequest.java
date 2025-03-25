@@ -1,8 +1,6 @@
-package com.ssafy.marimo.payment.dto;
+package com.ssafy.marimo.payment.dto.request;
 
-import com.ssafy.marimo.car.domain.FuelType;
 import java.time.LocalDateTime;
-import lombok.Builder;
 
 public record PostRepairPaymentRequest(
         String carId,

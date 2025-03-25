@@ -1,18 +1,18 @@
 package com.ssafy.marimo.payment.controller;
 
 import com.ssafy.marimo.common.annotation.DecryptedId;
-import com.ssafy.marimo.payment.dto.PatchRepairPaymentRequest;
-import com.ssafy.marimo.payment.dto.PatchRepairPaymentResponse;
-import com.ssafy.marimo.payment.dto.PostRepairPaymentRequest;
-import com.ssafy.marimo.payment.dto.PostRepairPaymentResponse;
+import com.ssafy.marimo.payment.dto.response.GetRepairPaymentResponse;
+import com.ssafy.marimo.payment.dto.request.PatchRepairPaymentRequest;
+import com.ssafy.marimo.payment.dto.response.PatchRepairPaymentResponse;
+import com.ssafy.marimo.payment.dto.request.PostRepairPaymentRequest;
+import com.ssafy.marimo.payment.dto.response.PostRepairPaymentResponse;
 import com.ssafy.marimo.payment.service.RepairPaymentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -60,6 +60,16 @@ public class RepairPaymentController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .build();
+    }
+
+    @GetMapping("/{paymentId}")
+    public ResponseEntity<GetRepairPaymentResponse> getRepairPayment(
+            @PathVariable @DecryptedId Integer paymentId
+    ) {
+        GetRepairPaymentResponse getRepairPaymentResponse = repairPaymentService.getRepairPayment(paymentId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(getRepairPaymentResponse);
     }
 
 }

@@ -1,16 +1,17 @@
-package com.ssafy.marimo.payment.dto;
+package com.ssafy.marimo.payment.dto.response;
 
+import com.ssafy.marimo.payment.dto.PaymentItemDto;
 import java.util.List;
 import lombok.Builder;
 
 @Builder
-public record MonthlyPaymentResponse(
+public record GetMonthlyPaymentResponse(
         int totalAmount,
         int diffFromLastMonth,
         List<PaymentItemDto> payments
 ) {
-    public static MonthlyPaymentResponse of(int totalAmount, int diffFromLastMonth, List<PaymentItemDto> payments) {
-        return MonthlyPaymentResponse.builder()
+    public static GetMonthlyPaymentResponse of(int totalAmount, int diffFromLastMonth, List<PaymentItemDto> payments) {
+        return GetMonthlyPaymentResponse.builder()
                 .totalAmount(totalAmount)
                 .diffFromLastMonth(diffFromLastMonth)
                 .payments(payments)

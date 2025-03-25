@@ -13,11 +13,11 @@ public class PaymentItemMapper {
 
     public PaymentItemDto toDto(Payment payment) {
         String type = payment.getClass().getSimpleName().replace("Payment", "").toUpperCase();
-        return PaymentItemDto.builder()
-                .paymentId(idEncryptionUtil.encrypt(payment.getId()))
-                .type(type)
-                .price(payment.getPrice())
-                .paymentDate(payment.getPaymentDate())
-                .build();
+
+        return PaymentItemDto.of(
+                idEncryptionUtil.encrypt(payment.getId()),
+                type,
+                payment.getPrice(),
+                payment.getPaymentDate());
     }
 }

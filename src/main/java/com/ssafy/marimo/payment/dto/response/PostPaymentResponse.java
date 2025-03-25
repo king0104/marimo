@@ -1,8 +1,7 @@
-package com.ssafy.marimo.payment.dto;
+package com.ssafy.marimo.payment.dto.response;
 
 
 import lombok.Builder;
-import lombok.Getter;
 
 import java.time.LocalDateTime;
 

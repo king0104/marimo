@@ -2,7 +2,7 @@ package com.ssafy.marimo.payment.domain;
 
 import com.ssafy.marimo.car.domain.Car;
 import com.ssafy.marimo.car.domain.FuelType;
-import com.ssafy.marimo.payment.dto.PatchOilPaymentRequest;
+import com.ssafy.marimo.payment.dto.request.PatchOilPaymentRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -14,7 +14,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Filter;
 
 @Getter
 @Entity
