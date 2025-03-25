@@ -27,7 +27,7 @@ class ResultDetailCard extends StatelessWidget {
     final double titleTop = 15.h;
     // final double pictureTop = 38.h;
     final double pictureHeight = 215.h;
-    final double levelTextTop = 279.h;
+    final double levelTextTop = 295.h;
     final double buttonBottom = 27.h;
 
     return Container(
