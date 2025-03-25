@@ -12,6 +12,7 @@ import org.hibernate.annotations.ParamDef;
 import org.hibernate.annotations.SQLDelete;
 
 
+
 @Entity
 @Getter
 @Table(name = "car")
@@ -47,10 +48,10 @@ public class Car extends BaseTimeEntity {
     @Column(nullable = false, length = 10)
     private FuelType fuelType;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private LocalDateTime lastCheckedDate;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private LocalDateTime tireCheckedDate;
 
     @Column(nullable = false)
@@ -62,7 +63,7 @@ public class Car extends BaseTimeEntity {
     @Column(nullable = false)
     private Integer fuelLevel;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private LocalDateTime lastUpdateDate;
 
     @Enumerated(EnumType.STRING)
@@ -71,5 +72,50 @@ public class Car extends BaseTimeEntity {
 
     @Column(nullable = false)
     private Integer score;
+
+    @Builder
+    private Car(Member member,
+                Brand brand,
+                String nickname,
+                String modelName,
+                String plateNumber,
+                String vehicleIdentificationNumber,
+                FuelType fuelType,
+                Integer totalDistance,
+                Float fuelEfficiency,
+                Integer fuelLevel,
+                OBD2Status obd2Status) {
+        this.member = member;
+        this.brand = brand;
+        this.nickname = nickname;
+        this.modelName = modelName;
+        this.plateNumber = plateNumber;
+        this.vehicleIdentificationNumber = vehicleIdentificationNumber;
+        this.fuelType = fuelType;
+        this.totalDistance = totalDistance;
+        this.fuelEfficiency = fuelEfficiency;
+        this.fuelLevel = fuelLevel;
+        this.obd2Status = obd2Status;
+    }
+
+    public static Car createInitalCar(
+            Member member,
+            String nickname,
+            Brand brand,
+            String modelName,
+            String plateNumber,
+            String vehicleIdentificationNumber,
+            FuelType fuelType
+    ) {
+        return Car.builder()
+                .member(member)
+                .nickname(nickname)
+                .brand(brand)
+                .modelName(modelName)
+                .plateNumber(plateNumber)
+                .vehicleIdentificationNumber(vehicleIdentificationNumber)
+                .fuelType(fuelType)
+                .build();
+    }
 
 }
