@@ -14,16 +14,38 @@ class TireCameraPage extends StatefulWidget {
   _TireCameraPageState createState() => _TireCameraPageState();
 }
 
-class _TireCameraPageState extends State<TireCameraPage> {
+class _TireCameraPageState extends State<TireCameraPage>
+    with WidgetsBindingObserver {
   XFile? _capturedImage;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // 앱이 다시 포그라운드로 돌아왔을 때
+      setState(() {
+        // 필요한 경우 여기서 상태를 복원하거나 갱신합니다.
+      });
+    }
+  }
 
   void _handleImageCaptured(XFile image) {
     setState(() {
-      _capturedImage = image; // 상태 업데이트
+      _capturedImage = image;
     });
-
-    widget.onImageCaptured(image); // 부모 위젯에 이미지 전달
-    Navigator.of(context).pop(); // 이전 화면으로 돌아가기
+    widget.onImageCaptured(image);
+    Navigator.of(context).pop();
   }
 
   @override
@@ -36,9 +58,8 @@ class _TireCameraPageState extends State<TireCameraPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 📌 "타이어 사진 촬영" 문구
           Padding(
-            padding: EdgeInsets.only(left: 20, top: 16), // 왼쪽 20, 헤더 아래 16
+            padding: EdgeInsets.only(left: 20, top: 16),
             child: Text(
               "타이어 사진 촬영",
               style: TextStyle(
@@ -48,15 +69,10 @@ class _TireCameraPageState extends State<TireCameraPage> {
               ),
             ),
           ),
-
-          SizedBox(height: 16), // 📌 문구와 카메라 프리뷰 사이 16의 간격 추가
-          // 📸 타이어 촬영 가이드 (카메라 미리보기 포함)
+          SizedBox(height: 16),
           Expanded(
-            child: TireCameraGuide(
-              onImageCaptured: _handleImageCaptured, // 이미지 캡처 후 처리
-            ),
+            child: TireCameraGuide(onImageCaptured: _handleImageCaptured),
           ),
-
           if (_capturedImage != null) ...[
             SizedBox(height: 16),
             Padding(
