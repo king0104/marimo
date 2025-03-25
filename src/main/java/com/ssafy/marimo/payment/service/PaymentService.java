@@ -1,7 +1,7 @@
 package com.ssafy.marimo.payment.service;
 
 import com.ssafy.marimo.payment.domain.Payment;
-import com.ssafy.marimo.payment.dto.MonthlyPaymentResponse;
+import com.ssafy.marimo.payment.dto.response.GetMonthlyPaymentResponse;
 import com.ssafy.marimo.payment.dto.PaymentItemDto;
 import com.ssafy.marimo.payment.mapper.PaymentItemMapper;
 import com.ssafy.marimo.payment.repository.PaymentRepository;
@@ -17,7 +17,7 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final PaymentItemMapper paymentItemMapper;
 
-    public MonthlyPaymentResponse getMonthlyHistory(
+    public GetMonthlyPaymentResponse getMonthlyHistory(
             Integer carId,
             int year,
             int month
@@ -44,7 +44,7 @@ public class PaymentService {
 
         int diff = thisMonthTotal - lastMonthTotal;
 
-        return MonthlyPaymentResponse.of(
+        return GetMonthlyPaymentResponse.of(
                 thisMonthTotal,
                 diff,
                 items

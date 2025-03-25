@@ -19,7 +19,7 @@ class IdEncryptionUtilTest {
     @DisplayName("정수 ID를 암호화하고 다시 복호화하면 원래 값과 일치해야 한다")
     void encryptAndDecryptTest() {
         // given
-        Integer originalId = 5;
+        Integer originalId = 6;
 
         // when
         String encrypted = idEncryptionUtil.encrypt(originalId);

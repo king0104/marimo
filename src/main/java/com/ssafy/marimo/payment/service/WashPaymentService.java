@@ -6,10 +6,11 @@ import com.ssafy.marimo.common.util.IdEncryptionUtil;
 import com.ssafy.marimo.exception.ErrorStatus;
 import com.ssafy.marimo.exception.NotFoundException;
 import com.ssafy.marimo.payment.domain.WashPayment;
-import com.ssafy.marimo.payment.dto.PatchWashPaymentRequest;
-import com.ssafy.marimo.payment.dto.PatchWashPaymentResponse;
-import com.ssafy.marimo.payment.dto.PostWashPaymentRequest;
-import com.ssafy.marimo.payment.dto.PostWashPaymentResponse;
+import com.ssafy.marimo.payment.dto.response.GetWashPaymentResponse;
+import com.ssafy.marimo.payment.dto.request.PatchWashPaymentRequest;
+import com.ssafy.marimo.payment.dto.response.PatchWashPaymentResponse;
+import com.ssafy.marimo.payment.dto.request.PostWashPaymentRequest;
+import com.ssafy.marimo.payment.dto.response.PostWashPaymentResponse;
 import com.ssafy.marimo.payment.repository.WashPaymentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -51,8 +52,7 @@ public class WashPaymentService {
             Integer paymentId,
             PatchWashPaymentRequest patchWashPaymentRequest
     ) {
-        WashPayment washPayment = washPaymentRepository.findById(paymentId)
-                .orElseThrow(() -> new NotFoundException(ErrorStatus.WASH_PAYMENT_NOT_FOUND.getErrorCode()));
+        WashPayment washPayment = findById(paymentId);
 
         washPayment.updateFromRequestDto(patchWashPaymentRequest);
 
@@ -66,5 +66,25 @@ public class WashPaymentService {
     ) {
         washPaymentRepository.deleteById(paymentId);
     }
+
+    public GetWashPaymentResponse getWashPayment(
+            Integer paymentId
+    ) {
+        WashPayment washPayment = findById(paymentId);
+
+        return GetWashPaymentResponse.of(
+                washPayment.getPrice(),
+                washPayment.getPaymentDate(),
+                washPayment.getLocation(),
+                washPayment.getMemo(),
+                washPayment.getWashType()
+        );
+    }
+
+    private WashPayment findById(Integer paymentId) {
+        return washPaymentRepository.findById(paymentId)
+                .orElseThrow(() -> new NotFoundException(ErrorStatus.WASH_PAYMENT_NOT_FOUND.getErrorCode()));
+    }
+
 
 }

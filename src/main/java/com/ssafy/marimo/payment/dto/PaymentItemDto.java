@@ -12,4 +12,14 @@ public record PaymentItemDto(
         Integer price,
         LocalDateTime paymentDate
 ) {
+    public static PaymentItemDto of(String paymentId, String type, Integer price, LocalDateTime paymentDate) {
+        return PaymentItemDto.builder()
+                .paymentId(paymentId)
+                .type(type)
+                .price(price)
+                .paymentDate(paymentDate)
+                .build();
+    }
+
+
 }

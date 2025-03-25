@@ -6,10 +6,11 @@ import com.ssafy.marimo.common.util.IdEncryptionUtil;
 import com.ssafy.marimo.exception.ErrorStatus;
 import com.ssafy.marimo.exception.NotFoundException;
 import com.ssafy.marimo.payment.domain.OilPayment;
-import com.ssafy.marimo.payment.dto.PatchOilPaymentRequest;
-import com.ssafy.marimo.payment.dto.PatchWashPaymentResponse;
-import com.ssafy.marimo.payment.dto.PostOilPaymentResponse;
-import com.ssafy.marimo.payment.dto.PostOilPaymentRequest;
+import com.ssafy.marimo.payment.dto.response.GetOilPaymentResponse;
+import com.ssafy.marimo.payment.dto.request.PatchOilPaymentRequest;
+import com.ssafy.marimo.payment.dto.response.PatchWashPaymentResponse;
+import com.ssafy.marimo.payment.dto.response.PostOilPaymentResponse;
+import com.ssafy.marimo.payment.dto.request.PostOilPaymentRequest;
 import com.ssafy.marimo.payment.repository.OilPaymentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -58,6 +59,21 @@ public class OilPaymentService {
     @Transactional
     public void deleteOilPayment(Integer paymentId) {
         oilPaymentRepository.deleteById(paymentId);
+    }
+
+    public GetOilPaymentResponse getOilPayment(Integer paymentId) {
+        OilPayment oilPayment = oilPaymentRepository.findById(paymentId)
+                .orElseThrow(() -> new NotFoundException(ErrorStatus.OIL_PAYMENT_NOT_FOUND.getErrorCode()));
+
+        return GetOilPaymentResponse.of(
+                oilPayment.getPrice(),
+                oilPayment.getPaymentDate(),
+                oilPayment.getLocation(),
+                oilPayment.getMemo(),
+                oilPayment.getFuelType()
+        );
+
+
     }
 
 }

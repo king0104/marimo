@@ -1,7 +1,7 @@
 package com.ssafy.marimo.payment.domain;
 
 import com.ssafy.marimo.car.domain.Car;
-import com.ssafy.marimo.payment.dto.PatchRepairPaymentRequest;
+import com.ssafy.marimo.payment.dto.request.PatchRepairPaymentRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -11,7 +11,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Filter;
 
 @Getter
 @Entity
