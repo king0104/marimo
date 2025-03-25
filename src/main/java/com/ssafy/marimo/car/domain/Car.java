@@ -16,8 +16,6 @@ import org.hibernate.annotations.SQLDelete;
 @Getter
 @Table(name = "car")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE car SET deleted = true, deleted_at = NOW() WHERE id = ?")
-@Filter(name = "deletedFilter", condition = "deleted = :isDeleted")
 public class Car extends BaseTimeEntity {
 
     @Id

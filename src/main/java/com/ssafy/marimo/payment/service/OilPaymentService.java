@@ -55,4 +55,9 @@ public class OilPaymentService {
 
     }
 
+    @Transactional
+    public void deleteOilPayment(Integer paymentId) {
+        oilPaymentRepository.deleteById(paymentId);
+    }
+
 }

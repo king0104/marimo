@@ -12,6 +12,7 @@ import org.apache.coyote.Response;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,7 +28,7 @@ public class RepairPaymentController {
     private final RepairPaymentService repairPaymentService;
 
 
-    @PostMapping()
+    @PostMapping
     public ResponseEntity<PostRepairPaymentResponse> postRepairPayment(
             @Valid @RequestBody PostRepairPaymentRequest postRepairPaymentRequest
     ) {
@@ -49,6 +50,16 @@ public class RepairPaymentController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(patchRepairPaymentResponse);
+    }
+
+    @DeleteMapping("/{paymentId}")
+    public ResponseEntity<Void> deleteRepairPayment(
+            @PathVariable("paymentId") @DecryptedId Integer paymentId
+    ) {
+        repairPaymentService.deleteRepairPayment(paymentId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .build();
     }
 
 }

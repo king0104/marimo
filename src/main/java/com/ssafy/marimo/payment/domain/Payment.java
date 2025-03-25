@@ -26,7 +26,6 @@ import org.hibernate.annotations.Filter;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "payment_type")
-@Filter(name = "deletedFilter", condition = "deleted = :isDeleted")
 public abstract class Payment extends BaseTimeEntity {
 
     @Id

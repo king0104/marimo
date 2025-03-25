@@ -24,6 +24,7 @@ public class WashPaymentService {
     private final WashPaymentRepository washPaymentRepository;
     private final CarRepository carRepository;
 
+    @Transactional
     public PostWashPaymentResponse postWashPayment(
             PostWashPaymentRequest postWashPaymentRequest
     ) {
@@ -57,6 +58,13 @@ public class WashPaymentService {
 
         return PatchWashPaymentResponse.of(
                 idEncryptionUtil.encrypt(paymentId));
+    }
+
+    @Transactional
+    public void deleteWashPayment(
+            Integer paymentId
+    ) {
+        washPaymentRepository.deleteById(paymentId);
     }
 
 }

@@ -10,7 +10,9 @@ import com.ssafy.marimo.payment.dto.PatchRepairPaymentRequest;
 import com.ssafy.marimo.payment.dto.PatchRepairPaymentResponse;
 import com.ssafy.marimo.payment.dto.PostRepairPaymentRequest;
 import com.ssafy.marimo.payment.dto.PostRepairPaymentResponse;
+import com.ssafy.marimo.payment.repository.OilPaymentRepository;
 import com.ssafy.marimo.payment.repository.RepairPaymentRepository;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,7 @@ public class RepairPaymentService {
     private final IdEncryptionUtil idEncryptionUtil;
     private final RepairPaymentRepository repairPaymentRepository;
     private final CarRepository carRepository;
+    private final OilPaymentRepository oilPaymentRepository;
 
     @Transactional
     public PostRepairPaymentResponse postRepairPayment(PostRepairPaymentRequest postRepairPaymentRequest) {
@@ -40,7 +43,6 @@ public class RepairPaymentService {
         );
 
         return PostRepairPaymentResponse.of(idEncryptionUtil.encrypt(repairPayment.getId()));
-
     }
 
     @Transactional
@@ -54,5 +56,12 @@ public class RepairPaymentService {
         repairPayment.updateFromRequestDto(patchRepairPaymentRequest);
 
         return PatchRepairPaymentResponse.of(idEncryptionUtil.encrypt(paymentId));
+    }
+
+    @Transactional
+    public void deleteRepairPayment(
+            Integer paymentId
+    ) {
+        repairPaymentRepository.deleteById(paymentId);
     }
 }
