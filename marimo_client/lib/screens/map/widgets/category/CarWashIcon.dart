@@ -12,8 +12,8 @@ class CarWashIcon extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        width: 44,
-        height: 44,
+        width: 42,
+        height: 42,
         decoration: BoxDecoration(
           color: isActive ? Colors.black : Colors.white,
           borderRadius: BorderRadius.circular(12),

@@ -1,55 +1,95 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/models/map/Place.dart';
-import 'package:marimo_client/screens/map/data/MockData.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class PlaceCard extends StatelessWidget {
   final Place place;
 
   const PlaceCard({super.key, required this.place});
 
+  String getPlaceTypeLabel(String type) {
+    switch (type) {
+      case 'gas':
+        return '휘발유';
+      case 'repair':
+        return '정비소';
+      case 'carwash':
+        return '세차장';
+      default:
+        return '기타';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-
+    double screenWidth = MediaQuery.of(context).size.width;
     return Container(
-      width: screenWidth, // 화면 전체 너비
-      margin: const EdgeInsets.only(right: 12), // 스크롤 간격
-      padding: const EdgeInsets.all(16),
+      width: screenWidth * 0.83,
+      height: 112.h,
+      margin: const EdgeInsets.only(right: 12),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.blue.shade100),
         boxShadow: const [BoxShadow(blurRadius: 4, color: Colors.black12)],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 상단
+          /// ✅ 1순위 + 주유소/정비소/세차장
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 2),
                 decoration: BoxDecoration(
                   color: Colors.black,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: const Text(
                   '1순위',
-                  style: TextStyle(color: Colors.white, fontSize: 12),
+                  style: TextStyle(color: Colors.white, fontSize: 10),
                 ),
               ),
-              const Text('휘발유', style: TextStyle(color: Colors.grey)),
+              Text(
+                getPlaceTypeLabel(place.type),
+                style: const TextStyle(color: Colors.grey, fontSize: 12),
+              ),
             ],
           ),
 
-          const SizedBox(height: 8),
-          Text(
-            place.name,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          const SizedBox(height: 4),
+
+          /// ✅ 주유소 이름 + 가격 (주유소일 때만)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  place.name,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              if (place.type == 'gas') // 🔥 주유소일 때만 가격 표시
+                Text(
+                  place.price?.toString() ?? '',
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+            ],
           ),
 
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
+
+          /// ✅ 평점 + 태그
           Row(
             children: [
               const Icon(Icons.star, color: Colors.amber, size: 16),
@@ -57,10 +97,10 @@ class PlaceCard extends StatelessWidget {
               Text(place.rating.toStringAsFixed(1)),
               const SizedBox(width: 6),
               ...place.tags
-                  .take(4)
+                  .take(5)
                   .map(
                     (tag) => Container(
-                      margin: const EdgeInsets.only(right: 6),
+                      margin: const EdgeInsets.only(left: 4),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
                         vertical: 4,
@@ -71,29 +111,44 @@ class PlaceCard extends StatelessWidget {
                       ),
                       child: Text(tag, style: const TextStyle(fontSize: 12)),
                     ),
-                  )
-                  .toList(),
+                  ),
             ],
           ),
 
-          const SizedBox(height: 12),
-          Text(
-            '${place.distance.toStringAsFixed(1)}km',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-          ),
+          const Spacer(),
 
-          const SizedBox(height: 12),
-          ElevatedButton.icon(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF3B82F6),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+          /// ✅ 거리 + 카카오내비 버튼
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                '${place.distance.toStringAsFixed(1)}km',
+                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            ),
-            icon: const Icon(Icons.navigation, size: 18),
-            label: const Text('카카오내비'),
+              ElevatedButton.icon(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF3B82F6),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                ),
+                icon: SvgPicture.asset(
+                  'assets/images/icons/icon_kakaoNavi.svg',
+                  height: 20,
+                ),
+                label: const Text(
+                  '카카오내비',
+                  style: TextStyle(fontSize: 14, color: Colors.white),
+                ),
+              ),
+            ],
           ),
         ],
       ),
