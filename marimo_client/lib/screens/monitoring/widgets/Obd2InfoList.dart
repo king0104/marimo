@@ -16,6 +16,7 @@ class Obd2InfoList extends StatefulWidget {
 
 class _Obd2InfoListState extends State<Obd2InfoList> {
   bool showDtcInfo = true;
+  int? selectedIndex;
 
   // 고장 코드 더미
   final List<Map<String, String>> dtcData = [
@@ -134,10 +135,20 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
                   padding: EdgeInsets.symmetric(vertical: 8.h),
                   child:
                       showDtcInfo
-                          ? DtcInfoCard(
-                            code: dtcData[index]["code"]!,
-                            description: dtcData[index]["description"]!,
-                          )
+                          ? (() {
+                            final item = dtcData[index]; // ✅ 여기 추가됨!
+                            return DtcInfoCard(
+                              code: item["code"]!,
+                              description: item["description"]!,
+                              isSelected: selectedIndex == index,
+                              onTap: () {
+                                setState(() {
+                                  selectedIndex =
+                                      selectedIndex == index ? null : index;
+                                });
+                              },
+                            );
+                          })()
                           : StatusInfoCard(
                             icon: statusData[index]["icon"] as IconData,
                             title: statusData[index]["title"] as String,
