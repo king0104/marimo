@@ -74,10 +74,4 @@ public class Car extends BaseTimeEntity {
     @Column(nullable = false)
     private Integer score;
 
-    @Column(nullable = false)
-    private Boolean deleted;
-
-    @Column(nullable = true)
-    private LocalDateTime deletedAt;
-
 }

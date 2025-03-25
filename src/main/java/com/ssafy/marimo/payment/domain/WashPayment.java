@@ -22,7 +22,6 @@ import org.hibernate.annotations.Filter;
 @Table(name = "wash_payment")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DiscriminatorValue("WASH")
-@Filter(name = "deletedFilter", condition = "deleted = :isDeleted")
 public class WashPayment extends Payment {
 
     @Enumerated(EnumType.STRING)

@@ -21,8 +21,6 @@ import org.hibernate.annotations.SQLDelete;
 @Entity
 @Table(name = "member")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE member SET deleted = true, deleted_at = NOW() WHERE id = ?")
-@Filter(name = "deletedFilter", condition = "deleted = :isDeleted")
 public class Member extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -50,10 +48,5 @@ public class Member extends BaseTimeEntity {
     @Column(nullable = false)
     private Boolean termsAgreed;
 
-    @Column(nullable = false)
-    private Boolean deleted;
-
-    @Column(nullable = false)
-    private LocalDateTime deletedAt;
 
 }

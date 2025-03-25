@@ -18,7 +18,6 @@ import org.hibernate.annotations.Filter;
 @Table(name = "repair_payment")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DiscriminatorValue("REPAIR")
-@Filter(name = "deletedFilter", condition = "deleted = :isDeleted")
 public class RepairPayment extends Payment {
 
     @Column(nullable = true, length = 50)

@@ -13,7 +13,6 @@ import org.hibernate.annotations.Filter;
 @Entity
 @Table(name = "gas_station")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Filter(name = "deletedFilter", condition = "deleted = :isDeleted")
 public class GasStation {
 
     @Id
