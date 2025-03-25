@@ -5,8 +5,13 @@ import 'package:marimo_client/theme.dart';
 
 class ResultInformation extends StatelessWidget {
   final double treadDepth;
+  final double cardHeight; // ✅ 카드 높이 비율 기준 추가
 
-  const ResultInformation({super.key, required this.treadDepth});
+  const ResultInformation({
+    super.key,
+    required this.treadDepth,
+    required this.cardHeight,
+  });
 
   String getLevel() {
     if (treadDepth < 3.0) return '나쁨';
@@ -80,7 +85,7 @@ class ResultInformation extends StatelessWidget {
           '사용감 : 트레드가 ${treadDepth.toStringAsFixed(1)}mm 남았어요',
           style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
         ),
-        SizedBox(height: 16.h),
+        SizedBox(height: 25.h), // ✅ 여백을 고정 px 기준 반응형으로
         Text(
           getComment(),
           style: TextStyle(
