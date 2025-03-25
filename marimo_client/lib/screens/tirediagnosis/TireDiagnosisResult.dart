@@ -6,20 +6,41 @@ import 'widgets/ResultDetailCard.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:marimo_client/commons/CustomAppHeader.dart';
 
-class TireDiagnosisResult extends StatelessWidget {
+class TireDiagnosisResult extends StatefulWidget {
   final XFile? userImage;
 
   const TireDiagnosisResult({super.key, this.userImage});
 
   @override
-  Widget build(BuildContext context) {
-    final double totalHeight = MediaQuery.of(context).size.height;
-    final double appBarHeight = kToolbarHeight;
-    final double verticalPadding = 16.h;
-    final double bottomOffset = 104.h;
-    final double availableHeight =
-        totalHeight - appBarHeight - verticalPadding * 2 - bottomOffset;
+  _TireDiagnosisResultState createState() => _TireDiagnosisResultState();
+}
 
+class _TireDiagnosisResultState extends State<TireDiagnosisResult> {
+  late XFile? _userImage;
+  late double _treadDepth;
+
+  @override
+  void initState() {
+    super.initState();
+    // 초기 상태 설정
+    _userImage = widget.userImage;
+    _treadDepth = 1.2; // 기본값 설정 (예시)
+  }
+
+  void updateTreadDepth(double newDepth) {
+    setState(() {
+      _treadDepth = newDepth;
+    });
+  }
+
+  void updateUserImage(XFile? newImage) {
+    setState(() {
+      _userImage = newImage;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: CustomAppHeader(
@@ -32,7 +53,7 @@ class TireDiagnosisResult extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: verticalPadding),
+              SizedBox(height: 16.h),
               Text(
                 '측정 결과',
                 style: TextStyle(
@@ -41,18 +62,14 @@ class TireDiagnosisResult extends StatelessWidget {
                   color: black,
                 ),
               ),
-              SizedBox(height: verticalPadding),
-              Expanded(
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: ResultDetailCard(
-                    cardHeight: availableHeight,
-                    treadDepth: 5.6,
-                    userImage: userImage, // 사용자 이미지 전달
-                  ),
-                ),
+              SizedBox(height: 16.h),
+
+              // ResultDetailCard에 상태값 전달
+              ResultDetailCard(
+                cardHeight: 500.h,
+                treadDepth: _treadDepth,
+                userImage: _userImage,
               ),
-              SizedBox(height: bottomOffset),
             ],
           ),
         ),
