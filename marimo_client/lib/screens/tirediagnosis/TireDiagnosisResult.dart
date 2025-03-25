@@ -3,37 +3,49 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/theme.dart';
 import 'widgets/ResultDetailCard.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:marimo_client/commons/CustomAppHeader.dart';
 
-class TireDiagnosisResult extends StatelessWidget {
-  const TireDiagnosisResult({Key? key}) : super(key: key);
+class TireDiagnosisResult extends StatefulWidget {
+  final XFile? userImage;
+
+  const TireDiagnosisResult({super.key, this.userImage});
+
+  @override
+  _TireDiagnosisResultState createState() => _TireDiagnosisResultState();
+}
+
+class _TireDiagnosisResultState extends State<TireDiagnosisResult> {
+  late XFile? _userImage;
+  late double _treadDepth;
+
+  @override
+  void initState() {
+    super.initState();
+    // 초기 상태 설정
+    _userImage = widget.userImage;
+    _treadDepth = 1.2; // 기본값 설정 (예시)
+  }
+
+  void updateTreadDepth(double newDepth) {
+    setState(() {
+      _treadDepth = newDepth;
+    });
+  }
+
+  void updateUserImage(XFile? newImage) {
+    setState(() {
+      _userImage = newImage;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final double totalHeight = MediaQuery.of(context).size.height;
-    final double appBarHeight = kToolbarHeight;
-    final double verticalPadding = 16.h;
-    final double bottomOffset = 104.h;
-    final double availableHeight =
-        totalHeight - appBarHeight - verticalPadding * 2 - bottomOffset;
-
     return Scaffold(
       backgroundColor: backgroundColor,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: backgroundColor,
-        centerTitle: true,
-        title: Text(
-          'AI 진단',
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w500,
-            color: black,
-          ),
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: black),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+      appBar: CustomAppHeader(
+        title: 'AI 진단',
+        onBackPressed: () => Navigator.of(context).pop(),
       ),
       body: SafeArea(
         child: Padding(
@@ -41,7 +53,7 @@ class TireDiagnosisResult extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: verticalPadding),
+              SizedBox(height: 16.h),
               Text(
                 '측정 결과',
                 style: TextStyle(
@@ -50,18 +62,14 @@ class TireDiagnosisResult extends StatelessWidget {
                   color: black,
                 ),
               ),
-              SizedBox(height: verticalPadding),
-              Expanded(
-                // ✅ 여기로 감싸줘야 높이 계산이 의미 있어짐!
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: ResultDetailCard(
-                    cardHeight: availableHeight,
-                    treadDepth: 5.6,
-                  ),
-                ),
+              SizedBox(height: 16.h),
+
+              // ResultDetailCard에 상태값 전달
+              ResultDetailCard(
+                cardHeight: 500.h,
+                treadDepth: _treadDepth,
+                userImage: _userImage,
               ),
-              SizedBox(height: bottomOffset), // ✅ 정확히 104만큼 띄우기 위해 필요
             ],
           ),
         ),

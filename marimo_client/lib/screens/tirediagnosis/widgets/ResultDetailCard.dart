@@ -6,34 +6,29 @@ import 'ResultInformation.dart';
 import 'CompleteButton.dart';
 import 'RepairshopButton.dart';
 import 'package:marimo_client/theme.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class ResultDetailCard extends StatelessWidget {
   final double cardHeight;
   final double treadDepth;
+  final XFile? userImage;
 
   const ResultDetailCard({
     super.key,
     required this.cardHeight,
     required this.treadDepth,
+    this.userImage,
   });
 
   @override
   Widget build(BuildContext context) {
-    // 비율 기반 거리 계산
-    final double paddingTop = cardHeight * 0.03; // 15 / 500
-    final double pictureGap = cardHeight * 0.014; // 7 / 500
-    final double pictureHeight = cardHeight * 0.43; // 215 / 500
-    final double levelToInfoGap = cardHeight * 0.052; // 26 / 500
-    final double infoToDescGap = cardHeight * 0.05; // 25 / 500
-    final double bottomGap = cardHeight * 0.054; // 27 / 500
-
-    // 🔸 정비소 버튼 위치 = 사진 상단 패딩 + 타이어 텍스트 높이 + 사진 높이 + 여백의 절반
-    final double repairButtonTop =
-        paddingTop +
-        12.sp +
-        pictureGap +
-        pictureHeight +
-        levelToInfoGap * 2 / 3;
+    // 📐 기준 500 기준 px → .h 변환
+    final double titleTop = 15.h;
+    // final double pictureTop = 38.h;
+    final double pictureHeight = 215.h;
+    final double levelTextTop = 279.h;
+    final double buttonBottom = 27.h;
 
     return Container(
       width: double.infinity,
@@ -59,39 +54,47 @@ class ResultDetailCard extends StatelessWidget {
         margin: EdgeInsets.zero,
         child: Stack(
           children: [
+            // ✅ [1] 타이어 비교 사진만 전체 너비로 (여백 없음)
+            Positioned(
+              top: titleTop,
+              left: 0,
+              right: 0,
+              child: PictureComparison(
+                imageTextGap: 7.h,
+                pictureHeight: pictureHeight,
+                myTireImage:
+                    userImage != null ? FileImage(File(userImage!.path)) : null,
+              ),
+            ),
+
+            // ✅ [2] 나머지 요소는 기존처럼 Padding 유지
             Padding(
-              padding: EdgeInsets.only(top: paddingTop, bottom: bottomGap),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+              padding: EdgeInsets.symmetric(horizontal: 25.w),
+              child: Stack(
                 children: [
-                  PictureComparison(
-                    imageTextGap: pictureGap,
-                    pictureHeight: pictureHeight,
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 25.w),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          SizedBox(height: levelToInfoGap),
-                          ResultInformation(treadDepth: treadDepth),
-                          SizedBox(height: infoToDescGap),
-                          const Spacer(),
-                          const CompleteButton(),
-                        ],
-                      ),
+                  Positioned(
+                    top: levelTextTop,
+                    left: 0,
+                    right: 0,
+                    child: ResultInformation(
+                      treadDepth: treadDepth,
+                      cardHeight: cardHeight,
                     ),
+                  ),
+                  Positioned(
+                    bottom: buttonBottom,
+                    left: 0,
+                    right: 0,
+                    child: const CompleteButton(),
                   ),
                 ],
               ),
             ),
 
-            // 🔸 조건부 렌더링
             if (treadDepth < 3)
               Positioned(
-                top: repairButtonTop,
-                right: 20.w,
+                top: 270.h, // ✅ 카드 위에서부터 275px
+                right: 17.w, // ✅ 오른쪽에서부터 17px
                 child: const RepairshopButton(),
               ),
           ],

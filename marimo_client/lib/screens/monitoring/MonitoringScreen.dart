@@ -12,11 +12,11 @@ class MonitoringScreen extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 20.w), // ✅ 좌우 패딩 20.w 적용
         child: Column(
           children: [
-            SizedBox(
-              width: double.infinity, // ✅ 3D 모델 전체 너비 확장
-              height: 200.h, // ✅ 적절한 높이 설정
-              child: Car3DModel(), // ✅ 새로 추가된 위젯 (예: 3D 자동차 모델)
-            ),
+            // SizedBox(
+            //   width: double.infinity, // ✅ 3D 모델 전체 너비 확장
+            //   height: 200.h, // ✅ 적절한 높이 설정
+            //   child: Car3DModel(), // ✅ 새로 추가된 위젯 (예: 3D 자동차 모델)
+            // ),
             SizedBox(height: 16.sp), // ✅ 요소 간의 간격 조정
             SizedBox(
               width: double.infinity, // ✅ 버튼 가로 크기 확장
