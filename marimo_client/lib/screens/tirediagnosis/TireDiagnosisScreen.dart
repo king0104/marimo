@@ -32,13 +32,13 @@ class _TireDiagnosisScreenState extends State<TireDiagnosisScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      // 앱이 다시 활성화될 때 화면을 강제로 다시 그립니다
-      if (mounted) setState(() {});
+    if (state == AppLifecycleState.resumed && mounted) {
+      setState(() {
+        // 필요한 경우 여기에 상태 업데이트 로직을 추가할 수 있습니다.
+      });
     }
   }
 
-  // AutomaticKeepAliveClientMixin 구현
   @override
   bool get wantKeepAlive => true;
 
@@ -59,12 +59,9 @@ class _TireDiagnosisScreenState extends State<TireDiagnosisScreen>
 
   @override
   Widget build(BuildContext context) {
-    // AutomaticKeepAliveClientMixin 사용 시 필수
     super.build(context);
 
-    // 화면 너비 계산 (패딩 제외)
-    final screenWidth = MediaQuery.of(context).size.width;
-    final contentWidth = screenWidth - 40; // 좌우 패딩 각 20을 제외한 전체 너비
+    final contentWidth = MediaQuery.of(context).size.width - 40;
 
     return Scaffold(
       appBar: CustomAppHeader(
@@ -75,31 +72,27 @@ class _TireDiagnosisScreenState extends State<TireDiagnosisScreen>
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.only(
-              left: 20,
-              right: 20,
-              top: 16.h,
-              bottom: 16.h,
-            ),
+            padding: EdgeInsets.symmetric(
+              horizontal: 20,
+            ).copyWith(top: 16.h, bottom: 16.h),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 텍스트를 Key로 감싸서 리빌드 시 항상 새로 생성되도록 합니다
                 Text(
                   'AI 타이어 마모도 진단',
-                  key: ValueKey('title_text'),
+                  key: UniqueKey(),
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w500,
+                    color: Colors.black,
                   ),
                 ),
                 SizedBox(height: 16.h),
 
-                // 타이어 진단 카드 - 가로로 전체 화면 채우기
                 SizedBox(
                   width: contentWidth,
                   child: TireDiagnosisCard(
-                    key: ValueKey('diagnosis_card'),
+                    key: UniqueKey(),
                     selectedImages: _selectedImages,
                     onAddImage: addImage,
                     onRemoveImage: removeImage,
@@ -121,10 +114,9 @@ class _TireDiagnosisScreenState extends State<TireDiagnosisScreen>
 
                 SizedBox(height: 33.h),
 
-                // 유의사항 섹션 - 가로로 전체 화면 채우기
                 SizedBox(
                   width: contentWidth,
-                  child: const Instruction(key: ValueKey('instruction')),
+                  child: Instruction(key: UniqueKey()),
                 ),
               ],
             ),

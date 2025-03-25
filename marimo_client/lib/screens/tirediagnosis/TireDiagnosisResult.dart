@@ -6,10 +6,38 @@ import 'widgets/ResultDetailCard.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:marimo_client/commons/CustomAppHeader.dart';
 
-class TireDiagnosisResult extends StatelessWidget {
+class TireDiagnosisResult extends StatefulWidget {
   final XFile? userImage;
 
   const TireDiagnosisResult({super.key, this.userImage});
+
+  @override
+  _TireDiagnosisResultState createState() => _TireDiagnosisResultState();
+}
+
+class _TireDiagnosisResultState extends State<TireDiagnosisResult> {
+  late XFile? _userImage;
+  late double _treadDepth;
+
+  @override
+  void initState() {
+    super.initState();
+    // 초기 상태 설정
+    _userImage = widget.userImage;
+    _treadDepth = 1.2; // 기본값 설정 (예시)
+  }
+
+  void updateTreadDepth(double newDepth) {
+    setState(() {
+      _treadDepth = newDepth;
+    });
+  }
+
+  void updateUserImage(XFile? newImage) {
+    setState(() {
+      _userImage = newImage;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +53,6 @@ class TireDiagnosisResult extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 헤더 아래 고정된 16.h 위치에 텍스트 배치
               SizedBox(height: 16.h),
               Text(
                 '측정 결과',
@@ -35,14 +62,13 @@ class TireDiagnosisResult extends StatelessWidget {
                   color: black,
                 ),
               ),
-
               SizedBox(height: 16.h),
 
-              // 카드 자체 높이는 비율 기반 혹은 내부 콘텐츠 기반
+              // ResultDetailCard에 상태값 전달
               ResultDetailCard(
-                cardHeight: 500.h, // 비율 기반으로 예시
-                treadDepth: 1.2,
-                userImage: userImage,
+                cardHeight: 500.h,
+                treadDepth: _treadDepth,
+                userImage: _userImage,
               ),
             ],
           ),
