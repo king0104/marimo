@@ -18,13 +18,13 @@ class _CardSelectScreenState extends State<CardSelectScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
+        padding: EdgeInsets.symmetric(horizontal: 0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 40),
             CustomTitleText(text: "주유 시 사용하는 카드를 골라주세요.", highlight: "카드"),
-            SizedBox(height: 50),
+            SizedBox(height: 40),
             CardSelector(),
           ],
         ),

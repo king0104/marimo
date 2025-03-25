@@ -100,8 +100,8 @@ class _MainScreenState extends State<MainScreen> {
     HomeScreen(),
     MonitoringScreen(),
     BluetoothTestScreen(),
-    // MapScreen(),
-    RegisterCarScreen(),
+    MapScreen(),
+    // RegisterCarScreen(),
     MonitoringScreen(),
   ];
 
