@@ -35,10 +35,7 @@ class _BluetoothTestScreenState extends State<BluetoothTestScreen> {
 
     try {
       await provider.connect(selectedDevice!);
-      pollingTimer?.cancel();
-      pollingTimer = Timer.periodic(const Duration(seconds: 1), (_) {
-        provider.requestAll();
-      });
+      provider.startPolling(); // ✅ 여기만 추가
     } catch (e) {
       ScaffoldMessenger.of(
         context,
@@ -48,7 +45,7 @@ class _BluetoothTestScreenState extends State<BluetoothTestScreen> {
 
   @override
   void dispose() {
-    pollingTimer?.cancel();
+    // provider.stopPolling(); ❌ 필요 없음
     super.dispose();
   }
 
