@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/models/map/Place.dart';
 import 'package:marimo_client/screens/map/data/MockData.dart';
 import 'package:marimo_client/screens/map/widgets/PlaceCard.dart';
@@ -63,9 +64,23 @@ class _MapScreenState extends State<MapScreen> {
                   target: currentLatLng,
                 );
 
-                // 위치 오버레이 설정
+                // 지도 내장된 현재 위치 오버레이 (파란 점)
                 _mapService.setCurrentLocationOverlay(
                   controller: _mapController,
+                  position: currentLatLng,
+                );
+
+                // ✅ 여기 추가: 사용자 위치에 마커 띄우기
+                await _mapService.addMarker(
+                  controller: _mapController,
+                  id: 'user_location',
+                  position: currentLatLng,
+                  caption: '현재 위치',
+                );
+
+                // 이후 필요시 상태 저장
+                _userLocationMarker = NMarker(
+                  id: 'user_location',
                   position: currentLatLng,
                 );
               }
@@ -135,7 +150,7 @@ class _MapScreenState extends State<MapScreen> {
                       _carWashFilter = false;
                     }),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 8),
               CarWashIcon(
                 isActive: _carWashFilter,
                 onTap:
@@ -193,6 +208,7 @@ class _MapScreenState extends State<MapScreen> {
   void _onFilterPressed() {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true, // 이게 있어야 반드시 height가 반영됨
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -213,10 +229,12 @@ class _MapScreenState extends State<MapScreen> {
     return Visibility(
       visible: _gasStationFilter || _repairFilter || _carWashFilter,
       child: SizedBox(
-        height: 200, // <-- 이게 꼭 필요해!
+        height: 168.h, // <-- 이게 꼭 필요해!
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
-          padding: EdgeInsets.zero,
+          padding: const EdgeInsets.symmetric(
+            horizontal: 12,
+          ), // ✅ 여백 추가 EdgeInsets.zero,
           itemCount: filtered.length,
           itemBuilder: (context, index) {
             return PlaceCard(place: filtered[index]);
