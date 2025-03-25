@@ -23,6 +23,7 @@ import 'commons/BottomNavigationBar.dart';
 
 // Providersz
 import 'providers/car_provider.dart';
+import 'providers/car_payment_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -54,6 +55,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => CarProvider()),
         ChangeNotifierProvider(create: (_) => CarRegistrationProvider()),
         ChangeNotifierProvider(create: (_) => ObdDataProvider()),
+        ChangeNotifierProvider(create: (_) => CarPaymentProvider()),
         // 향후 다른 Provider들도 여기에 추가 가능
       ],
       child: ScreenUtilInit(
@@ -125,28 +127,32 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    backgroundColor: const Color(0xFFFBFBFB),
-    appBar: const CommonAppBar(),
-    
-    body: Stack(
-      children: [
-        Positioned.fill( // 본문을 화면 전체에 채움
-          child: _selectedIndex == 4 ? _getProfileScreen() : _screens[_selectedIndex],
-        ),
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,  // 📌 네비게이션 바를 화면 하단에 배치
-          child: CommonBottomNavigationBar(
-            currentIndex: _selectedIndex,
-            onTap: _onItemTapped,
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFFBFBFB),
+      appBar: const CommonAppBar(),
+
+      body: Stack(
+        children: [
+          Positioned.fill(
+            // 본문을 화면 전체에 채움
+            child:
+                _selectedIndex == 4
+                    ? _getProfileScreen()
+                    : _screens[_selectedIndex],
           ),
-        ),
-      ],
-    ),
-  );
-}
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0, // 📌 네비게이션 바를 화면 하단에 배치
+            child: CommonBottomNavigationBar(
+              currentIndex: _selectedIndex,
+              onTap: _onItemTapped,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
