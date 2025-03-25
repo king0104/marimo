@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:marimo_client/providers/car_registration_provider.dart';
 
@@ -85,6 +87,32 @@ class _CarRegistrationStepperScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(60.h),
+        child: AppBar(
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          titleSpacing: 0,
+          title: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: SvgPicture.asset(
+                    'assets/images/icons/icon_back.svg', // 실제 아이콘 경로로 수정
+                    width: 18,
+                    height: 18,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
       body: Column(
         children: [
           Expanded(

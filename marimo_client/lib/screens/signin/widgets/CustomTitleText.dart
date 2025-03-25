@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/theme.dart';
 
 class CustomTitleText extends StatelessWidget {
@@ -24,23 +25,26 @@ class CustomTitleText extends StatelessWidget {
     // 강조할 부분을 기준으로 분리
     List<String> parts = text.split(highlight);
 
-    return Text.rich(
-      TextSpan(
-        text: parts[0], // 강조 전 텍스트
-        style: TextStyle(
-          fontSize: fontSize,
-          fontWeight: fontWeight,
-          color: textColor,
-        ),
-        children: [
-          TextSpan(
-            // 강조할 텍스트
-            text: highlight,
-            style: TextStyle(color: highlightColor),
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      child: Text.rich(
+        TextSpan(
+          text: parts[0], // 강조 전 텍스트
+          style: TextStyle(
+            fontSize: fontSize,
+            fontWeight: fontWeight,
+            color: textColor,
           ),
-          if (parts.length > 1) // 강조 후 텍스트
-            TextSpan(text: parts[1], style: TextStyle(color: textColor)),
-        ],
+          children: [
+            TextSpan(
+              // 강조할 텍스트
+              text: highlight,
+              style: TextStyle(color: highlightColor),
+            ),
+            if (parts.length > 1) // 강조 후 텍스트
+              TextSpan(text: parts[1], style: TextStyle(color: textColor)),
+          ],
+        ),
       ),
     );
   }
