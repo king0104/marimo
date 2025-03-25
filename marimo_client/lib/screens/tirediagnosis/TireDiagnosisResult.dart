@@ -13,13 +13,6 @@ class TireDiagnosisResult extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double totalHeight = MediaQuery.of(context).size.height;
-    final double appBarHeight = kToolbarHeight;
-    final double verticalPadding = 16.h;
-    final double bottomOffset = 104.h;
-    final double availableHeight =
-        totalHeight - appBarHeight - verticalPadding * 2 - bottomOffset;
-
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: CustomAppHeader(
@@ -32,7 +25,8 @@ class TireDiagnosisResult extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: verticalPadding),
+              // 헤더 아래 고정된 16.h 위치에 텍스트 배치
+              SizedBox(height: 16.h),
               Text(
                 '측정 결과',
                 style: TextStyle(
@@ -41,18 +35,15 @@ class TireDiagnosisResult extends StatelessWidget {
                   color: black,
                 ),
               ),
-              SizedBox(height: verticalPadding),
-              Expanded(
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: ResultDetailCard(
-                    cardHeight: availableHeight,
-                    treadDepth: 5.6,
-                    userImage: userImage, // 사용자 이미지 전달
-                  ),
-                ),
+
+              SizedBox(height: 16.h),
+
+              // 카드 자체 높이는 비율 기반 혹은 내부 콘텐츠 기반
+              ResultDetailCard(
+                cardHeight: 500.h, // 비율 기반으로 예시
+                treadDepth: 1.2,
+                userImage: userImage,
               ),
-              SizedBox(height: bottomOffset),
             ],
           ),
         ),
