@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/models/map/Place.dart';
 import 'package:marimo_client/screens/map/data/MockData.dart';
 import 'package:marimo_client/screens/map/widgets/PlaceCard.dart';
-import 'package:marimo_client/services/MapService.dart';
+import 'package:marimo_client/services/map/MapService.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:marimo_client/screens/map/widgets/category/CarWashIcon.dart';
 import 'package:marimo_client/screens/map/widgets/category/GasStationIcon.dart';
@@ -20,11 +20,6 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  final List<Map<String, dynamic>> gasStations = [
-    {"name": "GS 칼텍스 방이점", "lat": 37.5153, "lng": 127.1059},
-    {"name": "해뛰는 주유소", "lat": 37.5124, "lng": 127.1023},
-  ];
-
   final MapService _mapService = MapService();
   late NaverMapController _mapController; // 지도 컨트롤러
   NMarker? _userLocationMarker; // 현재 위치 마커
@@ -33,6 +28,10 @@ class _MapScreenState extends State<MapScreen> {
   bool _gasStationFilter = false;
   bool _repairFilter = false;
   bool _carWashFilter = false;
+
+  List<Place> _currentPlaces = [];
+  List<String> _previousMarkerIds = []; // 지도에 표시된 마커 ID들을 추적 용도
+  String? _highlightedMarkerId;
 
   @override
   Widget build(BuildContext context) {
@@ -71,11 +70,10 @@ class _MapScreenState extends State<MapScreen> {
                 );
 
                 // ✅ 여기 추가: 사용자 위치에 마커 띄우기
-                await _mapService.addMarker(
+                await _mapService.addCurrentLocationMarker(
                   controller: _mapController,
                   id: 'user_location',
                   position: currentLatLng,
-                  caption: '현재 위치',
                 );
 
                 // 이후 필요시 상태 저장
@@ -84,12 +82,6 @@ class _MapScreenState extends State<MapScreen> {
                   position: currentLatLng,
                 );
               }
-
-              // 주유소 마커 추가 (서비스 함수 사용)
-              await _mapService.addGasStationMarkers(
-                controller: _mapController,
-                gasStations: gasStations,
-              );
             },
           ),
         ),
@@ -133,32 +125,102 @@ class _MapScreenState extends State<MapScreen> {
             children: [
               GasStationIcon(
                 isActive: _gasStationFilter,
-                onTap:
-                    () => setState(() {
-                      _gasStationFilter = true;
-                      _repairFilter = false;
-                      _carWashFilter = false;
-                    }),
+                onTap: () async {
+                  // ✅ 이전 마커 제거 먼저
+                  await _mapService.removeMarkersByIds(
+                    controller: _mapController,
+                    ids: _previousMarkerIds,
+                  );
+
+                  // ✅ 상태 변경 및 새 마커 ID 저장
+                  setState(() {
+                    _gasStationFilter = true;
+                    _repairFilter = false;
+                    _carWashFilter = false;
+
+                    _currentPlaces =
+                        mockPlaces
+                            .where((p) => p.type == 'gas')
+                            .take(3)
+                            .toList();
+                    _highlightedMarkerId = null;
+
+                    _previousMarkerIds =
+                        _currentPlaces.map((e) => e.name).toList();
+                  });
+
+                  // ✅ 새 마커 추가
+                  await _mapService.addPlaceMarkers(
+                    controller: _mapController,
+                    places: _currentPlaces,
+                  );
+                },
               ),
+
               const SizedBox(width: 8),
               RepairIcon(
                 isActive: _repairFilter,
-                onTap:
-                    () => setState(() {
-                      _repairFilter = true;
-                      _gasStationFilter = false;
-                      _carWashFilter = false;
-                    }),
+                onTap: () async {
+                  // ✅ 이전 마커 제거 먼저
+                  await _mapService.removeMarkersByIds(
+                    controller: _mapController,
+                    ids: _previousMarkerIds,
+                  );
+                  // ✅ 상태 변경 및 새 마커 ID 저장
+                  setState(() {
+                    _repairFilter = true;
+                    _gasStationFilter = false;
+                    _carWashFilter = false;
+                    _currentPlaces =
+                        mockPlaces
+                            .where((p) => p.type == 'repair')
+                            .take(3)
+                            .toList();
+                    _highlightedMarkerId = null;
+
+                    _previousMarkerIds =
+                        _currentPlaces.map((e) => e.name).toList();
+                  });
+
+                  // ✅ 새 마커 추가
+                  await _mapService.addPlaceMarkers(
+                    controller: _mapController,
+                    places: _currentPlaces,
+                  );
+                },
               ),
               const SizedBox(width: 8),
               CarWashIcon(
                 isActive: _carWashFilter,
-                onTap:
-                    () => setState(() {
-                      _carWashFilter = true;
-                      _gasStationFilter = false;
-                      _repairFilter = false;
-                    }),
+                onTap: () async {
+                  // ✅ 이전 마커 제거 먼저
+                  await _mapService.removeMarkersByIds(
+                    controller: _mapController,
+                    ids: _previousMarkerIds,
+                  );
+
+                  // ✅ 상태 변경 및 새 마커 ID 저장
+                  setState(() {
+                    _carWashFilter = true;
+                    _gasStationFilter = false;
+                    _repairFilter = false;
+                    _currentPlaces =
+                        mockPlaces
+                            .where((p) => p.type == 'carwash')
+                            .take(3)
+                            .toList();
+                    _highlightedMarkerId = null;
+
+                    _previousMarkerIds =
+                        _currentPlaces.map((e) => e.name).toList();
+                  });
+
+                  // ✅ 새 마커 추가
+                  await _mapService.addPlaceMarkers(
+                    controller: _mapController,
+                    places: _currentPlaces,
+                  );
+                },
               ),
             ],
           ),
@@ -190,11 +252,10 @@ class _MapScreenState extends State<MapScreen> {
     }
 
     // 현재 위치 마커 추가
-    await _mapService.addMarker(
+    await _mapService.addCurrentLocationMarker(
       controller: _mapController,
       id: 'user_location',
       position: currentLatLng,
-      caption: 'Your Location',
     );
 
     // 지도 카메라 현재 위치로 이동
@@ -218,26 +279,45 @@ class _MapScreenState extends State<MapScreen> {
 
   /// 주유소 정보 카드
   Widget _buildStationCard() {
-    final List<Place> filtered =
-        mockPlaces.where((p) {
-          if (_gasStationFilter) return p.type == 'gas';
-          if (_repairFilter) return p.type == 'repair';
-          if (_carWashFilter) return p.type == 'carwash';
-          return false;
-        }).toList();
-
     return Visibility(
-      visible: _gasStationFilter || _repairFilter || _carWashFilter,
+      visible: _currentPlaces.isNotEmpty,
       child: SizedBox(
-        height: 168.h, // <-- 이게 꼭 필요해!
+        height: 168.h,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(
-            horizontal: 12,
-          ), // ✅ 여백 추가 EdgeInsets.zero,
-          itemCount: filtered.length,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          itemCount: _currentPlaces.length,
           itemBuilder: (context, index) {
-            return PlaceCard(place: filtered[index]);
+            final place = _currentPlaces[index];
+            return PlaceCard(
+              place: place,
+              onTap: (position) async {
+                if (_highlightedMarkerId != null) {
+                  final prev = _currentPlaces.firstWhere(
+                    (p) => p.name == _highlightedMarkerId,
+                    orElse: () => _currentPlaces.first,
+                  );
+                  await _mapService.resetMarker(
+                    controller: _mapController,
+                    place: prev,
+                  );
+                }
+
+                await _mapService.highlightMarker(
+                  controller: _mapController,
+                  place: place,
+                );
+
+                setState(() {
+                  _highlightedMarkerId = place.name;
+                });
+
+                await _mapService.moveCamera(
+                  controller: _mapController,
+                  target: NLatLng(place.lat, place.lng),
+                );
+              },
+            );
           },
         ),
       ),
