@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class CommonBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
@@ -15,12 +16,13 @@ class CommonBottomNavigationBar extends StatelessWidget {
   Widget build(BuildContext context) {
     // 스택 전체를 Container로 감싸 margin을 주어 위치를 조정합니다.
     return Container(
-      margin: EdgeInsets.only(bottom: 30.h, left: 20.w, right: 20.w), // 스택 전체를 아래에서 20.h 띄움
+      color: Colors.transparent,
+      margin: EdgeInsets.only(bottom: 20, left: 20.w, right: 20.w), // 스택 전체를 아래에서 20.h 띄움
       child: Stack(
         clipBehavior: Clip.none,
         children: [
           Container(
-            height: 80.h,
+            height: 70,
             width: 325.w,
             padding: EdgeInsets.symmetric(horizontal: 10.w),//바 내부 여백 조정
             decoration: BoxDecoration(
@@ -41,10 +43,10 @@ class CommonBottomNavigationBar extends StatelessWidget {
               ),
               // 여기에 Padding 추가해서 내부 BottomNavigationBar의 아래쪽 공간을 확보합니다.
               child: Padding(
-                padding: EdgeInsets.only(top: 20.h), // 원하는 만큼 아래쪽에 여백을 줍니다.
+                padding: EdgeInsets.only(top: 0), // 원하는 만큼 아래쪽에 여백을 줍니다.
                 child: BottomNavigationBar(
                   type: BottomNavigationBarType.fixed,
-                  backgroundColor: Colors.black,
+                  backgroundColor: Colors.transparent,
                   currentIndex: currentIndex,
                   onTap: onTap,
                   selectedItemColor: Color(0xFF4888FF),
@@ -55,13 +57,13 @@ class CommonBottomNavigationBar extends StatelessWidget {
                   unselectedFontSize: 0,
                   items: [
                     BottomNavigationBarItem(
-                      icon: Icon(Icons.home_outlined, size: 24.sp),
-                      activeIcon: Icon(Icons.home, size: 24.sp),
+                      icon: SvgPicture.asset('assets/images/icons/icon_home.svg', width: 20.sp, height: 20.sp),
+                      activeIcon: SvgPicture.asset('assets/images/icons/icon_home.svg', width: 20.sp, height: 20.sp, color: Color(0xFF4888FF)),
                       label: "",
                     ),
                     BottomNavigationBarItem(
-                      icon: Icon(Icons.directions_car, size: 24.sp),
-                      activeIcon: Icon(Icons.directions_car, size: 24.sp),
+                      icon: SvgPicture.asset('assets/images/icons/icon_car.svg', width: 20.sp, height: 20.sp),
+                      activeIcon: SvgPicture.asset('assets/images/icons/icon_car.svg', width: 20.sp, height: 20.sp,color: Color(0xFF4888FF)),
                       label: "",
                     ),
                     BottomNavigationBarItem(
@@ -69,13 +71,13 @@ class CommonBottomNavigationBar extends StatelessWidget {
                       label: "",
                     ),
                     BottomNavigationBarItem(
-                      icon: Icon(Icons.map_outlined, size: 24.sp),
-                      activeIcon: Icon(Icons.map, size: 24.sp),
+                      icon: SvgPicture.asset('assets/images/icons/icon_map.svg', width: 20.sp, height: 20.sp),
+                      activeIcon: SvgPicture.asset('assets/images/icons/icon_map.svg', width: 20.sp, height: 20.sp,color: Color(0xFF4888FF)),
                       label: "",
                     ),
                     BottomNavigationBarItem(
-                      icon: Icon(Icons.person, size: 24.sp),
-                      activeIcon: Icon(Icons.person, size: 24.sp),
+                      icon: SvgPicture.asset('assets/images/icons/icon_my.svg', width: 20.sp, height: 20.sp),
+                      activeIcon: SvgPicture.asset('assets/images/icons/icon_my.svg', width: 20.sp, height: 20.sp,color: Color(0xFF4888FF)),
                       label: "",
                     ),
                   ],

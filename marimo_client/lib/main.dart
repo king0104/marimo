@@ -9,9 +9,6 @@ import 'package:marimo_client/screens/signin/car/RegisterCarScreen.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 
-// Theme
-import 'package:marimo_client/theme.dart';
-
 // Screens
 import 'package:marimo_client/screens/home/HomeScreen.dart';
 import 'package:marimo_client/screens/signin/SignInScreen.dart';
@@ -24,7 +21,7 @@ import 'package:marimo_client/screens/my/MyScreen.dart';
 import 'commons/AppBar.dart';
 import 'commons/BottomNavigationBar.dart';
 
-// Providers
+// Providersz
 import 'providers/car_provider.dart';
 
 void main() async {
@@ -128,17 +125,28 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFFBFBFB),
-      appBar: const CommonAppBar(),
-      body:
-          _selectedIndex == 4 ? _getProfileScreen() : _screens[_selectedIndex],
-      bottomNavigationBar: CommonBottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-      ),
-    );
-  }
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: const Color(0xFFFBFBFB),
+    appBar: const CommonAppBar(),
+    
+    body: Stack(
+      children: [
+        Positioned.fill( // 본문을 화면 전체에 채움
+          child: _selectedIndex == 4 ? _getProfileScreen() : _screens[_selectedIndex],
+        ),
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,  // 📌 네비게이션 바를 화면 하단에 배치
+          child: CommonBottomNavigationBar(
+            currentIndex: _selectedIndex,
+            onTap: _onItemTapped,
+          ),
+        ),
+      ],
+    ),
+  );
+}
 }
