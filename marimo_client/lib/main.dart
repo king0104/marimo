@@ -4,6 +4,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/providers/car_registration_provider.dart';
+import 'package:marimo_client/providers/obd_data_provider.dart';
+import 'package:marimo_client/screens/signin/car/RegisterCarScreen.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 
@@ -54,6 +56,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => CarProvider()),
         ChangeNotifierProvider(create: (_) => CarRegistrationProvider()),
+        ChangeNotifierProvider(create: (_) => ObdDataProvider()),
         // 향후 다른 Provider들도 여기에 추가 가능
       ],
       child: ScreenUtilInit(
@@ -91,13 +94,14 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
-  bool isLoggedIn = true;  // 로그인 상태 관리 (임시)
+  bool isLoggedIn = true; // 로그인 상태 관리 (임시)
 
   final List<Widget> _screens = [
     HomeScreen(),
     MonitoringScreen(),
     BluetoothTestScreen(),
     MapScreen(),
+    // RegisterCarScreen(),
     MonitoringScreen(),
   ];
 
@@ -129,7 +133,8 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFFBFBFB),
       appBar: const CommonAppBar(),
-      body: _selectedIndex == 4 ? _getProfileScreen() : _screens[_selectedIndex],
+      body:
+          _selectedIndex == 4 ? _getProfileScreen() : _screens[_selectedIndex],
       bottomNavigationBar: CommonBottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
@@ -137,4 +142,3 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 }
- 

@@ -39,6 +39,7 @@ dependencies:
   flutter_native_splash: ^2.4.5
   camera: ^0.11.1
   geolocator: ^10.0.0
+  flutter_bluetooth_serial: ^0.4.0
 
 dev_dependencies:
   flutter_test:
@@ -95,6 +96,8 @@ flutter:
     - assets/images/logo/
     - assets/images/icons/
     - assets/images/tires/
+    - assets/images/cards/
+    - assets/images/cards/hyundai/
     - assets/models/uber_car.obj
     - assets/models/uber_car.mtl
     - assets/models/uberBlack.dae.glb

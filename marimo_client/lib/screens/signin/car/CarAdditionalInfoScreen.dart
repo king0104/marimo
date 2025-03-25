@@ -49,11 +49,11 @@ class _CarAdditionalInfoScreenState extends State<CarAdditionalInfoScreen> {
 
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 60),
+            const SizedBox(height: 40),
             const CustomTitleText(
               text: "차량 추가 정보를 입력해주세요.",
               highlight: "차량 추가 정보",

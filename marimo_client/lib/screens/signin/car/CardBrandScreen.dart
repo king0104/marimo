@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/screens/signin/widgets/car/BrandSelector.dart';
 import 'package:marimo_client/screens/signin/widgets/CustomTitleText.dart';
 import 'package:marimo_client/theme.dart';
@@ -32,11 +33,11 @@ class _CardBrandScreenState extends State<CardBrandScreen> {
 
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: EdgeInsets.symmetric(horizontal: 20.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 60),
+            SizedBox(height: 40),
             CustomTitleText(
               text: "주유 시 사용하는 카드의\n카드사의 정보를 입력해주세요.",
               highlight: "카드사의 정보",

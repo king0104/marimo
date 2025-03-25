@@ -40,11 +40,11 @@ class _CarLastInspectionScreenState extends State<CarLastInspectionScreen> {
 
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 60),
+            const SizedBox(height: 40),
             const CustomTitleText(
               text: "마지막 차량 점검일을 입력해주세요.",
               highlight: "마지막 차량 점검일",
@@ -119,30 +119,6 @@ class _CarLastInspectionScreenState extends State<CarLastInspectionScreen> {
                     daysOfWeekStyle: const DaysOfWeekStyle(
                       weekdayStyle: TextStyle(color: Colors.black54),
                       weekendStyle: TextStyle(color: Colors.black54),
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        provider.setLastCheckedDate(selectedDate);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('마지막 점검일이 저장되었습니다.')),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text("확인"),
                     ),
                   ),
                 ],
