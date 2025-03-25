@@ -1,7 +1,9 @@
 package com.ssafy.marimo.payment.controller;
 
+import com.ssafy.marimo.common.annotation.DecryptedId;
 import com.ssafy.marimo.payment.dto.MonthlyPaymentResponse;
 import com.ssafy.marimo.payment.service.PaymentService;
+import jakarta.persistence.criteria.CriteriaBuilder.In;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +21,7 @@ public class PaymentController {
 
     @GetMapping
     public ResponseEntity<MonthlyPaymentResponse> getMonthlyHistory(
-            @RequestParam("carId") Integer carId,
+            @RequestParam("carId") @DecryptedId Integer carId,
             @RequestParam("year") int year,
             @RequestParam("month") int month
     ) {
