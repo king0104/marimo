@@ -22,8 +22,8 @@ class TireDiagnosisCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 320,
-      height: 420,
+      width: 320.h,
+      height: 420.h,
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8.r),
@@ -56,13 +56,13 @@ class TireDiagnosisCard extends StatelessWidget {
                     style: TextStyle(fontSize: 14.sp, color: Colors.black87),
                   ),
                 ),
-                SizedBox(height: 65),
+                SizedBox(height: 65.h),
                 Center(
                   child: TireImagePicker(
                     selectedImages: selectedImages,
                     onAddImage: onAddImage,
                     onRemoveImage: onRemoveImage,
-                    buttonSize: 36,
+                    buttonSize: 36.h,
                   ),
                 ),
                 Spacer(),
