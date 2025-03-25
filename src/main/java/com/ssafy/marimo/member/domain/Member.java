@@ -1,6 +1,9 @@
 package com.ssafy.marimo.member.domain;
 
+import com.ssafy.marimo.car.domain.Car;
+import com.ssafy.marimo.car.domain.FuelType;
 import com.ssafy.marimo.common.auditing.BaseTimeEntity;
+import com.ssafy.marimo.payment.domain.OilPayment;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,6 +13,7 @@ import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Filter;
@@ -50,10 +54,38 @@ public class Member extends BaseTimeEntity {
     @Column(nullable = false)
     private Boolean termsAgreed;
 
-    @Column(nullable = false)
-    private Boolean deleted;
+    @Builder
+    private Member(String email, String name, String password, String oauthProvider, String oauthId, Integer fuelSupplyLimit, Boolean termsAgreed) {
+        this.email = email;
+        this.name = name;
+        this.password = password;
+        this.oauthProvider = oauthProvider;
+        this.oauthId = oauthId;
+        this.fuelSupplyLimit = fuelSupplyLimit;
+        this.termsAgreed = termsAgreed;
+    }
 
-    @Column(nullable = false)
-    private LocalDateTime deletedAt;
+    public static Member create(String email, String name, String password, String oauthProvider, String oauthId, Integer fuelSupplyLimit, Boolean termsAgreed) {
+        return Member.builder()
+                .email(email)
+                .name(name)
+                .password(password)
+                .oauthProvider(oauthProvider)
+                .oauthId(oauthId)
+                .fuelSupplyLimit(fuelSupplyLimit)
+                .termsAgreed(termsAgreed)
+                .build();
+    }
+
+    public static Member create(String email, String name, String password, String oauthProvider, String oauthId, Boolean termsAgreed, Boolean deleted, LocalDateTime deletedAt) {
+        return Member.builder()
+                .email(email)
+                .name(name)
+                .password(password)
+                .oauthProvider(oauthProvider)
+                .oauthId(oauthId)
+                .termsAgreed(termsAgreed)
+                .build();
+    }
 
 }
