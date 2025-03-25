@@ -14,11 +14,11 @@ class CarModelScreen extends StatelessWidget {
 
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 60),
+            const SizedBox(height: 40),
             CustomTitleText(text: "모델을 선택해주세요.", highlight: "모델"),
             const SizedBox(height: 20),
             CarModelSelector(

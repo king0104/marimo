@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:marimo_client/theme.dart';
 
 class CardSelector extends StatefulWidget {
   const CardSelector({super.key});
@@ -25,12 +26,16 @@ class _CardSelectorState extends State<CardSelector> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 16.h),
         Text(
           _cards[_currentPage]['name']!,
-          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w500,
+            height: 1.43,
+            color: black,
+          ),
         ),
-        SizedBox(height: 16.h),
+        SizedBox(height: 8.h),
         SizedBox(
           height: 310.h,
           child: PageView.builder(

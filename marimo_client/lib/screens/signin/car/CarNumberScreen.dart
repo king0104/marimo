@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:marimo_client/screens/signin/widgets/car/CarInput.dart';
 import 'package:marimo_client/screens/signin/widgets/CustomTitleText.dart';
@@ -44,11 +45,11 @@ class _CarNumberScreenState extends State<CarNumberScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 60),
+            const SizedBox(height: 40),
             CustomTitleText(text: "차량 번호를 입력해주세요.", highlight: "차량 번호"),
             const SizedBox(height: 20),
             CarInput(
