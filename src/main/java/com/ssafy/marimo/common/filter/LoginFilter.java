@@ -20,15 +20,20 @@ import java.util.Collection;
 import java.util.Iterator;
 
 @Slf4j
-@RequiredArgsConstructor
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
 
-    {
+    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
+        this.authenticationManager = authenticationManager;
+        this.jwtUtil = jwtUtil;
         setFilterProcessesUrl("/api/v1/members/form");
+        setUsernameParameter("email");
+        setPasswordParameter("password");
     }
+
+
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request,
@@ -37,7 +42,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String email = obtainUsername(request);
         String password = obtainPassword(request);
 
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password, null);
 
         return authenticationManager.authenticate(authenticationToken);
     }
@@ -54,7 +59,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         String role = auth.getAuthority();
         String token = jwtUtil.createJwt(memberId, email, role, 60 * 60 * 24L * 7); // accessToken 만료시간 7일
-
+        log.info("token: {}", token);
         response.addHeader("Authorization", "Bearer " + token);
     }
 

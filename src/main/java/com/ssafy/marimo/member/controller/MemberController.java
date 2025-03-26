@@ -1,12 +1,12 @@
 package com.ssafy.marimo.member.controller;
 
-import com.ssafy.marimo.common.util.AccessTokenUtil;
+import com.ssafy.marimo.common.annotation.CurrentMemberId;
 import com.ssafy.marimo.member.dto.request.PostMemberFormRequest;
 import com.ssafy.marimo.member.dto.request.PostMemberLoginRequest;
 import com.ssafy.marimo.member.dto.response.PostMemberFormResponse;
 import com.ssafy.marimo.member.dto.response.PostMemberLoginResponse;
+import com.ssafy.marimo.member.service.CustomUserDetails;
 import com.ssafy.marimo.member.service.MemberService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 public class MemberController {
 
     private final MemberService memberService;
-    private final AccessTokenUtil accessTokenUtil;
 
     @PostMapping
     public ResponseEntity<PostMemberFormResponse> register(
@@ -43,25 +42,26 @@ public class MemberController {
                 .body(postMemberLoginResponsee);
     }
 
-    @PostMapping("/admin")
-    public String admin() {
-        return "admin";
-    }
-
-    @GetMapping
-    public String mainP() {
-        String name = SecurityContextHolder.getContext().getAuthentication().getName();
-        return "Main Page " + name;
-    }
-
-    // 테스트용 엔드포인트: 현재 요청의 accessToken에서 암호화된 memberId를 추출해서 반환
-    @GetMapping("/memberid")
-    public ResponseEntity<String> getMemberId(HttpServletRequest request) {
-        String encryptedMemberId = accessTokenUtil.getEncryptedMemberId(request);
-        if (encryptedMemberId == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No token provided or token invalid");
+    @GetMapping("/current")
+    public ResponseEntity<Integer> getCurrentMemberId(@CurrentMemberId Integer memberId) {
+        if (memberId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        return ResponseEntity.ok(encryptedMemberId);
+        return ResponseEntity.ok(memberId);
     }
+
+    @GetMapping("/currentmember")
+    public ResponseEntity<PostMemberLoginResponse> getCurrentMemberId() {
+        // SecurityContextHolder에서 현재 인증된 사용자 정보를 가져옵니다.
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!(principal instanceof CustomUserDetails)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        CustomUserDetails userDetails = (CustomUserDetails) principal;
+        // CustomUserDetails에 암호화된 memberId가 저장되어 있습니다.
+        String encryptedMemberId = userDetails.getEncryptedMemberId();
+        return ResponseEntity.ok(PostMemberLoginResponse.of(encryptedMemberId));
+    }
+
 
 }
