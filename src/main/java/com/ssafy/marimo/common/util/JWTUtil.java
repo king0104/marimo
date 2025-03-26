@@ -18,6 +18,15 @@ public class JWTUtil {
         secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
     }
 
+    public String getMemberId(String token) {
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("memberId", String.class);
+    }
+
     public String getEmail(String token) {
         return Jwts.parser()
                 .verifyWith(secretKey)
@@ -46,8 +55,9 @@ public class JWTUtil {
                 .before(new Date());
     }
 
-    public String createJwt(String email, String role, Long expiredMs) {
+    public String createJwt(String memberId, String email, String role, Long expiredMs) {
         return Jwts.builder()
+                .claim("memberId", memberId)
                 .claim("email", email)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
@@ -55,4 +65,5 @@ public class JWTUtil {
                 .signWith(secretKey)
                 .compact();
     }
+
 }

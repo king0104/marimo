@@ -1,5 +1,6 @@
 package com.ssafy.marimo.member.service;
 
+import com.ssafy.marimo.common.util.IdEncryptionUtil;
 import com.ssafy.marimo.member.domain.Member;
 import com.ssafy.marimo.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,11 +16,13 @@ import java.util.Optional;
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final MemberRepository memberRepository;
+    private final IdEncryptionUtil idEncryptionUtil; // 추가
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return memberRepository.findByEmail(email)
-                .map(CustomUserDetails::new)
+        Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Member not found with email: " + email));
+        String encryptedMemberId = idEncryptionUtil.encrypt(member.getId());
+        return new CustomUserDetails(member, encryptedMemberId);
     }
 }

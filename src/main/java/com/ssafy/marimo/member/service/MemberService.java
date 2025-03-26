@@ -23,14 +23,13 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final IdEncryptionUtil idEncryptionUtil;
-    private final JWTUtil jwtUtil;
 
     @Transactional
     public PostMemberFormResponse postMemberForm(PostMemberFormRequest postMemberFormRequest) {
+
         if (memberRepository.existsByEmail(postMemberFormRequest.email())) {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
         }
-
 
         Member member = memberRepository.save(
                 Member.create(
@@ -49,14 +48,16 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public PostMemberLoginResponse postMemberLogin(PostMemberLoginRequest postMemberLoginRequest) {
+
         Member member = memberRepository.findByEmail(postMemberLoginRequest.email())
                 .orElseThrow(() -> new NotFoundException("회원이 존재하지 않습니다."));
+
         if (!bCryptPasswordEncoder.matches(postMemberLoginRequest.password(), member.getPassword())) {
             throw new IllegalArgumentException("잘못된 비밀번호입니다.");
         }
 
-        String accessToken = jwtUtil.createJwt(member.getEmail(), "USER", 7200000L);
-        return PostMemberLoginResponse.of(accessToken);
+        return PostMemberLoginResponse.of(idEncryptionUtil.encrypt(member.getId()));
     }
+
 
 }

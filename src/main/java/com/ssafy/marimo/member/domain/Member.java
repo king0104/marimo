@@ -88,4 +88,18 @@ public class Member extends BaseTimeEntity {
                 .build();
     }
 
+    // Member.java 내부에 추가
+    public static Member fromJwt(String email, String role) {
+        return Member.builder()
+                .email(email)
+                .name("Unknown")       // JWT에는 name 정보가 없으므로 기본값 지정
+                .password("")          // 인증 시 비밀번호는 필요 없으므로 빈 문자열
+                .oauthProvider("JWT")  // JWT 기반 인증임을 명시 (원하는 값으로 설정)
+                .oauthId("")
+                .fuelSupplyLimit(0)
+                .termsAgreed(false)
+                .build();
+    }
+
+
 }

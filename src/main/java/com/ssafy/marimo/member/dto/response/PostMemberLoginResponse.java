@@ -4,12 +4,12 @@ import lombok.Builder;
 
 @Builder
 public record PostMemberLoginResponse(
-        String accessToken
+        String memberId
 ) {
 
-    public static PostMemberLoginResponse of(String accessToken) {
+    public static PostMemberLoginResponse of(String memberId) {
         return PostMemberLoginResponse.builder()
-                .accessToken(accessToken)
+                .memberId(memberId)
                 .build();
     }
 }
