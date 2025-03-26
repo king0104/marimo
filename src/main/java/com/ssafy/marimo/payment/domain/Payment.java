@@ -14,10 +14,10 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Filter;
 
 @Getter
@@ -26,7 +26,6 @@ import org.hibernate.annotations.Filter;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "payment_type")
-@Filter(name = "deletedFilter", condition = "deleted = :isDeleted")
 public abstract class Payment extends BaseTimeEntity {
 
     @Id
@@ -40,17 +39,28 @@ public abstract class Payment extends BaseTimeEntity {
     @Column(nullable = false)
     private Integer price;
 
+    @Column(nullable = false)
+    private LocalDateTime paymentDate;
+
     @Column(nullable = true, length = 100)
     private String location;
 
     @Column(nullable = true)
     private String memo;
 
-    protected Payment(Car car, Integer price, String location, String memo) {
+    protected Payment(Car car, Integer price, LocalDateTime paymentDate, String location, String memo) {
         this.car = car;
         this.price = price;
+        this.paymentDate = paymentDate;
         this.location = location;
         this.memo = memo;
+    }
+
+    protected void changePayment(Integer price, LocalDateTime paymentDate, String location, String memo) {
+        if (price != null) this.price = price;
+        if (paymentDate != null) this.paymentDate = paymentDate;
+        if (location != null) this.location = location;
+        if (memo != null) this.memo = memo;
     }
 
 }

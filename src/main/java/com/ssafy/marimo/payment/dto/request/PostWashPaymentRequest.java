@@ -1,4 +1,4 @@
-package com.ssafy.marimo.payment.dto;
+package com.ssafy.marimo.payment.dto.request;
 
 import com.ssafy.marimo.navigation.WashType;
 import java.time.LocalDateTime;

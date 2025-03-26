@@ -24,8 +24,6 @@ import org.hibernate.annotations.SQLDelete;
 @Entity
 @Table(name = "notification")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE notification SET deleted = true, deleted_at = NOW() WHERE id = ?")
-@Filter(name = "deletedFilter", condition = "deleted = :isDeleted")
 public class Notification extends BaseTimeEntity {
 
     @Id
