@@ -1,4 +1,5 @@
 class Place {
+  final String id;
   final String name;
   final double lat;
   final double lng;
@@ -9,6 +10,7 @@ class Place {
   final int? price;
 
   Place({
+    required this.id,
     required this.name,
     required this.lat,
     required this.lng,
@@ -22,6 +24,7 @@ class Place {
   // ✅ 이거 추가!
   factory Place.fromJson(Map<String, dynamic> json) {
     return Place(
+      id: json['id'] as String? ?? '',
       name: json['name'] as String? ?? '',
       lat: (json['lat'] ?? 0).toDouble(),
       lng: (json['lng'] ?? 0).toDouble(),
