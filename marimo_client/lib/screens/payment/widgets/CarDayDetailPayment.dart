@@ -10,33 +10,34 @@ class CarDayDetailPayment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 날짜별 데이터 리스트로 가정 (나중에 Provider로 대체 가능)
+    // 날짜별 데이터 리스트 (나중에 Provider로 대체 가능)
     final List<DateTime> dummyDates = [
+      DateTime(2025, selectedMonth, 16),
+      DateTime(2025, selectedMonth, 12),
       DateTime(2025, selectedMonth, 11),
-      DateTime(2025, selectedMonth, 2),
+      DateTime(2025, selectedMonth, 1),
     ];
 
-    return Column(
-      children:
-          dummyDates
-              .map(
-                (date) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 16.h),
-                    Text(
-                      '${date.month}월 ${date.day}일',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 8.h),
-                    CarDayPaymentItemList(date: date),
-                  ],
-                ),
-              )
-              .toList(),
+    return ListView.builder(
+      physics: const BouncingScrollPhysics(),
+      itemCount: dummyDates.length,
+      itemBuilder: (context, index) {
+        final date = dummyDates[index];
+        return Padding(
+          padding: EdgeInsets.only(bottom: 16.h),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${date.month}월 ${date.day}일',
+                style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w300),
+              ),
+              SizedBox(height: 16.h),
+              CarDayPaymentItemList(date: date),
+            ],
+          ),
+        );
+      },
     );
   }
 }

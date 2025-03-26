@@ -1,7 +1,11 @@
 // CarDayPaymentItem.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:marimo_client/commons/icons/OilIcon.dart';
+import 'package:marimo_client/commons/icons/RepairIcon.dart';
+import 'package:marimo_client/commons/icons/WashIcon.dart';
 
 class CarDayPaymentItem extends StatelessWidget {
   final String category;
@@ -15,55 +19,70 @@ class CarDayPaymentItem extends StatelessWidget {
     this.subText,
   });
 
-  String getIconPath(String category) {
+  Widget _getCategoryIcon(String category) {
     switch (category) {
       case '주유':
-        return 'assets/images/icons/icon_oil_white.svg';
+        return const OilIcon(size: 36);
       case '정비':
-        return 'assets/images/icons/icon_repair_white.svg';
+        return const RepairIcon(size: 36);
       case '세차':
-        return 'assets/images/icons/icon_wash_white.svg';
+        return const WashIcon(size: 36);
       default:
-        return '';
+        return const SizedBox.shrink();
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final formattedAmount = NumberFormat(
+      '###,###,###,###,###,###',
+    ).format(amount);
+
     return Row(
       children: [
-        Container(
-          width: 44.w,
-          height: 44.h,
-          decoration: const BoxDecoration(
-            color: Colors.black,
-            shape: BoxShape.circle,
-          ),
-          child: Center(
-            child: SvgPicture.asset(
-              getIconPath(category),
-              width: 20.w,
-              height: 20.w,
-            ),
-          ),
-        ),
-        SizedBox(width: 18.w),
+        _getCategoryIcon(category),
+        SizedBox(width: 8.w),
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
             children: [
               Text(
-                category + (subText != null ? '  $subText' : ''),
-                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
+                category,
+                style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500),
+              ),
+              if (subText != null) ...[
+                SizedBox(width: 4.w),
+                Text(
+                  subText!,
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: '$formattedAmount',
+                style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500),
+              ),
+              WidgetSpan(child: SizedBox(width: 4.w)),
+              TextSpan(
+                text: '원',
+                style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w300),
               ),
             ],
           ),
         ),
-        Text(
-          '${amount.toString()} 원',
-          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
+        SizedBox(width: 9.w), // ✅ "원"과 아이콘 사이 여백
+        SvgPicture.asset(
+          'assets/images/icons/icon_detail.svg',
+          width: 6.w,
+          height: 10.h,
         ),
-        Icon(Icons.chevron_right, size: 20.w, color: Colors.grey),
       ],
     );
   }

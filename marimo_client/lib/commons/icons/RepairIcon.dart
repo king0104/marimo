@@ -1,16 +1,18 @@
 // RepairIcon.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class RepairIcon extends StatelessWidget {
-  const RepairIcon({super.key});
+  final double size;
+
+  const RepairIcon({super.key, this.size = 44});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 44.w,
-      height: 44.h,
+      width: size.w,
+      height: size.h,
       decoration: const BoxDecoration(
         color: Colors.black,
         shape: BoxShape.circle,

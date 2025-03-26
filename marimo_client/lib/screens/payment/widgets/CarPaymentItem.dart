@@ -1,11 +1,12 @@
 // CarPaymentItem.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 
 class CarPaymentItem extends StatelessWidget {
-  final Widget icon; // ✅ 아이콘 위젯으로 변경
+  final Widget icon;
   final String label;
-  final String amount;
+  final int amount;
   final String percentage;
 
   const CarPaymentItem({
@@ -18,9 +19,13 @@ class CarPaymentItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final formattedAmount = NumberFormat(
+      '###,###,###,###,###,###',
+    ).format(amount);
+
     return Row(
       children: [
-        icon, // ✅ 위젯으로 받은 아이콘 직접 렌더링
+        icon,
         SizedBox(width: 18.w),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,9 +45,19 @@ class CarPaymentItem extends StatelessWidget {
           ],
         ),
         const Spacer(),
-        Text(
-          amount,
-          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              formattedAmount,
+              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
+            ),
+            SizedBox(width: 6.w), // ✅ 숫자와 '원' 사이 간격
+            Text(
+              '원',
+              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
+            ),
+          ],
         ),
       ],
     );
