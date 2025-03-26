@@ -21,25 +21,42 @@ class CarPaymentItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        SvgPicture.asset(iconPath, width: 44.w, height: 44.w),
-        SizedBox(width: 12.w),
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+              width: 44.w,
+              height: 44.h,
+              decoration: const BoxDecoration(
+                color: Colors.black,
+                shape: BoxShape.circle,
+              ),
+            ),
+            SvgPicture.asset(iconPath, width: 20.w, height: 20.w),
+          ],
+        ),
+        SizedBox(width: 18.w),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               label,
-              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500),
+              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
             ),
             Text(
               percentage,
-              style: TextStyle(fontSize: 12.sp, color: Colors.grey),
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: Colors.grey,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ],
         ),
         const Spacer(),
         Text(
           amount,
-          style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
         ),
       ],
     );
