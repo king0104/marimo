@@ -7,8 +7,14 @@ import 'package:flutter_svg/flutter_svg.dart';
 class PlaceCard extends StatelessWidget {
   final Place place;
   final void Function(NLatLng) onTap;
+  final bool isSelected;
 
-  const PlaceCard({super.key, required this.place, required this.onTap});
+  const PlaceCard({
+    super.key,
+    required this.place,
+    required this.onTap,
+    this.isSelected = false,
+  });
 
   String getPlaceTypeLabel(String type) {
     switch (type) {
@@ -27,7 +33,7 @@ class PlaceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     return GestureDetector(
-      onTap: () => onTap(NLatLng(place.lat, place.lng)), // <-- 여기 추가
+      onTap: () => onTap(NLatLng(place.lat, place.lng)),
       child: Container(
         width: screenWidth * 0.83,
         height: 112.h,
@@ -36,7 +42,10 @@ class PlaceCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.blue.shade100),
+          border: Border.all(
+            color: isSelected ? Colors.blue : Colors.blue.shade100,
+            width: isSelected ? 2 : 1,
+          ),
           boxShadow: const [BoxShadow(blurRadius: 4, color: Colors.black12)],
         ),
         child: Column(
@@ -80,7 +89,7 @@ class PlaceCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (place.type == 'gas') // 🔥 주유소일 때만 가격 표시
+                if (place.type == 'gas')
                   Text(
                     place.price?.toString() ?? '',
                     style: TextStyle(
@@ -118,7 +127,6 @@ class PlaceCard extends StatelessWidget {
                     ),
               ],
             ),
-
             const Spacer(),
 
             /// ✅ 거리 + 카카오내비 버튼
