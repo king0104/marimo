@@ -1,17 +1,16 @@
 // CarPaymentItem.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class CarPaymentItem extends StatelessWidget {
-  final String iconPath;
+  final Widget icon; // ✅ 아이콘 위젯으로 변경
   final String label;
   final String amount;
   final String percentage;
 
   const CarPaymentItem({
     super.key,
-    required this.iconPath,
+    required this.icon,
     required this.label,
     required this.amount,
     required this.percentage,
@@ -21,20 +20,7 @@ class CarPaymentItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            Container(
-              width: 44.w,
-              height: 44.h,
-              decoration: const BoxDecoration(
-                color: Colors.black,
-                shape: BoxShape.circle,
-              ),
-            ),
-            SvgPicture.asset(iconPath, width: 20.w, height: 20.w),
-          ],
-        ),
+        icon, // ✅ 위젯으로 받은 아이콘 직접 렌더링
         SizedBox(width: 18.w),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,

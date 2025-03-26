@@ -5,8 +5,8 @@ import 'package:marimo_client/commons/AppBar.dart';
 import 'package:marimo_client/commons/BottomNavigationBar.dart';
 import 'package:marimo_client/screens/payment/widgets/CarMonthlyPayment.dart';
 import 'package:marimo_client/screens/payment/widgets/CarPaymentItemList.dart';
-import 'package:marimo_client/screens/payment/widgets/PlusButton.dart';
-import 'package:marimo_client/screens/payment/widgets/PaymentHistoryButton.dart';
+import 'package:marimo_client/screens/payment/widgets/CarPlusButton.dart';
+import 'package:marimo_client/screens/payment/widgets/CarPaymentHistoryButton.dart';
 
 class CarTotalPayment extends StatefulWidget {
   const CarTotalPayment({super.key});
@@ -15,8 +15,33 @@ class CarTotalPayment extends StatefulWidget {
   State<CarTotalPayment> createState() => _CarTotalPaymentState();
 }
 
-class _CarTotalPaymentState extends State<CarTotalPayment> {
+class _CarTotalPaymentState extends State<CarTotalPayment>
+    with WidgetsBindingObserver, AutomaticKeepAliveClientMixin {
   int selectedMonth = DateTime.now().month;
+
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && mounted) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() {});
+      });
+    }
+  }
 
   void _updateMonth(int month) {
     setState(() {
@@ -26,12 +51,13 @@ class _CarTotalPaymentState extends State<CarTotalPayment> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // AutomaticKeepAliveClientMixin 필수 호출
+
     return Scaffold(
       appBar: const CommonAppBar(),
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // 차계부 타이틀
           Positioned(
             top: 16.h,
             left: 20.w,
@@ -44,8 +70,6 @@ class _CarTotalPaymentState extends State<CarTotalPayment> {
               ),
             ),
           ),
-
-          // 월 총 지출 컴포넌트 (selectedMonth 전달)
           Positioned(
             top: 45.h,
             left: 20.w,
@@ -54,23 +78,17 @@ class _CarTotalPaymentState extends State<CarTotalPayment> {
               onMonthChanged: _updateMonth,
             ),
           ),
-
-          // 내역 보기 버튼
           Positioned(
             top: 90.h,
             right: 20.w,
             child: HistoryViewButton(onTap: () {}),
           ),
-
-          // 항목 리스트
           Positioned(
             top: 175.h,
             left: 20.w,
             right: 20.w,
             child: const CarPaymentItemList(),
           ),
-
-          // + 버튼
           Positioned(bottom: 35.h, right: 30.w, child: const PlusButton()),
         ],
       ),
