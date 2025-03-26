@@ -59,24 +59,22 @@ class _CarDetailPaymentState extends State<CarDetailPayment>
         title: '내역 보기',
         onBackPressed: () => Navigator.of(context).pop(),
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 16.h),
-                CarMonthlyPayment(
-                  selectedMonth: selectedMonth,
-                  onMonthChanged: _updateMonth,
-                ),
-                SizedBox(height: 20.h),
-                CarDayDetailPayment(selectedMonth: selectedMonth),
-                SizedBox(height: 40.h),
-              ],
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 16.h),
+            CarMonthlyPayment(
+              // selectedMonth: selectedMonth,
+              // onMonthChanged: _updateMonth,
             ),
-          ),
+            SizedBox(height: 18.h),
+            Expanded(
+              // 👈 스크롤 가능한 영역
+              child: CarDayDetailPayment(selectedMonth: selectedMonth),
+            ),
+          ],
         ),
       ),
     );

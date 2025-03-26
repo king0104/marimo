@@ -75,8 +75,8 @@ class _CarTotalPaymentState extends State<CarTotalPayment>
             top: 45.h,
             left: 20.w,
             child: CarMonthlyPayment(
-              selectedMonth: selectedMonth,
-              onMonthChanged: _updateMonth,
+              // selectedMonth: selectedMonth,
+              // onMonthChanged: _updateMonth,
             ),
           ),
           Positioned(
@@ -95,7 +95,7 @@ class _CarTotalPaymentState extends State<CarTotalPayment>
             ),
           ),
           Positioned(
-            top: 175.h,
+            top: 167.h,
             left: 20.w,
             right: 20.w,
             child: const CarPaymentItemList(),
