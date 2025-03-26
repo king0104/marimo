@@ -1,8 +1,10 @@
 // PlusButton.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:marimo_client/providers/car_payment_provider.dart';
 import 'package:marimo_client/models/payment/car_payment_entry.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class PlusButton extends StatelessWidget {
   const PlusButton({super.key});
@@ -51,6 +53,7 @@ class PlusButton extends StatelessWidget {
                       CarPaymentEntry(
                         category: selectedCategory,
                         amount: amount,
+                        date: DateTime.now(),
                       ),
                     );
                     Navigator.of(context).pop();
@@ -65,10 +68,32 @@ class PlusButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () => _showAddEntryDialog(context),
-      backgroundColor: Color(0xFF4888FF),
-      child: const Icon(Icons.add, color: Colors.white),
+    return GestureDetector(
+      onTap: () => _showAddEntryDialog(context),
+      child: SizedBox(
+        width: 57.w,
+        height: 57.h,
+        child: Stack(
+          alignment: Alignment.center, // 아이콘을 원 안에 중앙 배치
+          children: [
+            // 파란색 동그라미 배경
+            Container(
+              width: 57.w,
+              height: 57.h,
+              decoration: BoxDecoration(
+                color: const Color(0xFF4888FF), // 파란색
+                shape: BoxShape.circle,
+              ),
+            ),
+            // 아이콘을 흰색으로 올리기
+            SvgPicture.asset(
+              'assets/images/icons/icon_plus_white.svg',
+              width: 15.w, // 아이콘 크기
+              height: 15.h, // 아이콘 크기
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
