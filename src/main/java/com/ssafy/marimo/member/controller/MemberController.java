@@ -7,6 +7,7 @@ import com.ssafy.marimo.member.dto.response.PostMemberFormResponse;
 import com.ssafy.marimo.member.dto.response.PostMemberLoginResponse;
 import com.ssafy.marimo.member.service.CustomUserDetails;
 import com.ssafy.marimo.member.service.MemberService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -41,27 +42,5 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(postMemberLoginResponsee);
     }
-
-    @GetMapping("/current")
-    public ResponseEntity<Integer> getCurrentMemberId(@CurrentMemberId Integer memberId) {
-        if (memberId == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        return ResponseEntity.ok(memberId);
-    }
-
-    @GetMapping("/currentmember")
-    public ResponseEntity<PostMemberLoginResponse> getCurrentMemberId() {
-        // SecurityContextHolder에서 현재 인증된 사용자 정보를 가져옵니다.
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!(principal instanceof CustomUserDetails)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        CustomUserDetails userDetails = (CustomUserDetails) principal;
-        // CustomUserDetails에 암호화된 memberId가 저장되어 있습니다.
-        String encryptedMemberId = userDetails.getEncryptedMemberId();
-        return ResponseEntity.ok(PostMemberLoginResponse.of(encryptedMemberId));
-    }
-
 
 }

@@ -29,22 +29,14 @@ public class JWTFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        String[] excludePath = {"/api/v1/members", "/api/v1/members/form"};
-        String path = request.getRequestURI();
-        return Arrays.stream(excludePath).anyMatch(path::startsWith);    }
-
-    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authorization = request.getHeader("Authorization");
         if (authorization == null || !authorization.startsWith("Bearer ")) {
-            log.info("Authorization header is missing or invalid");
             filterChain.doFilter(request, response);
             return;
         }
 
         String token = authorization.split(" ")[1];
-        log.info("Extracted token: {}", token);
         if (jwtUtil.isExpired(token)) {
             filterChain.doFilter(request, response);
             return;
@@ -53,9 +45,6 @@ public class JWTFilter extends OncePerRequestFilter {
         String memberId = jwtUtil.getMemberId(token);
         String email = jwtUtil.getEmail(token);
         String role = jwtUtil.getRole(token);
-        log.info("Extracted memberId: {}", memberId);
-        log.info("Extracted email: {}", email);
-        log.info("Extracted role: {}", role);
 
         // JWT 토큰에서 추출한 정보를 사용하여 임시 Member 객체 생성 (DB 저장과 무관)
         Member member = Member.fromJwt(email, role);

@@ -36,7 +36,6 @@ public class CurrentMemberIdArgumentResolver implements HandlerMethodArgumentRes
         if (principal instanceof CustomUserDetails) {
             CustomUserDetails userDetails = (CustomUserDetails) principal;
             String encryptedMemberId = userDetails.getEncryptedMemberId();
-            // 복호화하여 Integer로 반환
             return idEncryptionUtil.decrypt(encryptedMemberId);
         }
         return null;

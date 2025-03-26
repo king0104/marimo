@@ -88,7 +88,6 @@ public class Member extends BaseTimeEntity {
                 .build();
     }
 
-    // Member.java 내부에 추가
     public static Member fromJwt(String email, String role) {
         return Member.builder()
                 .email(email)

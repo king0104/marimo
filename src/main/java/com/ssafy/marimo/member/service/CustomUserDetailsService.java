@@ -18,14 +18,13 @@ import java.util.Optional;
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final MemberRepository memberRepository;
-    private final IdEncryptionUtil idEncryptionUtil; // 추가
+    private final IdEncryptionUtil idEncryptionUtil;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Member not found with email: " + email));
         String encryptedMemberId = idEncryptionUtil.encrypt(member.getId());
-        log.info(encryptedMemberId);
         return new CustomUserDetails(member, encryptedMemberId);
     }
 }
