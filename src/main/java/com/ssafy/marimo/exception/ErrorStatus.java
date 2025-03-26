@@ -34,7 +34,7 @@ public enum ErrorStatus {
     /**
      * 403 FORBIDDEN
      */
-
+    JWT_INVALID_TOKEN("유효하지 않은 토큰입니다."),
 
     /**
      * 404 NOT_FOUND

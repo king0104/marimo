@@ -20,6 +20,9 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         storage_engine: innodb
 
+  jwt:
+    secret: ${JWT_SECRET_KEY}
+
 encrypt:
   secret:
     key: ${ENCRYPT_SECRET_KEY}
