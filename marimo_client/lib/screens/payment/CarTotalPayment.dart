@@ -7,6 +7,7 @@ import 'package:marimo_client/screens/payment/widgets/CarMonthlyPayment.dart';
 import 'package:marimo_client/screens/payment/widgets/CarPaymentItemList.dart';
 import 'package:marimo_client/screens/payment/widgets/CarPlusButton.dart';
 import 'package:marimo_client/screens/payment/widgets/CarPaymentHistoryButton.dart';
+import 'CarDetailPayment.dart';
 
 class CarTotalPayment extends StatefulWidget {
   const CarTotalPayment({super.key});
@@ -81,7 +82,17 @@ class _CarTotalPaymentState extends State<CarTotalPayment>
           Positioned(
             top: 90.h,
             right: 20.w,
-            child: HistoryViewButton(onTap: () {}),
+            child: HistoryViewButton(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder:
+                        (context) =>
+                            CarDetailPayment(initialMonth: selectedMonth),
+                  ),
+                );
+              },
+            ),
           ),
           Positioned(
             top: 175.h,
