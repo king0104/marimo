@@ -34,13 +34,15 @@ public enum ErrorStatus {
     /**
      * 403 FORBIDDEN
      */
-
+    JWT_INVALID_TOKEN("유효하지 않은 토큰입니다."),
 
     /**
      * 404 NOT_FOUND
      */
-
-
+    CAR_NOT_FOUND("해당 차량을 찾을 수 없습니다"),
+    OIL_PAYMENT_NOT_FOUND("해당 주유 차계부 내역을 찾을 수 없습니다"),
+    WASH_PAYMENT_NOT_FOUND("해당 세차 차계부 내역을 찾을 수 없습니다"),
+    REPAIR_PAYMENT_NOT_FOUND("해당 정비 차계부 내역을 찾을 수 없습니다"),
     /**
      * 405 METHOD_NOT_ALLOWED
      */

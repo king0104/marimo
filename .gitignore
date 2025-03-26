@@ -62,3 +62,6 @@ volumes/
 redis-data/
 
 ### Firebase ###
+
+### QueryDSL ###
+/build/generated/

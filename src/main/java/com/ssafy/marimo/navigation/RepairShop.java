@@ -14,7 +14,6 @@ import org.hibernate.annotations.Filter;
 @Entity
 @Table(name = "repair_shop")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Filter(name = "deletedFilter", condition = "deleted = :isDeleted")
 public class RepairShop extends BaseTimeEntity {
 
     @Id
