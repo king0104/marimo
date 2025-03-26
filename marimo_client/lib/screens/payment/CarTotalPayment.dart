@@ -92,10 +92,6 @@ class _CarTotalPaymentState extends State<CarTotalPayment>
           Positioned(bottom: 35.h, right: 30.w, child: const PlusButton()),
         ],
       ),
-      bottomNavigationBar: CommonBottomNavigationBar(
-        currentIndex: 4,
-        onTap: (index) {},
-      ),
     );
   }
 }

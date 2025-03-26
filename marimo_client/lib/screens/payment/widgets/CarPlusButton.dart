@@ -78,18 +78,29 @@ class PlusButton extends StatelessWidget {
           children: [
             // 파란색 동그라미 배경
             Container(
-              width: 57.w,
-              height: 57.h,
+              width: 64.w,
+              height: 64.h,
               decoration: BoxDecoration(
                 color: const Color(0xFF4888FF), // 파란색
                 shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(
+                      0x4D007DFC,
+                    ), // #007DFC with 30% opacity → 0x4D = 30% alpha
+                    offset: Offset(2.w, 4.h), // X: 2, Y: 4
+                    blurRadius: 4.r, // Blur: 9.4
+                    spreadRadius: -1.r, // Spread: -1
+                  ),
+                ],
               ),
             ),
+
             // 아이콘을 흰색으로 올리기
             SvgPicture.asset(
               'assets/images/icons/icon_plus_white.svg',
-              width: 15.w, // 아이콘 크기
-              height: 15.h, // 아이콘 크기
+              width: 16.84.w, // 아이콘 크기
+              height: 16.84.h, // 아이콘 크기
             ),
           ],
         ),
