@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:marimo_client/theme.dart';
 
 class AIDescModal extends StatelessWidget {
   final String code;
@@ -23,7 +25,7 @@ class AIDescModal extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(20.w),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: white,
           borderRadius: BorderRadius.circular(16.r),
         ),
         child: Column(
@@ -36,14 +38,18 @@ class AIDescModal extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.bolt, color: Colors.blueAccent, size: 20.w),
-                    SizedBox(width: 6.w),
+                    SvgPicture.asset(
+                      'assets/images/icons/icon_ai_bot.svg',
+                      width: 30.w,
+                      height: 30.h,
+                    ),
+                    SizedBox(width: 8.w),
                     Text(
                       "$code - $title",
                       style: TextStyle(
                         fontSize: 16.sp,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red,
+                        fontWeight: FontWeight.w500,
+                        color: pointRedColor,
                       ),
                     ),
                   ],

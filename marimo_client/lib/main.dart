@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/providers/car_registration_provider.dart';
 import 'package:marimo_client/providers/obd_data_provider.dart';
+import 'package:marimo_client/screens/monitoring/ObdDtcScanScreen.dart';
+import 'package:marimo_client/screens/monitoring/ObdFullScanScreen.dart';
 import 'package:marimo_client/screens/signin/car/RegisterCarScreen.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
@@ -96,8 +98,10 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     HomeScreen(),
     MonitoringScreen(),
-    BluetoothTestScreen(),
+    ObdFullScanScreen(),
     MapScreen(),
+    // ObdDtcScanScreen(),
+    // BluetoothTestScreen(),
     // RegisterCarScreen(),
     MonitoringScreen(),
   ];
@@ -125,28 +129,32 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    backgroundColor: const Color(0xFFFBFBFB),
-    appBar: const CommonAppBar(),
-    
-    body: Stack(
-      children: [
-        Positioned.fill( // 본문을 화면 전체에 채움
-          child: _selectedIndex == 4 ? _getProfileScreen() : _screens[_selectedIndex],
-        ),
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,  // 📌 네비게이션 바를 화면 하단에 배치
-          child: CommonBottomNavigationBar(
-            currentIndex: _selectedIndex,
-            onTap: _onItemTapped,
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFFBFBFB),
+      appBar: const CommonAppBar(),
+
+      body: Stack(
+        children: [
+          Positioned.fill(
+            // 본문을 화면 전체에 채움
+            child:
+                _selectedIndex == 4
+                    ? _getProfileScreen()
+                    : _screens[_selectedIndex],
           ),
-        ),
-      ],
-    ),
-  );
-}
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0, // 📌 네비게이션 바를 화면 하단에 배치
+            child: CommonBottomNavigationBar(
+              currentIndex: _selectedIndex,
+              onTap: _onItemTapped,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

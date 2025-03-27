@@ -11,86 +11,119 @@ class ObdDataProvider extends ChangeNotifier {
   ObdDataModel _data = ObdDataModel();
   ObdDataModel get data => _data;
 
-  Timer? _pollingTimer;
+  StreamController<String>? _responseController;
 
-  Future<void> connect(BluetoothDevice device) async {
+  Future<void> connectWithConnection(
+    BluetoothConnection connection,
+    StreamController<String> responseController,
+  ) async {
+    _connection = connection;
+    _responseController = responseController;
+    isConnected = true;
+    notifyListeners();
+
+    // ✅ 초기화 명령 순차 실행 (echo off, protocol 설정 등)
     try {
-      _connection = await BluetoothConnection.toAddress(device.address);
-      isConnected = true;
-
-      _connection!.input!.listen(
-        (data) {
-          final message = String.fromCharCodes(data).trim();
-          _parseResponse(message);
-        },
-        onDone: () {
-          isConnected = false;
-          stopPolling();
-          notifyListeners();
-        },
-      );
-
-      notifyListeners();
+      await sendAndWait('ATZ'); // 리셋
+      await sendAndWait('ATE0'); // echo off
+      await sendAndWait('ATL0'); // 줄바꿈 off
+      await sendAndWait('ATS0'); // 공백 제거
+      await sendAndWait('ATH1'); // 헤더 표시 on
+      await sendAndWait('ATSP0'); // 자동 프로토콜 설정
+      print('[OBD] ✅ 초기화 명령 완료');
     } catch (e) {
-      isConnected = false;
-      notifyListeners();
-      rethrow;
+      print('[OBD] ⚠️ 초기화 명령 중 오류: \$e');
     }
   }
 
   void disconnect() {
+    print('[OBD] 🔌 연결 종료 요청');
     _connection?.dispose();
     _connection = null;
     isConnected = false;
-    stopPolling();
     notifyListeners();
   }
 
-  void send(String cmd) {
-    if (_connection != null && isConnected) {
-      _connection!.output.add(Uint8List.fromList('$cmd\r'.codeUnits));
+  Future<String> sendAndWait(String cmd) async {
+    if (_connection == null || !isConnected || _responseController == null) {
+      throw Exception('[OBD] 연결 안 된');
+    }
+
+    print('[OBD] 📤 명령 전송: $cmd');
+    final completer = Completer<String>();
+    final buffer = StringBuffer();
+    late StreamSubscription sub;
+
+    sub = _responseController!.stream.listen((chunk) {
+      buffer.write(chunk);
+      if (chunk.contains('>')) {
+        sub.cancel();
+        final raw = buffer.toString();
+        final response = raw.replaceAll('>', '').trim();
+        print('[OBD] 🧾 원본 응답(raw): "$raw"');
+        print('[OBD] 📥 응답 수신 완료: "$response"');
+        completer.complete(response);
+      }
+    });
+
+    _connection!.output.add(Uint8List.fromList('$cmd\r'.codeUnits));
+    await _connection!.output.allSent;
+
+    return completer.future.timeout(
+      const Duration(seconds: 3),
+      onTimeout: () {
+        sub.cancel();
+        throw TimeoutException('[OBD] 응답 타임아웃');
+      },
+    );
+  }
+
+  Future<void> startPollingWithDelay() async {
+    print('[OBD] 🔁 Polling 시작 (안정형)');
+    final commands = [
+      "010C",
+      "010D",
+      "0104",
+      "0105",
+      "0111",
+      "010F",
+      "0110",
+      "012F",
+      "010E",
+      "0133",
+      "0146",
+      "010A",
+      "010B",
+      "011F",
+      "0121",
+      "0131",
+      "0151",
+      "015C",
+    ];
+
+    while (isConnected) {
+      for (final cmd in commands) {
+        try {
+          final res = await sendAndWait(cmd);
+          _parseResponse(res);
+        } catch (e) {
+          print('[OBD] ⚠️ 명령 처리 중 오류 ($cmd): $e');
+        }
+        await Future.delayed(const Duration(milliseconds: 200));
+      }
     }
   }
 
-  void requestAll() {
-    send("010C"); // RPM
-    send("010D"); // Speed
-    send("0104"); // Engine Load
-    send("0105"); // Coolant Temp
-    send("0111"); // Throttle Position
-    send("010F"); // Intake Temp
-    send("0110"); // MAF
-    send("012F"); // Fuel Level
-    send("010E"); // Timing Advance
-    send("0133"); // Barometric Pressure
-    send("0146"); // Ambient Air Temp
-    send("010A"); // Fuel Pressure
-    send("010B"); // Intake Pressure
-    send("011F"); // Engine Run Time
-    send("0121"); // Distance with MIL
-    send("0131"); // Distance since DTC clear
-    send("0151"); // Fuel Type
-    send("015C"); // Engine Oil Temp
-  }
-
-  void startPolling() {
-    _pollingTimer?.cancel();
-    _pollingTimer = Timer.periodic(const Duration(seconds: 1), (_) {
-      requestAll();
-    });
-  }
-
-  void stopPolling() {
-    _pollingTimer?.cancel();
-    _pollingTimer = null;
-  }
-
   void _parseResponse(String response) {
-    if (!response.startsWith("41")) return;
+    // 헤더 포함된 응답에서 41로 시작하는 부분만 추출
+    final match = RegExp(r'41[0-9A-Fa-f]{2}[0-9A-Fa-f]*').firstMatch(response);
+    if (match == null) return;
+
+    final cleaned = match.group(0)!.replaceAll(' ', '');
 
     try {
-      final pid = response.substring(2, 4);
-      final bytes = response.substring(4).replaceAll(' ', '');
+      final pid = cleaned.substring(2, 4);
+      final bytes = cleaned.substring(4);
       final hex = (int i) => int.parse(bytes.substring(i, i + 2), radix: 16);
 
       switch (pid) {
@@ -107,13 +140,13 @@ class ObdDataProvider extends ChangeNotifier {
           _data = _data.copyWith(engineLoad: hex(0) * 100 / 255);
           break;
         case '05':
-          _data = _data.copyWith(coolantTemp: hex(0) - 40);
+          _data = _data.copyWith(coolantTemp: (hex(0) - 40).toDouble());
           break;
         case '11':
           _data = _data.copyWith(throttlePosition: hex(0) * 100 / 255);
           break;
         case '0F':
-          _data = _data.copyWith(intakeTemp: hex(0) - 40);
+          _data = _data.copyWith(intakeTemp: (hex(0) - 40).toDouble());
           break;
         case '10':
           if (bytes.length >= 4) {
@@ -131,7 +164,7 @@ class ObdDataProvider extends ChangeNotifier {
           _data = _data.copyWith(barometricPressure: hex(0).toDouble());
           break;
         case '46':
-          _data = _data.copyWith(ambientAirTemp: hex(0) - 40);
+          _data = _data.copyWith(ambientAirTemp: (hex(0) - 40).toDouble());
           break;
         case '0A':
           _data = _data.copyWith(fuelPressure: hex(0) * 3.0);
@@ -177,20 +210,21 @@ class ObdDataProvider extends ChangeNotifier {
           _data = _data.copyWith(fuelType: type);
           break;
         case '5C':
-          _data = _data.copyWith(engineOilTemp: hex(0) - 40);
+          _data = _data.copyWith(engineOilTemp: (hex(0) - 40).toDouble());
           break;
       }
+      print('[OBD] ✅ 최신 데이터 상태: ${_data.toString()}');
 
       notifyListeners();
     } catch (e) {
-      debugPrint('❌ PID 파싱 실패: $e');
+      debugPrint('❌ PID 파시마 실패: $e\n응답 원문: "$response"');
     }
   }
 
   @override
   void dispose() {
-    _pollingTimer?.cancel();
     _connection?.dispose();
+    _responseController?.close();
     super.dispose();
   }
 }
