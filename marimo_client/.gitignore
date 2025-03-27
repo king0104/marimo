@@ -168,3 +168,5 @@ Debug.xcconfig
 Release.xcconfig
 Flutter-Debug.xcconfig
 Flutter-Release.xcconfig
+project.pbxproj
+contents.xcworkspacedata
