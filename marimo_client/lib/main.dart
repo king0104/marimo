@@ -107,8 +107,8 @@ class _MainScreenState extends State<MainScreen> {
     MapScreen(),
     // ObdDtcScanScreen(),
     // BluetoothTestScreen(),
-    // RegisterCarScreen(),
-    MonitoringScreen(),
+    RegisterCarScreen(),
+    // MonitoringScreen(),
   ];
 
   Widget _getProfileScreen() {
