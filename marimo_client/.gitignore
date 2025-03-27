@@ -164,9 +164,9 @@ app.*.symbols
 
 # ios macos package
 Podfile
-Debug.xcconfig
-Release.xcconfig
-Flutter-Debug.xcconfig
-Flutter-Release.xcconfig
+**/ios/Flutter/Debug.xcconfig
+**/ios/Flutter/Release.xcconfig
+**/macos/Flutter/Flutter-Debug.xcconfig
+**/macos/Flutter/Flutter-Release.xcconfig
 project.pbxproj
 contents.xcworkspacedata
