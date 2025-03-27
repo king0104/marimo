@@ -55,7 +55,7 @@ public class SecurityConfig {
                 .httpBasic((auth) -> auth.disable()) // HTTP Basic 방식 disable
 //                .oauth2Login(Customizer.withDefaults()) // oauth2 로그인 방식 enable
                 .authorizeHttpRequests((auth) -> auth // 경로별 인가 작업
-                        .requestMatchers("/api/v1/members", "/api/v1/members/form").permitAll()
+                        .requestMatchers("/api/v1/members", "/api/v1/members/form", "/api/v1/auth/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class)
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class) // 로그인 필터 추가
