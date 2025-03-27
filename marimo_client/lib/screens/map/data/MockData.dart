@@ -3,6 +3,7 @@ import 'package:marimo_client/models/map/Place.dart';
 final List<Place> mockPlaces = [
   // 주유소
   Place(
+    id: 'gas_1',
     name: 'GS 칼텍스 방이점',
     type: 'gas',
     lat: 37.5153,
@@ -13,6 +14,7 @@ final List<Place> mockPlaces = [
     tags: ['24시', '셀프', '세차', '경정비', '편의점'],
   ),
   Place(
+    id: 'gas_2',
     name: '해뜨는 주유소',
     type: 'gas',
     lat: 37.5124,
@@ -25,6 +27,7 @@ final List<Place> mockPlaces = [
 
   // 정비소
   Place(
+    id: 'repair_1',
     name: '현대 블루핸즈',
     type: 'repair',
     lat: 37.5139,
@@ -35,6 +38,7 @@ final List<Place> mockPlaces = [
     tags: ['정기점검', '엔진오일'],
   ),
   Place(
+    id: 'repair_2',
     name: '카센타 봉천점',
     type: 'repair',
     lat: 37.5115,
@@ -47,6 +51,7 @@ final List<Place> mockPlaces = [
 
   // 세차장
   Place(
+    id: 'carwash_1',
     name: '스팀세차장 잠실',
     type: 'carwash',
     lat: 37.5161,

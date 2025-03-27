@@ -25,6 +25,7 @@ import 'commons/BottomNavigationBar.dart';
 
 // Providersz
 import 'providers/car_provider.dart';
+import 'providers/car_payment_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -56,6 +57,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => CarProvider()),
         ChangeNotifierProvider(create: (_) => CarRegistrationProvider()),
         ChangeNotifierProvider(create: (_) => ObdDataProvider()),
+        ChangeNotifierProvider(create: (_) => CarPaymentProvider()),
         // 향후 다른 Provider들도 여기에 추가 가능
       ],
       child: ScreenUtilInit(

@@ -1,21 +1,38 @@
 class Place {
+  final String id;
   final String name;
-  final String type; // 'gas', 'repair', 'carwash'
   final double lat;
   final double lng;
-  final double distance; // 단위: km
-  final double price; // 주유소일 경우만 사용
-  final double rating; // 평점
+  final String type;
+  final double rating;
+  final double distance;
   final List<String> tags;
+  final int? price;
 
   Place({
+    required this.id,
     required this.name,
-    required this.type,
     required this.lat,
     required this.lng,
-    required this.distance,
-    required this.price,
+    required this.type,
     required this.rating,
+    required this.distance,
     required this.tags,
+    this.price,
   });
+
+  // ✅ 이거 추가!
+  factory Place.fromJson(Map<String, dynamic> json) {
+    return Place(
+      id: json['id'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      lat: (json['lat'] ?? 0).toDouble(),
+      lng: (json['lng'] ?? 0).toDouble(),
+      type: json['type'] as String? ?? '',
+      rating: (json['rating'] ?? 0).toDouble(),
+      distance: (json['distance'] ?? 0).toDouble(),
+      tags: List<String>.from(json['tags'] ?? []),
+      price: json['price'] as int?, // nullable 그대로
+    );
+  }
 }
