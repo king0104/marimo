@@ -185,7 +185,23 @@ class _MapScreenState extends State<MapScreen> {
     // 현재 위치 받아오기 (MapService 내부에서 Geolocator 사용)
     final currentLatLng = await _mapService.fetchCurrentLatLng();
 
-    // 기존 마커 삭제
+    // 기존 마커들 제거 (카테고리 필터 마커들)
+    await _mapService.removeMarkersByIds(
+      controller: _mapController,
+      ids: _previousMarkerIds,
+    );
+
+    // UI 상태 초기화 (카드 제거, 선택 상태 초기화)
+    setState(() {
+      _currentPlaces = [];
+      _highlightedPlaceId = null;
+      _previousMarkerIds = [];
+      _gasStationFilter = false;
+      _repairFilter = false;
+      _carWashFilter = false;
+    });
+
+    // 기존 사용자 위치 마커 제거
     if (_userLocationMarker != null) {
       await _mapService.removeMarker(
         controller: _mapController,
@@ -193,7 +209,7 @@ class _MapScreenState extends State<MapScreen> {
       );
     }
 
-    // 현재 위치 마커 추가
+    // 새 사용자 위치 마커 추가
     await _mapService.addCurrentLocationMarker(
       controller: _mapController,
       id: 'user_location',
