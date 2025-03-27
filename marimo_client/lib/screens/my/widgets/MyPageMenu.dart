@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:marimo_client/screens/Insurance/InsuranceScreen.dart';
 
 class MyPageMenu extends StatelessWidget {
   const MyPageMenu({super.key});
@@ -26,6 +27,12 @@ class MyPageMenu extends StatelessWidget {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const InsuranceScreen()),
+            );
+          },
         ),
         SizedBox(height: 24.h),
         Text(
@@ -55,65 +62,69 @@ class MyPageMenu extends StatelessWidget {
     required String title,
     required String subtitle,
     required Gradient gradient,
+    VoidCallback? onTap,
   }) {
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: EdgeInsets.all(5.w),
-            decoration: BoxDecoration(
-              gradient: gradient,
-              shape: BoxShape.rectangle,
-              borderRadius: BorderRadius.circular(13.r),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(16.w),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
-            child: Image.asset(
-              iconPath,
-              width: 24.w,
-              height: 24.w,
-              fit: BoxFit.cover
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: EdgeInsets.all(5.w),
+              decoration: BoxDecoration(
+                gradient: gradient,
+                shape: BoxShape.rectangle,
+                borderRadius: BorderRadius.circular(13.r),
+              ),
+              child: Image.asset(
+                iconPath,
+                width: 24.w,
+                height: 24.w,
+                fit: BoxFit.cover
+              ),
             ),
-          ),
-          SizedBox(width: 16.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.bold,
+            SizedBox(width: 16.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                SizedBox(height: 4.h),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: Colors.grey[600],
+                  SizedBox(height: 4.h),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: Colors.grey[600],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Icon(
-            Icons.chevron_right,
-            color: Colors.grey[400],
-            size: 24.w,
-          ),
-        ],
+            Icon(
+              Icons.chevron_right,
+              color: Colors.grey[400],
+              size: 24.w,
+            ),
+          ],
+        ),
       ),
     );
   }
