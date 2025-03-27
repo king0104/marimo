@@ -1,4 +1,4 @@
-// CarPaymentProvider.dart
+// car_payment_provider.dart
 import 'package:flutter/material.dart';
 import 'package:marimo_client/models/payment/car_payment_entry.dart';
 
@@ -71,5 +71,14 @@ class CarPaymentProvider with ChangeNotifier {
       final percent = total == 0 ? 0 : (amount / total * 100);
       return MapEntry(category, '${percent.toStringAsFixed(1)}%');
     });
+  }
+
+  // 선택된 카테고리 상태
+  String? _selectedCategory;
+  String? get selectedCategory => _selectedCategory;
+
+  void setSelectedCategory(String? category) {
+    _selectedCategory = category;
+    notifyListeners();
   }
 }
