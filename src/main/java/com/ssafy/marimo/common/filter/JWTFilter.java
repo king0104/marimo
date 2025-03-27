@@ -2,22 +2,18 @@ package com.ssafy.marimo.common.filter;
 
 import com.ssafy.marimo.common.util.JWTUtil;
 import com.ssafy.marimo.member.domain.Member;
-import com.ssafy.marimo.member.domain.OauthProvider;
 import com.ssafy.marimo.member.service.CustomUserDetails;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 @Slf4j
 public class JWTFilter extends OncePerRequestFilter {
