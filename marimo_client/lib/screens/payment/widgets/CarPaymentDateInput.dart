@@ -18,6 +18,7 @@ class CarPaymentDateInput extends StatelessWidget {
 
   void _openCustomCalendar(BuildContext context) {
     showCustomCalendarPopup(
+      // showCustomCalendarPopup에서 showCustomCalendarDialog로 변경
       context: context,
       initialDate: selectedDate,
       onDateSelected: onDateSelected,
