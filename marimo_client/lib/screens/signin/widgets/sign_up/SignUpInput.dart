@@ -6,6 +6,7 @@ class SignUpInput extends StatelessWidget {
   final String hint;
   final TextEditingController controller;
   final bool isPassword;
+  final ValueChanged<String>? onChanged;
 
   const SignUpInput({
     super.key,
@@ -13,6 +14,7 @@ class SignUpInput extends StatelessWidget {
     required this.hint,
     required this.controller,
     this.isPassword = false,
+    this.onChanged,
   });
 
   @override
@@ -33,6 +35,7 @@ class SignUpInput extends StatelessWidget {
         TextField(
           controller: controller,
           obscureText: isPassword,
+          onChanged: onChanged,
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: const TextStyle(

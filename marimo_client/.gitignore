@@ -161,3 +161,10 @@ app.*.symbols
 
 #Project settings
 .env
+
+# ios macos package
+Podfile
+Debug.xcconfig
+Release.xcconfig
+Flutter-Debug.xcconfig
+Flutter-Release.xcconfig
