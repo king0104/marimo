@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/providers/car_registration_provider.dart';
+import 'package:marimo_client/providers/member/auth_provider.dart';
 import 'package:marimo_client/providers/obd_data_provider.dart';
 import 'package:marimo_client/screens/signin/car/RegisterCarScreen.dart';
 import 'package:provider/provider.dart';
@@ -31,13 +32,13 @@ void main() async {
   // .env 로드
   await dotenv.load(fileName: ".env");
 
-  // 네이버 맵 초기화
-  await NaverMapSdk.instance.initialize(
-    clientId: dotenv.env['NAVER_MAP_CLIENT_ID']!,
-    onAuthFailed: (ex) {
-      print("네이버 지도 인증 오류: $ex");
-    },
-  );
+  // // 네이버 맵 초기화
+  // await NaverMapSdk.instance.initialize(
+  //   clientId: dotenv.env['NAVER_MAP_CLIENT_ID']!,
+  //   onAuthFailed: (ex) {
+  //     print("네이버 지도 인증 오류: $ex");
+  //   },
+  // );
 
   // 상태바 스타일 설정
   SystemChrome.setSystemUIOverlayStyle(
@@ -56,6 +57,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => CarRegistrationProvider()),
         ChangeNotifierProvider(create: (_) => ObdDataProvider()),
         ChangeNotifierProvider(create: (_) => CarPaymentProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+
         // 향후 다른 Provider들도 여기에 추가 가능
       ],
       child: ScreenUtilInit(
@@ -73,13 +76,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
         fontFamily: 'Freesentation',
         scaffoldBackgroundColor: const Color(0xFFFBFBFB),
       ),
-      home: const MainScreen(),
+      // 로그인 상태에 따라 시작 화면 결정: 로그인되지 않았으면 SignInScreen, 로그인되었으면 MainScreen
+      home: authProvider.isLoggedIn ? const MainScreen() : const SignInScreen(),
     );
   }
 }
@@ -93,20 +99,15 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
-  bool isLoggedIn = true; // 로그인 상태 관리 (임시)
 
   final List<Widget> _screens = [
     HomeScreen(),
     MonitoringScreen(),
     BluetoothTestScreen(),
-    MapScreen(),
+    // MapScreen(),
     // RegisterCarScreen(),
-    MonitoringScreen(),
+    MyScreen(),
   ];
-
-  Widget _getProfileScreen() {
-    return isLoggedIn ? const MyScreen() : const SignInScreen();
-  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -135,13 +136,7 @@ class _MainScreenState extends State<MainScreen> {
 
       body: Stack(
         children: [
-          Positioned.fill(
-            // 본문을 화면 전체에 채움
-            child:
-                _selectedIndex == 4
-                    ? _getProfileScreen()
-                    : _screens[_selectedIndex],
-          ),
+          Positioned.fill(child: _screens[_selectedIndex]),
           Positioned(
             left: 0,
             right: 0,

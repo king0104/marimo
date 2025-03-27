@@ -24,7 +24,8 @@ class LoginLinkRow extends StatelessWidget {
         ),
         TextButton(
           onPressed: () {
-            Navigator.of(context).push(_slideRoute(const SignUpScreen()));
+            // const 제거: Provider가 올바르게 생성되도록 함
+            Navigator.of(context).push(_slideRoute(SignUpScreen()));
           },
           child: const Text(
             "회원가입",
@@ -43,7 +44,7 @@ class LoginLinkRow extends StatelessWidget {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => page,
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        const begin = Offset(1.0, 0.0); // 오른쪽에서 시작
+        const begin = Offset(1.0, 0.0);
         const end = Offset.zero;
         const curve = Curves.easeInOut;
 
