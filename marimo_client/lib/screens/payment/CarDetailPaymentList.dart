@@ -65,15 +65,9 @@ class _CarDetailPaymentState extends State<CarDetailPayment>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 16.h),
-            CarMonthlyPayment(
-              // selectedMonth: selectedMonth,
-              // onMonthChanged: _updateMonth,
-            ),
+            CarMonthlyPayment(),
             SizedBox(height: 18.h),
-            Expanded(
-              // 👈 스크롤 가능한 영역
-              child: CarDayDetailPayment(selectedMonth: selectedMonth),
-            ),
+            Expanded(child: CarDayDetailPayment(selectedMonth: selectedMonth)),
           ],
         ),
       ),
