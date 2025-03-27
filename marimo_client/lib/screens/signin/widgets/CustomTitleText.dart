@@ -21,12 +21,20 @@ class CustomTitleText extends StatelessWidget {
   });
 
   @override
+  @override
   Widget build(BuildContext context) {
     // 강조할 부분을 기준으로 분리
     List<String> parts = text.split(highlight);
 
+    // highlight가 "카드"일 때만 패딩 적용
+    final bool isCardHighlight = highlight == "카드";
+    final EdgeInsetsGeometry effectivePadding =
+        isCardHighlight
+            ? EdgeInsets.symmetric(horizontal: 20.w)
+            : EdgeInsets.zero;
+
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      padding: effectivePadding,
       child: Text.rich(
         TextSpan(
           text: parts[0], // 강조 전 텍스트
@@ -36,12 +44,8 @@ class CustomTitleText extends StatelessWidget {
             color: textColor,
           ),
           children: [
-            TextSpan(
-              // 강조할 텍스트
-              text: highlight,
-              style: TextStyle(color: highlightColor),
-            ),
-            if (parts.length > 1) // 강조 후 텍스트
+            TextSpan(text: highlight, style: TextStyle(color: highlightColor)),
+            if (parts.length > 1)
               TextSpan(text: parts[1], style: TextStyle(color: textColor)),
           ],
         ),

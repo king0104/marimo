@@ -81,4 +81,29 @@ class ObdDataModel {
       engineOilTemp: engineOilTemp ?? this.engineOilTemp,
     );
   }
+
+  @override
+  String toString() {
+    return '''
+ObdDataModel(
+  rpm: $rpm,
+  speed: $speed,
+  engineLoad: $engineLoad,
+  coolantTemp: $coolantTemp,
+  throttlePosition: $throttlePosition,
+  intakeTemp: $intakeTemp,
+  maf: $maf,
+  fuelLevel: $fuelLevel,
+  timingAdvance: $timingAdvance,
+  barometricPressure: $barometricPressure,
+  ambientAirTemp: $ambientAirTemp,
+  fuelPressure: $fuelPressure,
+  intakePressure: $intakePressure,
+  runTime: $runTime,
+  distanceSinceCodesCleared: $distanceSinceCodesCleared,
+  distanceWithMIL: $distanceWithMIL,
+  fuelType: $fuelType,
+  engineOilTemp: $engineOilTemp
+)''';
+  }
 }

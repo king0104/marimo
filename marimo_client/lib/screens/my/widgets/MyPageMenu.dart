@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:marimo_client/screens/payment/CarTotalPayment.dart';
+
+import 'package:marimo_client/providers/car_payment_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:marimo_client/screens/Insurance/InsuranceScreen.dart';
 
 class MyPageMenu extends StatelessWidget {
@@ -12,10 +16,7 @@ class MyPageMenu extends StatelessWidget {
       children: [
         Text(
           '자동차 보험',
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 12.h),
         _buildMenuItem(
@@ -37,10 +38,7 @@ class MyPageMenu extends StatelessWidget {
         SizedBox(height: 24.h),
         Text(
           '차계부',
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 12.h),
         _buildMenuItem(
@@ -48,10 +46,24 @@ class MyPageMenu extends StatelessWidget {
           title: '나의 지출 경비 장부',
           subtitle: '차량유지관리에 들어가는 비용을 손쉽게 파악해보세요!',
           gradient: LinearGradient(
-                    colors: [Color(0x2587FF).withOpacity(0.3), Color(0x2587FF).withOpacity(0.95)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+            colors: [
+              Color(0x2587FF).withOpacity(0.3),
+              Color(0x2587FF).withOpacity(0.95),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder:
+                    (context) => ChangeNotifierProvider(
+                      create: (_) => CarPaymentProvider(),
+                      child: CarTotalPayment(),
+                    ),
+              ),
+            );
+          },
         ),
       ],
     );
