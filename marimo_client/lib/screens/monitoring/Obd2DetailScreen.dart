@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
+import 'package:marimo_client/providers/obd_data_provider.dart';
 import 'package:marimo_client/theme.dart';
 
 class Obd2DetailScreen extends StatefulWidget {
@@ -15,6 +17,34 @@ class _Obd2DetailScreenState extends State<Obd2DetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final obd = context.watch<ObdDataProvider>();
+    final data = obd.data;
+
+    final List<Map<String, dynamic>> obdItems = [
+      {"title": "RPM", "value": data.rpm, "unit": "rpm"},
+      {"title": "속도", "value": data.speed, "unit": "km/h"},
+      {"title": "엔진 부하", "value": data.engineLoad, "unit": "%"},
+      {"title": "냉각수 온도", "value": data.coolantTemp, "unit": "°C"},
+      {"title": "스로틀 포지션", "value": data.throttlePosition, "unit": "%"},
+      {"title": "흡기 온도", "value": data.intakeTemp, "unit": "°C"},
+      {"title": "MAF 유량", "value": data.maf, "unit": "g/s"},
+      {"title": "연료 잔량", "value": data.fuelLevel, "unit": "%"},
+      {"title": "점화 타이밍", "value": data.timingAdvance, "unit": "°"},
+      {"title": "기압", "value": data.barometricPressure, "unit": "kPa"},
+      {"title": "외기 온도", "value": data.ambientAirTemp, "unit": "°C"},
+      {"title": "연료 압력", "value": data.fuelPressure, "unit": "kPa"},
+      {"title": "흡기 압력", "value": data.intakePressure, "unit": "kPa"},
+      {"title": "엔진 작동 시간", "value": data.runTime, "unit": "초"},
+      {
+        "title": "DTC 클리어 후 거리",
+        "value": data.distanceSinceCodesCleared,
+        "unit": "km",
+      },
+      {"title": "MIL 이후 거리", "value": data.distanceWithMIL, "unit": "km"},
+      {"title": "연료 종류", "value": data.fuelType, "unit": ""},
+      {"title": "엔진 오일 온도", "value": data.engineOilTemp, "unit": "°C"},
+    ];
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("OBD2 상세"),
@@ -37,36 +67,14 @@ class _Obd2DetailScreenState extends State<Obd2DetailScreen> {
             padding: EdgeInsets.only(right: 16.w),
             child: Row(
               children: [
-                Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(8),
-                    onTap: () {},
-                    child: Padding(
-                      padding: EdgeInsets.all(8.w),
-                      child: SvgPicture.asset(
-                        'assets/images/icons/icon_chatbot_grey_22.svg',
-                        width: 22.w,
-                        height: 22.h,
-                      ),
-                    ),
-                  ),
+                _iconButton(
+                  'assets/images/icons/icon_chatbot_grey_22.svg',
+                  () {},
                 ),
                 SizedBox(width: 8.w),
-                Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(8),
-                    onTap: () {},
-                    child: Padding(
-                      padding: EdgeInsets.all(8.w),
-                      child: SvgPicture.asset(
-                        'assets/images/icons/icon_alarm_grey_22.svg',
-                        width: 22.w,
-                        height: 22.h,
-                      ),
-                    ),
-                  ),
+                _iconButton(
+                  'assets/images/icons/icon_alarm_grey_22.svg',
+                  () {},
                 ),
               ],
             ),
@@ -108,31 +116,30 @@ class _Obd2DetailScreenState extends State<Obd2DetailScreen> {
                       ),
                     ),
                   ),
-                  Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(8),
-                      onTap: () {
-                        // 🔍 검색 버튼 동작
-                      },
-                      child: Padding(
-                        padding: EdgeInsets.all(4.w),
-                        child: SvgPicture.asset(
-                          'assets/images/icons/icon_search_24_grey.svg',
-                          width: 24.w,
-                          height: 24.h,
-                        ),
-                      ),
-                    ),
+                  _iconButton(
+                    'assets/images/icons/icon_search_24_grey.svg',
+                    () {
+                      // 검색 버튼 동작
+                    },
                   ),
                 ],
               ),
             ),
+
+            // 📋 데이터 카드 리스트
             Expanded(
               child: ListView.builder(
-                itemCount: 5,
+                itemCount: obdItems.length,
                 itemBuilder: (_, index) {
                   final isSelected = selectedIndex == index;
+                  final item = obdItems[index];
+                  final rawValue = item["value"];
+                  final displayValue =
+                      rawValue == null
+                          ? "--"
+                          : rawValue is double
+                          ? rawValue.toStringAsFixed(1)
+                          : rawValue.toString();
 
                   return GestureDetector(
                     onTap: () {
@@ -142,7 +149,6 @@ class _Obd2DetailScreenState extends State<Obd2DetailScreen> {
                     },
                     child: Stack(
                       children: [
-                        // 카드 본체
                         AnimatedContainer(
                           height: 60.h,
                           duration: Duration(milliseconds: 250),
@@ -199,11 +205,9 @@ class _Obd2DetailScreenState extends State<Obd2DetailScreen> {
                                   : Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
                                     children: [
                                       Text(
-                                        "엔진 부하",
+                                        item["title"],
                                         style: TextStyle(
                                           fontSize: 14.sp,
                                           fontWeight: FontWeight.w300,
@@ -211,11 +215,9 @@ class _Obd2DetailScreenState extends State<Obd2DetailScreen> {
                                         ),
                                       ),
                                       Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
                                         children: [
                                           Text(
-                                            "91.40",
+                                            displayValue,
                                             style: TextStyle(
                                               fontSize: 20.sp,
                                               color: brandColor,
@@ -225,7 +227,7 @@ class _Obd2DetailScreenState extends State<Obd2DetailScreen> {
                                           ),
                                           SizedBox(width: 16.w),
                                           Text(
-                                            "%",
+                                            item["unit"],
                                             style: TextStyle(
                                               fontSize: 16.sp,
                                               color: iconColor,
@@ -237,8 +239,6 @@ class _Obd2DetailScreenState extends State<Obd2DetailScreen> {
                                     ],
                                   ),
                         ),
-
-                        // 오른쪽 위 코너 SVG
                         Positioned(
                           top: 0,
                           right: 0,
@@ -257,6 +257,20 @@ class _Obd2DetailScreenState extends State<Obd2DetailScreen> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _iconButton(String assetPath, VoidCallback onTap) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: onTap,
+        child: Padding(
+          padding: EdgeInsets.all(8.w),
+          child: SvgPicture.asset(assetPath, width: 22.w, height: 22.h),
         ),
       ),
     );

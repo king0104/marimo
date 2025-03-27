@@ -5,7 +5,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/providers/car_registration_provider.dart';
 import 'package:marimo_client/providers/member/auth_provider.dart';
+import 'package:marimo_client/providers/map_provider.dart';
 import 'package:marimo_client/providers/obd_data_provider.dart';
+import 'package:marimo_client/providers/obd_polling_provider.dart';
+import 'package:marimo_client/screens/monitoring/ObdDtcScanScreen.dart';
+import 'package:marimo_client/screens/monitoring/ObdFullScanScreen.dart';
 import 'package:marimo_client/screens/signin/car/RegisterCarScreen.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
@@ -32,7 +36,7 @@ void main() async {
   // .env 로드
   await dotenv.load(fileName: ".env");
 
-  // // 네이버 맵 초기화
+  // 네이버 맵 초기화
   // await NaverMapSdk.instance.initialize(
   //   clientId: dotenv.env['NAVER_MAP_CLIENT_ID']!,
   //   onAuthFailed: (ex) {
@@ -58,7 +62,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ObdDataProvider()),
         ChangeNotifierProvider(create: (_) => CarPaymentProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-
+        ChangeNotifierProvider(create: (_) => MapStateProvider()),
+        ChangeNotifierProvider(create: (_) => ObdPollingProvider()),
         // 향후 다른 Provider들도 여기에 추가 가능
       ],
       child: ScreenUtilInit(
@@ -103,10 +108,13 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     HomeScreen(),
     MonitoringScreen(),
-    BluetoothTestScreen(),
-    // MapScreen(),
-    // RegisterCarScreen(),
+    ObdFullScanScreen(),
+    MapScreen(),
+    // ObdDtcScanScreen(),
+    // BluetoothTestScreen(),
     MyScreen(),
+    // RegisterCarScreen(),
+    // MonitoringScreen(),
   ];
 
   void _onItemTapped(int index) {

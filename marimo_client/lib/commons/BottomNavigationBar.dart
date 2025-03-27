@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:marimo_client/providers/obd_polling_provider.dart';
+import 'package:provider/provider.dart';
 
 class CommonBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
@@ -17,14 +19,18 @@ class CommonBottomNavigationBar extends StatelessWidget {
     // 스택 전체를 Container로 감싸 margin을 주어 위치를 조정합니다.
     return Container(
       color: Colors.transparent,
-      margin: EdgeInsets.only(bottom: 20, left: 20.w, right: 20.w), // 스택 전체를 아래에서 20.h 띄움
+      margin: EdgeInsets.only(
+        bottom: 20,
+        left: 20.w,
+        right: 20.w,
+      ), // 스택 전체를 아래에서 20.h 띄움
       child: Stack(
         clipBehavior: Clip.none,
         children: [
           Container(
             height: 70,
             width: 325.w,
-            padding: EdgeInsets.symmetric(horizontal: 10.w),//바 내부 여백 조정
+            padding: EdgeInsets.symmetric(horizontal: 10.w), //바 내부 여백 조정
             decoration: BoxDecoration(
               color: Colors.black,
               borderRadius: BorderRadius.only(
@@ -57,13 +63,31 @@ class CommonBottomNavigationBar extends StatelessWidget {
                   unselectedFontSize: 0,
                   items: [
                     BottomNavigationBarItem(
-                      icon: SvgPicture.asset('assets/images/icons/icon_home.svg', width: 20.sp, height: 20.sp),
-                      activeIcon: SvgPicture.asset('assets/images/icons/icon_home.svg', width: 20.sp, height: 20.sp, color: Color(0xFF4888FF)),
+                      icon: SvgPicture.asset(
+                        'assets/images/icons/icon_home.svg',
+                        width: 20.sp,
+                        height: 20.sp,
+                      ),
+                      activeIcon: SvgPicture.asset(
+                        'assets/images/icons/icon_home.svg',
+                        width: 20.sp,
+                        height: 20.sp,
+                        color: Color(0xFF4888FF),
+                      ),
                       label: "",
                     ),
                     BottomNavigationBarItem(
-                      icon: SvgPicture.asset('assets/images/icons/icon_car.svg', width: 20.sp, height: 20.sp),
-                      activeIcon: SvgPicture.asset('assets/images/icons/icon_car.svg', width: 20.sp, height: 20.sp,color: Color(0xFF4888FF)),
+                      icon: SvgPicture.asset(
+                        'assets/images/icons/icon_car.svg',
+                        width: 20.sp,
+                        height: 20.sp,
+                      ),
+                      activeIcon: SvgPicture.asset(
+                        'assets/images/icons/icon_car.svg',
+                        width: 20.sp,
+                        height: 20.sp,
+                        color: Color(0xFF4888FF),
+                      ),
                       label: "",
                     ),
                     BottomNavigationBarItem(
@@ -71,13 +95,31 @@ class CommonBottomNavigationBar extends StatelessWidget {
                       label: "",
                     ),
                     BottomNavigationBarItem(
-                      icon: SvgPicture.asset('assets/images/icons/icon_map.svg', width: 20.sp, height: 20.sp),
-                      activeIcon: SvgPicture.asset('assets/images/icons/icon_map.svg', width: 20.sp, height: 20.sp,color: Color(0xFF4888FF)),
+                      icon: SvgPicture.asset(
+                        'assets/images/icons/icon_map.svg',
+                        width: 20.sp,
+                        height: 20.sp,
+                      ),
+                      activeIcon: SvgPicture.asset(
+                        'assets/images/icons/icon_map.svg',
+                        width: 20.sp,
+                        height: 20.sp,
+                        color: Color(0xFF4888FF),
+                      ),
                       label: "",
                     ),
                     BottomNavigationBarItem(
-                      icon: SvgPicture.asset('assets/images/icons/icon_my.svg', width: 20.sp, height: 20.sp),
-                      activeIcon: SvgPicture.asset('assets/images/icons/icon_my.svg', width: 20.sp, height: 20.sp,color: Color(0xFF4888FF)),
+                      icon: SvgPicture.asset(
+                        'assets/images/icons/icon_my.svg',
+                        width: 20.sp,
+                        height: 20.sp,
+                      ),
+                      activeIcon: SvgPicture.asset(
+                        'assets/images/icons/icon_my.svg',
+                        width: 20.sp,
+                        height: 20.sp,
+                        color: Color(0xFF4888FF),
+                      ),
                       label: "",
                     ),
                   ],
@@ -90,28 +132,46 @@ class CommonBottomNavigationBar extends StatelessWidget {
             left: 0,
             right: 0,
             child: Center(
-              child: Container(
-                width: 56.w,
-                height: 56.w,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF9DBFFF), Color(0xFF4888FF)],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
+              child: GestureDetector(
+                onTap: () async {
+                  final provider = Provider.of<ObdPollingProvider>(
+                    context,
+                    listen: false,
+                  );
+
+                  if (provider.isConnected) return;
+
+                  try {
+                    await provider.connectAndStartPolling(context);
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('❌ OBD 연결 실패: ${e.toString()}')),
+                    );
+                  }
+                },
+                child: Container(
+                  width: 56.w,
+                  height: 56.w,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF9DBFFF), Color(0xFF4888FF)],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
                     ),
-                  ],
-                ),
-                child: Image.asset(
-                  'assets/images/icons/connect.png',  // 이미지 경로
-                  width: 28.sp,  // 크기는 기존 아이콘과 동일하게
-                  color: Colors.white,  // 이미지 색상
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Image.asset(
+                    'assets/images/icons/connect.png',
+                    width: 28.sp,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),

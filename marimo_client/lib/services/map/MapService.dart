@@ -115,10 +115,10 @@ class MapService {
     required NaverMapController controller,
     required Place place,
   }) async {
-    await removeMarker(controller: controller, id: place.name);
+    await removeMarker(controller: controller, id: place.id);
     await addMarker(
       controller: controller,
-      id: place.name,
+      id: place.id,
       position: NLatLng(place.lat, place.lng),
       caption: place.name,
       type: place.type,
@@ -131,10 +131,10 @@ class MapService {
     required NaverMapController controller,
     required Place place,
   }) async {
-    await removeMarker(controller: controller, id: place.name);
+    await removeMarker(controller: controller, id: place.id);
     await addMarker(
       controller: controller,
-      id: place.name,
+      id: place.id,
       position: NLatLng(place.lat, place.lng),
       caption: place.name,
       type: place.type,

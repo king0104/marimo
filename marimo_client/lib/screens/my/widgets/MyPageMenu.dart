@@ -4,6 +4,7 @@ import 'package:marimo_client/screens/payment/CarTotalPayment.dart';
 
 import 'package:marimo_client/providers/car_payment_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:marimo_client/screens/Insurance/InsuranceScreen.dart';
 
 class MyPageMenu extends StatelessWidget {
   const MyPageMenu({super.key});
@@ -23,14 +24,16 @@ class MyPageMenu extends StatelessWidget {
           title: '마일리지 특약 최적화',
           subtitle: '주행거리를 바탕으로 최적의 혜택 거리를 알려드립니다',
           gradient: LinearGradient(
-            colors: [
-              Color(0x2587FF).withOpacity(0.3),
-              Color(0x2587FF).withOpacity(0.95),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          onTap: () {},
+                    colors: [Color(0x2587FF).withOpacity(0.3), Color(0x2587FF).withOpacity(0.95)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const InsuranceScreen()),
+            );
+          },
         ),
         SizedBox(height: 24.h),
         Text(
@@ -71,7 +74,7 @@ class MyPageMenu extends StatelessWidget {
     required String title,
     required String subtitle,
     required Gradient gradient,
-    required VoidCallback onTap,
+    VoidCallback? onTap,
   }) {
     return GestureDetector(
       onTap: onTap,
@@ -101,7 +104,7 @@ class MyPageMenu extends StatelessWidget {
                 iconPath,
                 width: 24.w,
                 height: 24.w,
-                fit: BoxFit.cover,
+                fit: BoxFit.cover
               ),
             ),
             SizedBox(width: 16.w),
@@ -119,12 +122,19 @@ class MyPageMenu extends StatelessWidget {
                   SizedBox(height: 4.h),
                   Text(
                     subtitle,
-                    style: TextStyle(fontSize: 12.sp, color: Colors.grey[600]),
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: Colors.grey[600],
+                    ),
                   ),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right, color: Colors.grey[400], size: 24.w),
+            Icon(
+              Icons.chevron_right,
+              color: Colors.grey[400],
+              size: 24.w,
+            ),
           ],
         ),
       ),
