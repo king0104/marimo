@@ -93,6 +93,7 @@ public class CardService {
 
             // 5. DTO 조립
             CardInfoDto dto = CardInfoDto.of(
+                    cardInfo.getCardUniqueNo(),
                     cardInfo.getCardIssuerName(),
                     cardInfo.getCardName(),
                     cardDescription.toString(),

@@ -11,10 +11,10 @@ import java.util.List;
 @NoArgsConstructor
 public class FintechCardListResponse {
 
-    @JsonProperty("Header")  // ← 대소문자 일치시킴
+    @JsonProperty("Header")
     private Header header;
 
-    @JsonProperty("REC")  // 또는 실제로 오는 필드명 확인
+    @JsonProperty("REC")
     private List<CardInfo> rec;
 
     @Getter

@@ -12,5 +12,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 public enum GasStationBrand {
-    HYUNDAI
+    HYUNDAI,
+    SK,
+    S_OIL,
+    GS
 }
