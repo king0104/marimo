@@ -58,8 +58,8 @@ class CarMonthlyPayment extends StatelessWidget {
                 padding: EdgeInsets.all(8.w),
                 child: SvgPicture.asset(
                   'assets/images/icons/icon_down.svg',
-                  width: 6.32.w,
-                  height: 9.19.h,
+                  width: 4.w,
+                  height: 5.h,
                 ),
               ),
             ],

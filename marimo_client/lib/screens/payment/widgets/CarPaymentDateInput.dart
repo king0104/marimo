@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:marimo_client/theme.dart';
-import 'package:marimo_client/screens/payment/widgets/CarPaymentCalendar.dart';
+import 'package:marimo_client/commons/CustomCalendar.dart';
 
 class CarPaymentDateInput extends StatelessWidget {
   final DateTime selectedDate;
