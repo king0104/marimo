@@ -7,7 +7,7 @@ import 'package:marimo_client/screens/payment/widgets/CarMonthlyPayment.dart';
 import 'package:marimo_client/screens/payment/widgets/CarPaymentItemList.dart';
 import 'package:marimo_client/screens/payment/widgets/CarPlusButton.dart';
 import 'package:marimo_client/screens/payment/widgets/CarPaymentHistoryButton.dart';
-import 'CarDetailPayment.dart';
+import 'CarDetailPaymentList.dart';
 
 class CarTotalPayment extends StatefulWidget {
   const CarTotalPayment({super.key});
