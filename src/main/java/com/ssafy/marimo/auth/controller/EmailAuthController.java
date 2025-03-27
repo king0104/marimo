@@ -24,7 +24,6 @@ public class EmailAuthController {
     @PostMapping("/send")
     public ResponseEntity<PostAuthEmailSendResponse> sendAuthCode(@RequestBody PostAuthEmailSendRequest request) {
         try {
-            // sendSimpleMessage 내부에서 인증번호 생성, 저장, 메일 전송이 진행됨.
             emailAuthService.sendSimpleMessage(request.email());
             return ResponseEntity.ok(PostAuthEmailSendResponse.of());
         } catch (MessagingException e) {
