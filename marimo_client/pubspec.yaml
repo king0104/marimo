@@ -42,6 +42,7 @@ dependencies:
   camera: ^0.11.1
   geolocator: ^10.0.0
   flutter_bluetooth_serial: ^0.4.0
+  share_plus: ^10.1.4
 
 dev_dependencies:
   flutter_test:
@@ -50,12 +51,12 @@ dev_dependencies:
 
 flutter_native_splash:
   color: "#ffffff"
-  image: assets/images/logo-splash.png
+  image: assets/images/logo_splash.png
   android: true
   ios: true
   fullscreen: true
   android_12:
-    image: assets/images/logo-splash.png
+    image: assets/images/logo_splash.png
     icon_background_color: "#ffffff"
 
 flutter:

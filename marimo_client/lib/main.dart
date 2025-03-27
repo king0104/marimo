@@ -6,6 +6,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/providers/car_registration_provider.dart';
 import 'package:marimo_client/providers/map_provider.dart';
 import 'package:marimo_client/providers/obd_data_provider.dart';
+import 'package:marimo_client/screens/monitoring/ObdDtcScanScreen.dart';
+import 'package:marimo_client/screens/monitoring/ObdFullScanScreen.dart';
 import 'package:marimo_client/screens/signin/car/RegisterCarScreen.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
@@ -101,10 +103,12 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     HomeScreen(),
     MonitoringScreen(),
-    BluetoothTestScreen(),
+    ObdFullScanScreen(),
     MapScreen(),
-    // RegisterCarScreen(),
-    MonitoringScreen(),
+    // ObdDtcScanScreen(),
+    // BluetoothTestScreen(),
+    RegisterCarScreen(),
+    // MonitoringScreen(),
   ];
 
   Widget _getProfileScreen() {

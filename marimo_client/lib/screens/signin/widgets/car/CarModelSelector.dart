@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:marimo_client/theme.dart'; // brandColor 등
+import 'package:flutter_svg/svg.dart';
+import 'package:marimo_client/theme.dart';
 
 class CarModelSelector extends StatefulWidget {
   final List<String> models;
@@ -50,8 +51,8 @@ class _CarModelSelectorState extends State<CarModelSelector> {
           ),
           trailing:
               isSelected
-                  ? Image.asset(
-                    'assets/images/icons/icon_selected.png',
+                  ? SvgPicture.asset(
+                    'assets/images/icons/icon_check.svg',
                     width: 20,
                     height: 20,
                   )
