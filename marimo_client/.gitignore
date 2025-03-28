@@ -161,3 +161,12 @@ app.*.symbols
 
 #Project settings
 .env
+
+# ios macos package
+Podfile
+**/ios/Flutter/Debug.xcconfig
+**/ios/Flutter/Release.xcconfig
+**/macos/Flutter/Flutter-Debug.xcconfig
+**/macos/Flutter/Flutter-Release.xcconfig
+project.pbxproj
+contents.xcworkspacedata
