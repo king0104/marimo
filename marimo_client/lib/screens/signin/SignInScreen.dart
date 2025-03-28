@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:marimo_client/main.dart';
 import 'package:marimo_client/providers/member/auth_provider.dart';
 import 'package:marimo_client/screens/signin/widgets/sign_in/LoginButton.dart';
 import 'package:marimo_client/screens/signin/widgets/sign_in/LoginHero.dart';
@@ -7,6 +8,7 @@ import 'package:marimo_client/screens/signin/widgets/sign_in/LoginLinkRow.dart';
 import 'package:marimo_client/screens/signin/widgets/sign_in/LoginSlogan.dart';
 import 'package:marimo_client/screens/signin/widgets/sign_in/OauthButtons.dart';
 import 'package:marimo_client/services/auth/auth_service.dart';
+import 'package:marimo_client/utils/toast.dart';
 import 'package:provider/provider.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -30,20 +32,21 @@ class _SignInScreenState extends State<SignInScreen> {
 
   Future<void> _login() async {
     try {
+      // 로그인 API 호출 후 토큰 반환
       final token = await AuthService.login(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
-      // 로그인 성공 시 AuthProvider에 token 저장
+      // AuthProvider에 토큰 설정
       Provider.of<AuthProvider>(context, listen: false).setAccessToken(token);
-      // 로그인 성공 후 메인 화면 등으로 전환하는 로직을 추가할 수 있습니다.
-      ScaffoldMessenger.of(
+      // 전체 스택을 제거하고 MainScreen으로 이동
+      Navigator.pushAndRemoveUntil(
         context,
-      ).showSnackBar(const SnackBar(content: Text("로그인 성공!")));
+        MaterialPageRoute(builder: (_) => const MainScreen()),
+        (Route<dynamic> route) => false,
+      );
     } catch (error) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(error.toString())));
+      showToast(context, "로그인 실패: $error", icon: Icons.error, type: 'error');
     }
   }
 
