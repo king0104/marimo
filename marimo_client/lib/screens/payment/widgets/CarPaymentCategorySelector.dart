@@ -7,6 +7,7 @@ import 'package:marimo_client/commons/icons/OilIcon.dart';
 import 'package:marimo_client/commons/icons/RepairIcon.dart';
 import 'package:marimo_client/commons/icons/WashIcon.dart';
 import 'package:marimo_client/providers/car_payment_provider.dart';
+import 'package:marimo_client/commons/CustomDropdownList.dart'; // 분리된 드롭다운 리스트 import
 import 'package:marimo_client/theme.dart';
 
 class CarPaymentCategorySelector extends StatefulWidget {
@@ -20,7 +21,6 @@ class CarPaymentCategorySelector extends StatefulWidget {
 class _CarPaymentCategorySelectorState
     extends State<CarPaymentCategorySelector> {
   final LayerLink _layerLink = LayerLink();
-  OverlayEntry? _overlayEntry;
 
   final List<String> categories = ['주유', '정비', '세차'];
 
@@ -37,88 +37,21 @@ class _CarPaymentCategorySelectorState
     }
   }
 
-  void _removeOverlay() {
-    _overlayEntry?.remove();
-    _overlayEntry = null;
-  }
-
   void _toggleDropdown(BuildContext context) {
-    if (_overlayEntry != null) {
-      _removeOverlay();
-      return;
-    }
-
     final provider = context.read<CarPaymentProvider>();
     final selected = provider.selectedCategory;
 
-    _overlayEntry = OverlayEntry(
-      builder:
-          (context) => GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onTap: _removeOverlay,
-            child: Stack(
-              children: [
-                Positioned(
-                  width: 73.w,
-                  height: 152.h,
-                  child: CompositedTransformFollower(
-                    link: _layerLink,
-                    showWhenUnlinked: false,
-                    offset: Offset(0, 45.h),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12.r),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 12.h),
-                          child: Column(
-                            children:
-                                categories.map((cat) {
-                                  final isSelected = selected == cat;
-                                  return InkWell(
-                                    onTap: () {
-                                      provider.setSelectedCategory(cat);
-                                      _removeOverlay();
-                                    },
-                                    child: Container(
-                                      height: (152.h - 24.h) / 3,
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        cat,
-                                        style: TextStyle(
-                                          fontSize: 16.sp,
-                                          fontWeight: FontWeight.w500,
-                                          color:
-                                              isSelected
-                                                  ? brandColor
-                                                  : Colors.black,
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+    showDropdownList(
+      context: context,
+      items: categories,
+      selectedItem: selected,
+      onItemSelected: (item) {
+        provider.setSelectedCategory(item);
+      },
+      layerLink: _layerLink,
+      width: 73,
+      height: 152,
     );
-
-    Overlay.of(context).insert(_overlayEntry!);
   }
 
   @override
