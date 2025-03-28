@@ -40,3 +40,8 @@ spring:
 encrypt:
   secret:
     key: ${ENCRYPT_SECRET_KEY}
+
+
+ssafy:
+  api:
+    key: ${SSAFY_API_KEY}
