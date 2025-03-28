@@ -45,3 +45,5 @@ encrypt:
 ssafy:
   api:
     key: ${SSAFY_API_KEY}
+  user:
+    key: ${SSAFY_USER_KEY}

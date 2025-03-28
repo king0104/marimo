@@ -4,9 +4,14 @@ import com.ssafy.marimo.card.domain.Card;
 import com.ssafy.marimo.card.domain.CardBenefit;
 import com.ssafy.marimo.card.domain.CardBenefitDetail;
 import com.ssafy.marimo.card.domain.GasStationBrand;
+import com.ssafy.marimo.card.domain.MemberCard;
+import com.ssafy.marimo.card.dto.PostCardRequest;
+import com.ssafy.marimo.card.dto.PostCardResponse;
 import com.ssafy.marimo.card.repository.CardBenefitDetailRepository;
 import com.ssafy.marimo.card.repository.CardBenefitRepository;
 import com.ssafy.marimo.card.repository.CardRepository;
+import com.ssafy.marimo.common.util.IdEncryptionUtil;
+import com.ssafy.marimo.exception.BadRequestException;
 import com.ssafy.marimo.exception.ErrorStatus;
 import com.ssafy.marimo.exception.NotFoundException;
 import com.ssafy.marimo.external.dto.CardInfoDto;
@@ -14,6 +19,8 @@ import com.ssafy.marimo.external.dto.FintechCardListResponse;
 import com.ssafy.marimo.external.dto.FintechCardListResponse.CardInfo;
 import com.ssafy.marimo.external.dto.GetCardsWithBenefitResponse;
 import com.ssafy.marimo.external.fintech.FintechApiClient;
+import com.ssafy.marimo.member.domain.Member;
+import com.ssafy.marimo.member.repository.MemberCardRepository;
 import com.ssafy.marimo.member.repository.MemberRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,20 +39,28 @@ public class CardService {
     private final FintechApiClient fintechApiClient;
     private final CardBenefitRepository cardBenefitRepository;
     private final CardBenefitDetailRepository cardBenefitDetailRepository;
+    private final MemberCardRepository memberCardRepository;
+    private final IdEncryptionUtil idEncryptionUtil;
 
-//    public PostCardResponse postCard(PostCardRequest postCardRequest, Integer memberId) {
-//
-//        Card card = cardRepository.findByCode(postCardRequest.code())
-//                .orElseThrow(() -> new NotFoundException(ErrorStatus.CARD_NOT_FOUND.getErrorCode()));
-//
-//        Member member = memberRepository.findById(memberId)
-//                .orElseThrow(() -> new NotFoundException(ErrorStatus.MEMBER_NOT_FOUND.getErrorCode()));
-//
-//        // 카드와 연결된 내 계좌 조회
-//        // 이걸 어떻게 할 것인가? 외부 API에서 지원?
-//        // 1. 내 계좌 조회
-//        // 2.
-//    }
+    public PostCardResponse postOilCard(PostCardRequest postCardRequest, Integer memberId) {
+
+        Card card = cardRepository.findByCardUniqueNo(postCardRequest.cardUniqueNo())
+                .orElseThrow(() -> new NotFoundException(ErrorStatus.CARD_NOT_FOUND.getErrorCode()));
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundException(ErrorStatus.MEMBER_NOT_FOUND.getErrorCode()));
+
+        if (memberCardRepository.existsByMemberIdAndCardId(memberId, card.getId())) {
+            throw new BadRequestException(ErrorStatus.MEMBER_CARD_DUPLICATED.getErrorCode());
+        }
+
+        MemberCard memberCard = MemberCard.of(member, card);
+
+        MemberCard savedMemberCard = memberCardRepository.save(memberCard);
+
+        return PostCardResponse.of(idEncryptionUtil.encrypt(savedMemberCard.getId()));
+
+    }
 
     public GetCardsWithBenefitResponse getCardsWithBenefit() {
         // 1. 외부 카드 목록 조회

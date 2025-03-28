@@ -12,6 +12,7 @@ public enum ErrorStatus {
      * 400 BAD_REQUEST - 비즈니스 로직 관련 에러
      */
     IO_EXCEPTION("파일 입출력 오류가 발생했습니다."),
+    MEMBER_CARD_DUPLICATED("이미 해당 카드를 주유 카드로 등록하였습니다"),
 
     /**
      * 400 BAD_REQUEST - 유효성 검사 관련 에러

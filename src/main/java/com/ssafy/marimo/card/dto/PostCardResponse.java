@@ -4,11 +4,11 @@ import lombok.Builder;
 
 @Builder
 public record PostCardResponse (
-        String cardId
+        String memberCardId
 ) {
-    public static PostCardResponse of(String cardId) {
+    public static PostCardResponse of(String memberCardId) {
         return PostCardResponse.builder()
-                .cardId(cardId)
+                .memberCardId(memberCardId)
                 .build();
     }
 }
