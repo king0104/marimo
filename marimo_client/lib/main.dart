@@ -109,6 +109,7 @@ class _MainScreenState extends State<MainScreen> {
     HomeScreen(),
     MonitoringScreen(),
     ObdFullScanScreen(),
+    RegisterCarScreen(),
     MapScreen(),
     // ObdDtcScanScreen(),
     // BluetoothTestScreen(),

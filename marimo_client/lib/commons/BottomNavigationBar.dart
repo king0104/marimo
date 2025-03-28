@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:marimo_client/providers/obd_polling_provider.dart';
+import 'package:marimo_client/theme.dart';
+import 'package:marimo_client/utils/toast.dart';
 import 'package:provider/provider.dart';
 
-class CommonBottomNavigationBar extends StatelessWidget {
+class CommonBottomNavigationBar extends StatefulWidget {
   final int currentIndex;
   final Function(int) onTap;
 
@@ -15,116 +17,106 @@ class CommonBottomNavigationBar extends StatelessWidget {
   });
 
   @override
+  State<CommonBottomNavigationBar> createState() =>
+      _CommonBottomNavigationBarState();
+}
+
+class _CommonBottomNavigationBarState extends State<CommonBottomNavigationBar> {
+  bool isConnecting = false;
+
+  @override
   Widget build(BuildContext context) {
-    // 스택 전체를 Container로 감싸 margin을 주어 위치를 조정합니다.
+    final provider = Provider.of<ObdPollingProvider>(context);
+    final isConnected = provider.isConnected;
+
     return Container(
       color: Colors.transparent,
-      margin: EdgeInsets.only(
-        bottom: 20,
-        left: 20.w,
-        right: 20.w,
-      ), // 스택 전체를 아래에서 20.h 띄움
+      margin: EdgeInsets.only(bottom: 20, left: 20.w, right: 20.w),
       child: Stack(
         clipBehavior: Clip.none,
         children: [
           Container(
             height: 70,
             width: 325.w,
-            padding: EdgeInsets.symmetric(horizontal: 10.w), //바 내부 여백 조정
+            padding: EdgeInsets.symmetric(horizontal: 10.w),
             decoration: BoxDecoration(
               color: Colors.black,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(50.r),
-                topRight: Radius.circular(50.r),
-                bottomLeft: Radius.circular(50.r),
-                bottomRight: Radius.circular(50.r),
-              ),
+              borderRadius: BorderRadius.circular(50.r),
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(50.r),
-                topRight: Radius.circular(50.r),
-                bottomLeft: Radius.circular(50.r),
-                bottomRight: Radius.circular(50.r),
+              borderRadius: BorderRadius.circular(50.r),
+              child: BottomNavigationBar(
+                type: BottomNavigationBarType.fixed,
+                backgroundColor: Colors.transparent,
+                currentIndex: widget.currentIndex,
+                onTap: widget.onTap,
+                selectedItemColor: brandColor,
+                unselectedItemColor: iconColor,
+                showSelectedLabels: false,
+                showUnselectedLabels: false,
+                items: [
+                  BottomNavigationBarItem(
+                    icon: SvgPicture.asset(
+                      'assets/images/icons/icon_home.svg',
+                      width: 20.sp,
+                      height: 20.sp,
+                    ),
+                    activeIcon: SvgPicture.asset(
+                      'assets/images/icons/icon_home.svg',
+                      width: 20.sp,
+                      height: 20.sp,
+                      color: brandColor,
+                    ),
+                    label: "",
+                  ),
+                  BottomNavigationBarItem(
+                    icon: SvgPicture.asset(
+                      'assets/images/icons/icon_car.svg',
+                      width: 20.sp,
+                      height: 20.sp,
+                    ),
+                    activeIcon: SvgPicture.asset(
+                      'assets/images/icons/icon_car.svg',
+                      width: 20.sp,
+                      height: 20.sp,
+                      color: brandColor,
+                    ),
+                    label: "",
+                  ),
+                  BottomNavigationBarItem(
+                    icon: SizedBox(height: 24.sp),
+                    label: "",
+                  ),
+                  BottomNavigationBarItem(
+                    icon: SvgPicture.asset(
+                      'assets/images/icons/icon_map.svg',
+                      width: 20.sp,
+                      height: 20.sp,
+                    ),
+                    activeIcon: SvgPicture.asset(
+                      'assets/images/icons/icon_map.svg',
+                      width: 20.sp,
+                      height: 20.sp,
+                      color: brandColor,
+                    ),
+                    label: "",
+                  ),
+                  BottomNavigationBarItem(
+                    icon: SvgPicture.asset(
+                      'assets/images/icons/icon_my.svg',
+                      width: 20.sp,
+                      height: 20.sp,
+                    ),
+                    activeIcon: SvgPicture.asset(
+                      'assets/images/icons/icon_my.svg',
+                      width: 20.sp,
+                      height: 20.sp,
+                      color: brandColor,
+                    ),
+                    label: "",
+                  ),
+                ],
               ),
-              // 여기에 Padding 추가해서 내부 BottomNavigationBar의 아래쪽 공간을 확보합니다.
-              child: Padding(
-                padding: EdgeInsets.only(top: 0), // 원하는 만큼 아래쪽에 여백을 줍니다.
-                child: BottomNavigationBar(
-                  type: BottomNavigationBarType.fixed,
-                  backgroundColor: Colors.transparent,
-                  currentIndex: currentIndex,
-                  onTap: onTap,
-                  selectedItemColor: Color(0xFF4888FF),
-                  unselectedItemColor: Color(0xFF8E8E8E),
-                  showSelectedLabels: false,
-                  showUnselectedLabels: false,
-                  selectedFontSize: 0,
-                  unselectedFontSize: 0,
-                  items: [
-                    BottomNavigationBarItem(
-                      icon: SvgPicture.asset(
-                        'assets/images/icons/icon_home.svg',
-                        width: 20.sp,
-                        height: 20.sp,
-                      ),
-                      activeIcon: SvgPicture.asset(
-                        'assets/images/icons/icon_home.svg',
-                        width: 20.sp,
-                        height: 20.sp,
-                        color: Color(0xFF4888FF),
-                      ),
-                      label: "",
-                    ),
-                    BottomNavigationBarItem(
-                      icon: SvgPicture.asset(
-                        'assets/images/icons/icon_car.svg',
-                        width: 20.sp,
-                        height: 20.sp,
-                      ),
-                      activeIcon: SvgPicture.asset(
-                        'assets/images/icons/icon_car.svg',
-                        width: 20.sp,
-                        height: 20.sp,
-                        color: Color(0xFF4888FF),
-                      ),
-                      label: "",
-                    ),
-                    BottomNavigationBarItem(
-                      icon: SizedBox(height: 24.sp), // 중앙 버튼을 위한 공간 확보용
-                      label: "",
-                    ),
-                    BottomNavigationBarItem(
-                      icon: SvgPicture.asset(
-                        'assets/images/icons/icon_map.svg',
-                        width: 20.sp,
-                        height: 20.sp,
-                      ),
-                      activeIcon: SvgPicture.asset(
-                        'assets/images/icons/icon_map.svg',
-                        width: 20.sp,
-                        height: 20.sp,
-                        color: Color(0xFF4888FF),
-                      ),
-                      label: "",
-                    ),
-                    BottomNavigationBarItem(
-                      icon: SvgPicture.asset(
-                        'assets/images/icons/icon_my.svg',
-                        width: 20.sp,
-                        height: 20.sp,
-                      ),
-                      activeIcon: SvgPicture.asset(
-                        'assets/images/icons/icon_my.svg',
-                        width: 20.sp,
-                        height: 20.sp,
-                        color: Color(0xFF4888FF),
-                      ),
-                      label: "",
-                    ),
-                  ],
-                ),
-              ), // <-- Padding 닫는 위치
             ),
           ),
           Positioned(
@@ -134,27 +126,53 @@ class CommonBottomNavigationBar extends StatelessWidget {
             child: Center(
               child: GestureDetector(
                 onTap: () async {
-                  final provider = Provider.of<ObdPollingProvider>(
-                    context,
-                    listen: false,
-                  );
+                  if (provider.isConnected || isConnecting) return;
 
-                  if (provider.isConnected) return;
+                  setState(() => isConnecting = true);
+
+                  // showToast로 연결 중 메시지 표시
+                  showToast(context, 'OBD-II에 연결 중...', icon: Icons.sync);
 
                   try {
-                    await provider.connectAndStartPolling(context);
+                    await provider.connectAndStartPolling();
+
+                    if (provider.isConnected) {
+                      showToast(
+                        context,
+                        'OBD-II 연결 성공',
+                        icon: Icons.check_circle,
+                      );
+                    } else {
+                      showToast(
+                        context,
+                        'OBD 연결 실패',
+                        icon: Icons.error,
+                        type: 'error',
+                      );
+                    }
                   } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('❌ OBD 연결 실패: ${e.toString()}')),
+                    showToast(
+                      context,
+                      'OBD 연결 실패}',
+                      icon: Icons.error,
+                      type: 'error',
                     );
+                  } finally {
+                    setState(() => isConnecting = false);
                   }
                 },
                 child: Container(
                   width: 56.w,
                   height: 56.w,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF9DBFFF), Color(0xFF4888FF)],
+                    gradient: LinearGradient(
+                      colors:
+                          isConnected
+                              ? [Colors.greenAccent, Colors.green]
+                              : [
+                                const Color(0xFF9DBFFF),
+                                const Color(0xFF4888FF),
+                              ],
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                     ),
@@ -167,17 +185,31 @@ class CommonBottomNavigationBar extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: Image.asset(
-                    'assets/images/icons/connect.png',
-                    width: 28.sp,
-                    color: Colors.white,
+                  child: Center(
+                    child:
+                        isConnecting
+                            ? SizedBox(
+                              width: 24.w,
+                              height: 24.w,
+                              child: const CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: white,
+                              ),
+                            )
+                            : Image.asset(
+                              isConnected
+                                  ? 'assets/images/icons/check.png'
+                                  : 'assets/images/icons/connect.png',
+                              width: 28.sp,
+                              color: white,
+                            ),
                   ),
                 ),
               ),
             ),
           ),
-        ], // <-- Stack의 children 닫는 위치
-      ), // <-- Stack 닫는 위치
-    ); // <-- Container 닫는 위치
+        ],
+      ),
+    );
   }
 }
