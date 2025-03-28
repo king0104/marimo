@@ -70,17 +70,6 @@ public class Member extends BaseTimeEntity {
                 .build();
     }
 
-    public static Member create(String email, String name, String password, String oauthProvider, String oauthId, Boolean termsAgreed, Boolean deleted, LocalDateTime deletedAt) {
-        return Member.builder()
-                .email(email)
-                .name(name)
-                .password(password)
-                .oauthProvider(oauthProvider)
-                .oauthId(oauthId)
-                .termsAgreed(termsAgreed)
-                .build();
-    }
-
     public static Member fromJwt(String email, String role) {
         return Member.builder()
                 .email(email)
