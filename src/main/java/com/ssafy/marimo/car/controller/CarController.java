@@ -3,6 +3,7 @@ package com.ssafy.marimo.car.controller;
 import com.ssafy.marimo.car.dto.PostCarRequest;
 import com.ssafy.marimo.car.dto.PostCarResponse;
 import com.ssafy.marimo.car.service.CarService;
+import com.ssafy.marimo.common.annotation.CurrentMemberId;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,8 +21,7 @@ public class CarController {
     private final CarService carService;
 
     @PostMapping
-    public ResponseEntity<PostCarResponse> postCar(@Valid @RequestBody PostCarRequest postCarRequest) {
-        Integer memberId = 1;
+    public ResponseEntity<PostCarResponse> postCar(@Valid @RequestBody PostCarRequest postCarRequest, @CurrentMemberId Integer memberId) {
         PostCarResponse postCarResponse = carService.postCar(postCarRequest, memberId);
 
         return ResponseEntity.status(HttpStatus.OK)
