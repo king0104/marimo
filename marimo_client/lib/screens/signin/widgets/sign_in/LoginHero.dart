@@ -8,7 +8,7 @@ class LoginHero extends StatelessWidget {
     return Row(
       children: [
         Image.asset(
-          "assets/images/logo-splash.png", // 로고 이미지 (경로 수정 필요)
+          "assets/images/logo_splash.png", // 로고 이미지 (경로 수정 필요)
           height: 60,
         ),
         const SizedBox(width: 9),

@@ -100,16 +100,16 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
-  bool isLoggedIn = true; // 로그인 상태 관리 (임시)
+  bool isLoggedIn = false; // 로그인 상태 관리 (임시)
 
   final List<Widget> _screens = [
     HomeScreen(),
     MonitoringScreen(),
     ObdFullScanScreen(),
+    RegisterCarScreen(),
     MapScreen(),
     // ObdDtcScanScreen(),
     // BluetoothTestScreen(),
-    RegisterCarScreen(),
     // MonitoringScreen(),
   ];
 
