@@ -109,13 +109,9 @@ class _MainScreenState extends State<MainScreen> {
     HomeScreen(),
     MonitoringScreen(),
     ObdFullScanScreen(),
-    RegisterCarScreen(),
     MapScreen(),
-    // ObdDtcScanScreen(),
-    // BluetoothTestScreen(),
     MyScreen(),
     // RegisterCarScreen(),
-    // MonitoringScreen(),
   ];
 
   void _onItemTapped(int index) {
