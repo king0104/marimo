@@ -61,6 +61,9 @@ dependencies {
 
 	//* WebClient
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	//* MacOS
+	implementation "io.netty:netty-resolver-dns-native-macos:4.1.107.Final:osx-aarch_64"
 }
 
 

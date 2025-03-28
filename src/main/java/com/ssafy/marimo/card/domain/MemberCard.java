@@ -1,5 +1,6 @@
 package com.ssafy.marimo.card.domain;
 
+import com.ssafy.marimo.car.domain.Car;
 import com.ssafy.marimo.common.auditing.BaseTimeEntity;
 import com.ssafy.marimo.member.domain.Member;
 import jakarta.persistence.Column;
@@ -12,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -33,7 +35,17 @@ public class MemberCard extends BaseTimeEntity {
     @JoinColumn(name = "card_id", nullable = false)
     private Card card;
 
-    @Column(nullable = false, length = 30)
-    private String connectedAccountNo;
+    @Builder
+    private MemberCard(Member member, Card card) {
+        this.member = member;
+        this.card = card;
+    }
+
+    public static MemberCard of(Member member, Card card) {
+        return MemberCard.builder()
+                .member(member)
+                .card(card)
+                .build();
+    }
 
 }
