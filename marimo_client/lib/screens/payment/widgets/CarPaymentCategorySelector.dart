@@ -54,13 +54,17 @@ class _CarPaymentCategorySelectorState
     );
   }
 
+  // CarPaymentCategorySelector.dart의 build 메서드 부분 수정
   @override
   Widget build(BuildContext context) {
     final selected = context.watch<CarPaymentProvider>().selectedCategory;
 
+    // null이면 기본 아이콘을 표시하지 않고 선택된 카테고리만 표시
+    final categoryToShow = selected ?? ''; // 기본값을 빈 문자열로 변경
+
     return Row(
       children: [
-        _getIcon(selected ?? '주유'),
+        _getIcon(categoryToShow), // 선택된 카테고리에 따른 아이콘 표시
         SizedBox(width: 12.w),
         CompositedTransformTarget(
           link: _layerLink,
@@ -69,7 +73,7 @@ class _CarPaymentCategorySelectorState
             child: Row(
               children: [
                 Text(
-                  selected ?? '선택',
+                  selected ?? '선택', // 선택된 것이 없으면 '선택'으로 표시
                   style: TextStyle(
                     fontSize: 24.sp,
                     fontWeight: FontWeight.w500,
