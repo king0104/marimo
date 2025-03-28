@@ -42,3 +42,8 @@ encrypt:
   secret:
     key: ${ENCRYPT_SECRET_KEY}
 
+ssafy:
+  api:
+    key: ${SSAFY_API_KEY}
+  user:
+    key: ${SSAFY_USER_KEY}

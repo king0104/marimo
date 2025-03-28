@@ -12,6 +12,7 @@ public enum ErrorStatus {
      * 400 BAD_REQUEST - 비즈니스 로직 관련 에러
      */
     IO_EXCEPTION("파일 입출력 오류가 발생했습니다."),
+    MEMBER_CARD_DUPLICATED("이미 해당 카드를 주유 카드로 등록하였습니다"),
 
     /**
      * 400 BAD_REQUEST - 유효성 검사 관련 에러
@@ -43,6 +44,8 @@ public enum ErrorStatus {
     OIL_PAYMENT_NOT_FOUND("해당 주유 차계부 내역을 찾을 수 없습니다"),
     WASH_PAYMENT_NOT_FOUND("해당 세차 차계부 내역을 찾을 수 없습니다"),
     REPAIR_PAYMENT_NOT_FOUND("해당 정비 차계부 내역을 찾을 수 없습니다"),
+    CARD_NOT_FOUND("해당 카드를 찾을 수 없습니다"),
+    MEMBER_NOT_FOUND("해당 멤버를 찾을 수 없습니다"),
     /**
      * 405 METHOD_NOT_ALLOWED
      */
