@@ -74,11 +74,12 @@ class CarPaymentProvider with ChangeNotifier {
   }
 
   // 선택된 카테고리 상태
-  String? _selectedCategory;
+  String? _selectedCategory = '주유'; // ← 기본값 설정
   String? get selectedCategory => _selectedCategory;
 
   void setSelectedCategory(String? category) {
     _selectedCategory = category;
+    print('[Provider] setSelectedCategory: $_selectedCategory');
     notifyListeners();
   }
 }

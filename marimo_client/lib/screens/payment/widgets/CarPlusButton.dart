@@ -35,19 +35,29 @@ class _PlusButtonState extends State<PlusButton> {
   }
 
   // 카테고리 선택 및 화면 이동 함수를 분리
-  void _selectCategoryAndNavigate(String category) {
-    // Provider에 선택한 카테고리 설정
+  // PlusButton 클래스의 _selectCategoryAndNavigate 메소드 수정
+  Future<void> _selectCategoryAndNavigate(String category) async {
     final provider = Provider.of<CarPaymentProvider>(context, listen: false);
     provider.setSelectedCategory(category);
 
-    // 드롭다운이 닫힌 뒤 다음 프레임에 화면 전환
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (context.mounted) {
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => const CarPaymentInput()),
-        );
-      }
-    });
+    print('[PlusButton] provider hash: ${provider.hashCode}');
+    print('[PlusButton] 선택한 카테고리: $category');
+
+    await Future.delayed(const Duration(milliseconds: 100));
+
+    if (context.mounted) {
+      // Provider 인스턴스를 새 화면에 전달
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          // builder:
+          //     (context) => Provider.value(
+          //       value: provider, // 기존 provider 인스턴스를 전달
+          //       child: const CarPaymentInput(),
+          //     ),
+          builder: (context) => CarPaymentInput(initialCategory: category),
+        ),
+      );
+    }
   }
 
   @override
