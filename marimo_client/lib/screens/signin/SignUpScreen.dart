@@ -7,6 +7,7 @@ import 'package:marimo_client/screens/signin/widgets/sign_up/SignUpInput.dart';
 import 'package:marimo_client/screens/signin/widgets/sign_up/SignUpInputWithButton.dart';
 import 'package:marimo_client/screens/signin/widgets/CustomTitleText.dart';
 import 'package:provider/provider.dart';
+import 'package:marimo_client/utils/toast.dart';
 
 class SignUpScreen extends StatelessWidget {
   SignUpScreen({super.key});
@@ -159,21 +160,18 @@ class _SignUpScreenBodyState extends State<SignUpScreenBody> {
       _debounce = Timer(const Duration(milliseconds: 300), () async {
         await signUpProvider.verifyEmail(emailController.text.trim(), trimmed);
         if (signUpProvider.isEmailVerified) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text("이메일 인증 완료")));
+          showToast(context, "이메일 인증 완료", icon: Icons.check, type: 'success');
           setState(() {
             currentStep = 5;
           });
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                signUpProvider.errorMessage.isNotEmpty
-                    ? signUpProvider.errorMessage
-                    : "이메일 인증 실패",
-              ),
-            ),
+          showToast(
+            context,
+            signUpProvider.errorMessage.isNotEmpty
+                ? signUpProvider.errorMessage
+                : "이메일 인증 실패",
+            icon: Icons.error,
+            type: 'error',
           );
         }
       });
@@ -293,24 +291,33 @@ class _SignUpScreenBodyState extends State<SignUpScreenBody> {
                 onPressed: () async {
                   _validateEmail();
                   if (emailError != null) {
-                    ScaffoldMessenger.of(
+                    showToast(
                       context,
-                    ).showSnackBar(SnackBar(content: Text(emailError!)));
+                      emailError!,
+                      icon: Icons.error,
+                      type: 'error',
+                    );
                     return;
                   }
                   await signUpProvider.sendEmailVerification(
                     emailController.text.trim(),
                   );
                   if (signUpProvider.errorMessage.isEmpty) {
-                    ScaffoldMessenger.of(
+                    showToast(
                       context,
-                    ).showSnackBar(const SnackBar(content: Text("인증코드 전송 완료")));
+                      "인증코드 전송 완료",
+                      icon: Icons.check,
+                      type: 'success',
+                    );
                     setState(() {
                       currentStep = 4;
                     });
                   } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(signUpProvider.errorMessage)),
+                    showToast(
+                      context,
+                      signUpProvider.errorMessage,
+                      icon: Icons.error,
+                      type: 'error',
                     );
                   }
                 },
@@ -373,8 +380,11 @@ class _SignUpScreenBodyState extends State<SignUpScreenBody> {
               onPressed: () async {
                 if (passwordController.text.trim() !=
                     confirmPasswordController.text.trim()) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("비밀번호가 일치하지 않습니다.")),
+                  showToast(
+                    context,
+                    "비밀번호가 일치하지 않습니다.",
+                    icon: Icons.error,
+                    type: 'error',
                   );
                   return;
                 }
@@ -384,14 +394,16 @@ class _SignUpScreenBodyState extends State<SignUpScreenBody> {
                   password: passwordController.text.trim(),
                 );
                 if (success) {
-                  // 회원가입 성공 시 SignInScreen으로 이동
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (_) => const SignInScreen()),
                   );
                 } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(signUpProvider.errorMessage)),
+                  showToast(
+                    context,
+                    signUpProvider.errorMessage,
+                    icon: Icons.error,
+                    type: 'error',
                   );
                 }
               },
