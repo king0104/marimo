@@ -40,8 +40,8 @@ class _PlusButtonState extends State<PlusButton> {
     final provider = Provider.of<CarPaymentProvider>(context, listen: false);
     provider.setSelectedCategory(category);
 
-    print('[PlusButton] provider hash: ${provider.hashCode}');
-    print('[PlusButton] 선택한 카테고리: $category');
+    // print('[PlusButton] provider hash: ${provider.hashCode}');
+    // print('[PlusButton] 선택한 카테고리: $category');
 
     await Future.delayed(const Duration(milliseconds: 100));
 

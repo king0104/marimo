@@ -1,8 +1,8 @@
 // CarDetailPayment.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:marimo_client/screens/payment/widgets/CarMonthlyPayment.dart';
-import 'package:marimo_client/screens/payment/widgets/CarDayDetailPayment.dart';
+import 'package:marimo_client/screens/payment/widgets/total/CarMonthlyPayment.dart';
+import 'package:marimo_client/screens/payment/widgets/detail_list/CarDayDetailPayment.dart';
 import 'package:marimo_client/commons/CustomAppHeader.dart';
 
 class CarDetailPayment extends StatefulWidget {
