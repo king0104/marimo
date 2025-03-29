@@ -3,11 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:marimo_client/providers/car_payment_provider.dart';
-import 'widgets/detail_form/OilDetailForm.dart';
-import 'widgets/detail_form/RepairDetailForm.dart';
-import 'widgets/detail_form/WashDetailForm.dart';
 import 'package:marimo_client/commons/CustomAppHeader.dart';
 import 'widgets/detail_form/CategoryAndAmount.dart';
+import 'widgets/detail_form/CarDetailFormItemList.dart';
 
 class CarPaymentDetailForm extends StatelessWidget {
   final String selectedCategory;
@@ -21,21 +19,6 @@ class CarPaymentDetailForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget detailForm;
-    switch (selectedCategory) {
-      case '주유':
-        detailForm = OilDetailForm(amount: amount);
-        break;
-      case '정비':
-        detailForm = RepairDetailForm(amount: amount);
-        break;
-      case '세차':
-        detailForm = WashDetailForm(amount: amount);
-        break;
-      default:
-        detailForm = const SizedBox.shrink();
-    }
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppHeader(
@@ -58,11 +41,14 @@ class CarPaymentDetailForm extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 20.w),
             child: Divider(height: 1.h, color: Color(0xFFEEEEEE)),
           ),
-          // 나머지 DetailForm이 확장되도록 Expanded로 감싸기
+          // CarDetailFormItemList를 사용하여 카테고리별 폼 아이템 렌더링
           Expanded(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.w),
-              child: detailForm,
+              child: CarDetailFormItemList(
+                category: selectedCategory,
+                amount: amount,
+              ),
             ),
           ),
         ],
