@@ -79,7 +79,7 @@ class CarPaymentProvider with ChangeNotifier {
 
   void setSelectedCategory(String? category) {
     _selectedCategory = category;
-    print('[Provider] setSelectedCategory: $_selectedCategory');
+    // print('[Provider] setSelectedCategory: $_selectedCategory');
     notifyListeners();
   }
 }

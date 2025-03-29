@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:marimo_client/providers/car_payment_provider.dart';
-import 'package:marimo_client/screens/payment/widgets/CarPaymentItem.dart';
+import 'package:marimo_client/screens/payment/widgets/total/CarPaymentItem.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/commons/icons/OilIcon.dart';
 import 'package:marimo_client/commons/icons/RepairIcon.dart';

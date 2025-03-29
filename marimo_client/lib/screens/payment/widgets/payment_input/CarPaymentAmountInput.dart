@@ -3,7 +3,10 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:marimo_client/theme.dart';
+import 'package:marimo_client/providers/car_payment_provider.dart';
+import 'package:marimo_client/screens/payment/CarPaymentDetailForm.dart';
 
 class CarPaymentAmountInput extends StatefulWidget {
   const CarPaymentAmountInput({super.key});
@@ -37,6 +40,30 @@ class _CarPaymentAmountInputState extends State<CarPaymentAmountInput> {
         }
       }
     });
+  }
+
+  // 다음 버튼 처리 함수 추가
+  void _onNextPressed() {
+    if (input.isEmpty) return;
+
+    // 입력된 금액 변환
+    final amount = int.tryParse(input.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+
+    // 카테고리 정보 가져오기
+    final provider = Provider.of<CarPaymentProvider>(context, listen: false);
+    final selectedCategory = provider.selectedCategory ?? '주유';
+
+    // CarPaymentDetailForm으로 이동
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (context) => CarPaymentDetailForm(
+              selectedCategory: selectedCategory,
+              amount: amount,
+            ),
+      ),
+    );
   }
 
   @override
@@ -104,17 +131,20 @@ class _CarPaymentAmountInputState extends State<CarPaymentAmountInput> {
         const Spacer(),
 
         if (input.isNotEmpty)
-          Container(
-            height: 50.h,
-            width: double.infinity,
-            color: brandColor,
-            alignment: Alignment.center,
-            child: Text(
-              '다음',
-              style: TextStyle(
-                fontSize: 16.sp,
-                color: Colors.white,
-                fontWeight: FontWeight.w500,
+          GestureDetector(
+            onTap: _onNextPressed, // 다음 버튼 탭 이벤트 처리
+            child: Container(
+              height: 50.h,
+              width: double.infinity,
+              color: brandColor,
+              alignment: Alignment.center,
+              child: Text(
+                '다음',
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ),

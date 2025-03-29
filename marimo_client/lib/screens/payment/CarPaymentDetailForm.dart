@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:marimo_client/providers/car_payment_provider.dart';
-import 'widgets/OilDetailForm.dart';
-import 'widgets/RepairDetailForm.dart';
-import 'widgets/WashDetailForm.dart';
+import 'widgets/detail_form/OilDetailForm.dart';
+import 'widgets/detail_form/RepairDetailForm.dart';
+import 'widgets/detail_form/WashDetailForm.dart';
+import 'package:marimo_client/commons/CustomAppHeader.dart';
+import 'widgets/detail_form/CategoryAndAmount.dart';
 
 class CarPaymentDetailForm extends StatelessWidget {
   final String selectedCategory;
@@ -35,16 +37,35 @@ class CarPaymentDetailForm extends StatelessWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('지출 입력'),
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
+      backgroundColor: Colors.white,
+      appBar: CustomAppHeader(
+        title: '',
+        onBackPressed: () => Navigator.pop(context),
       ),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20.w),
-        child: detailForm,
+      body: Column(
+        children: [
+          // CategoryAndAmount 컴포넌트를 상단에 렌더링
+          Padding(
+            padding: EdgeInsets.only(left: 20.w, right: 20.w, top: 16.h),
+            child: CategoryAndAmount(
+              category: selectedCategory,
+              amount: amount,
+            ),
+          ),
+          SizedBox(height: 16.h),
+          // 구분선 추가
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20.w),
+            child: Divider(height: 1.h, color: Color(0xFFEEEEEE)),
+          ),
+          // 나머지 DetailForm이 확장되도록 Expanded로 감싸기
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.w),
+              child: detailForm,
+            ),
+          ),
+        ],
       ),
     );
   }

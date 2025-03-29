@@ -2,9 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'package:marimo_client/screens/payment/widgets/CarPaymentCategorySelector.dart';
-import 'package:marimo_client/screens/payment/widgets/CarPaymentAmountInput.dart';
-import 'package:marimo_client/screens/payment/widgets/CarPaymentDateInput.dart';
+import 'package:marimo_client/screens/payment/widgets/payment_input/CarPaymentCategorySelector.dart';
+import 'package:marimo_client/screens/payment/widgets/payment_input/CarPaymentAmountInput.dart';
+import 'package:marimo_client/screens/payment/widgets/payment_input/CarPaymentDateInput.dart';
 import 'package:marimo_client/commons/CustomAppHeader.dart';
 import 'package:marimo_client/theme.dart';
 import 'package:marimo_client/providers/car_payment_provider.dart';
