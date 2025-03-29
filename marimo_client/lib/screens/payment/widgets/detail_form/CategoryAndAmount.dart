@@ -35,23 +35,49 @@ class CategoryAndAmount extends StatelessWidget {
     final numberFormat = NumberFormat('#,###');
 
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 카테고리 아이콘
-        _getCategoryIcon(),
-        SizedBox(width: 12.w),
+        // 카테고리 아이콘과 텍스트는 원래 위치에 유지
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                // 카테고리 아이콘
+                _getCategoryIcon(),
+                SizedBox(width: 12.w),
 
-        // 카테고리 텍스트
-        Text(
-          category,
-          style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w500),
+                // 카테고리 텍스트
+                Text(
+                  category,
+                  style: TextStyle(
+                    fontSize: 24.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
 
         Spacer(),
 
-        // 금액 표시
-        Text(
-          '${numberFormat.format(amount)} 원',
-          style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w500),
+        // 금액 표시 (오른쪽 여백 50, 위 여백 60)
+        Padding(
+          padding: EdgeInsets.only(top: 44.h),
+          child: Row(
+            children: [
+              Text(
+                numberFormat.format(amount),
+                style: TextStyle(fontSize: 28.sp, fontWeight: FontWeight.w700),
+              ),
+              SizedBox(width: 8.w),
+              Text(
+                '원',
+                style: TextStyle(fontSize: 28.sp, fontWeight: FontWeight.w700),
+              ),
+            ],
+          ),
         ),
       ],
     );
