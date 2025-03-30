@@ -82,4 +82,14 @@ class CarPaymentProvider with ChangeNotifier {
     // print('[Provider] setSelectedCategory: $_selectedCategory');
     notifyListeners();
   }
+
+  // ✅ 선택된 날짜 상태 (추가)
+  DateTime _selectedDate = DateTime.now();
+
+  DateTime get selectedDate => _selectedDate;
+
+  void setSelectedDate(DateTime date) {
+    _selectedDate = date;
+    notifyListeners();
+  }
 }

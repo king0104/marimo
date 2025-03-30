@@ -35,12 +35,12 @@ class CarPaymentDetailForm extends StatelessWidget {
               amount: amount,
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: 60.h),
           // 구분선 추가
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.w),
-            child: Divider(height: 1.h, color: Color(0xFFEEEEEE)),
-          ),
+          // Padding(
+          //   padding: EdgeInsets.symmetric(horizontal: 20.w),
+          //   child: Divider(height: 1.h, color: Color(0xFFEEEEEE)),
+          // ),
           // CarDetailFormItemList를 사용하여 카테고리별 폼 아이템 렌더링
           Expanded(
             child: Padding(

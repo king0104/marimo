@@ -29,11 +29,26 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
   final _placeController = TextEditingController(); // 주유소/정비소/세차장
   final _typeController = TextEditingController(); // 유종/정비항목/세차유형
   final _memoController = TextEditingController();
-  DateTime _selectedDate = DateTime.now();
+  late DateTime _selectedDate;
+  late CarPaymentProvider _provider;
 
   @override
   void initState() {
     super.initState();
+
+    // initState에서는 Provider.of를 바로 사용할 수 없으므로
+    // WidgetsBinding.instance.addPostFrameCallback를 사용
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _provider = Provider.of<CarPaymentProvider>(context, listen: false);
+      setState(() {
+        // 프로바이더에서 선택된 날짜를 가져옴
+        _selectedDate = _provider.selectedDate;
+        _dateController.text = DateFormat('yyyy년 M월 d일').format(_selectedDate);
+      });
+    });
+
+    // 기본값으로 현재 날짜 설정 (프로바이더 초기화 전에 필요)
+    _selectedDate = DateTime.now();
     _dateController.text = DateFormat('yyyy년 M월 d일').format(_selectedDate);
   }
 
@@ -58,6 +73,9 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
           _dateController.text = DateFormat(
             'yyyy년 M월 d일',
           ).format(_selectedDate);
+
+          // 프로바이더에 선택된 날짜 저장
+          _provider.setSelectedDate(_selectedDate);
         });
       },
     );
@@ -93,10 +111,6 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
     switch (widget.category) {
       case '주유':
         return '주유소';
-      case '정비':
-        return '정비소';
-      case '세차':
-        return '장소';
       default:
         return '장소';
     }
@@ -109,8 +123,6 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
         return '유종';
       case '정비':
         return '부품';
-      case '세차':
-        return '세차 유형';
       default:
         return '유형';
     }
@@ -120,27 +132,11 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
   String _getTypeHintText() {
     switch (widget.category) {
       case '주유':
-        return '휘발유';
+        return '선택하기';
       case '정비':
-        return '엔진오일';
-      case '세차':
-        return '셀프세차';
+        return '선택하기';
       default:
         return '';
-    }
-  }
-
-  // 카테고리별 메모 힌트 텍스트 반환
-  String _getMemoHintText() {
-    switch (widget.category) {
-      case '주유':
-        return '주유할 수 있어요 (최대 20자)';
-      case '정비':
-        return '메모할 수 있어요 (최대 20자)';
-      case '세차':
-        return '메모할 수 있어요 (최대 20자)';
-      default:
-        return '메모할 수 있어요 (최대 20자)';
     }
   }
 
@@ -154,6 +150,7 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
         title: '날짜',
         controller: _dateController,
         onTap: _selectDate,
+        isDateField: true, // 달력 아이콘 표시를 위해 true로 설정
       ),
     );
 
@@ -162,7 +159,7 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
       CarDetailFormItem(
         title: _getPlaceFieldName(),
         controller: _placeController,
-        hintText: '직접 입력하세요',
+        hintText: '장소를 입력하세요',
         isRequired: true,
       ),
     );
@@ -183,8 +180,8 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
       CarDetailFormItem(
         title: '메모',
         controller: _memoController,
-        hintText: _getMemoHintText(),
-        maxLength: 20,
+        hintText: '메모할 수 있어요 (최대 100자)',
+        maxLength: 100,
       ),
     );
 
@@ -193,23 +190,28 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: _buildFormItems(),
+    // Consumer를 사용하여 프로바이더의 변경 사항 감지
+    return Consumer<CarPaymentProvider>(
+      builder: (context, provider, child) {
+        return Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: _buildFormItems(),
+                  ),
+                ),
               ),
-            ),
-          ),
 
-          // 분리된 저장 버튼 컴포넌트 사용
-          CarDetailFormSaveButton(onPressed: _saveAndNavigate),
-        ],
-      ),
+              // 분리된 저장 버튼 컴포넌트 사용
+              CarDetailFormSaveButton(onPressed: _saveAndNavigate),
+            ],
+          ),
+        );
+      },
     );
   }
 }
