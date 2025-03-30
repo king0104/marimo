@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:marimo_client/theme.dart';
 
 class CarDetailFormItem extends StatelessWidget {
   final String title;
@@ -12,6 +13,7 @@ class CarDetailFormItem extends StatelessWidget {
   final Function()? onTap;
   final bool showIconRight;
   final int? maxLength;
+  final bool isDateField; // 추가된 매개변수
 
   const CarDetailFormItem({
     Key? key,
@@ -23,13 +25,13 @@ class CarDetailFormItem extends StatelessWidget {
     this.onTap,
     this.showIconRight = true,
     this.maxLength,
+    this.isDateField = false, // 기본값 설정
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SizedBox(height: 16.h),
         Row(
           children: [
             // 항목 제목
@@ -37,7 +39,7 @@ class CarDetailFormItem extends StatelessWidget {
               title,
               style: TextStyle(
                 fontSize: 16.sp,
-                fontWeight: FontWeight.w400,
+                fontWeight: FontWeight.w500,
                 color: Colors.black,
               ),
             ),
@@ -53,7 +55,11 @@ class CarDetailFormItem extends StatelessWidget {
                     textAlign: TextAlign.right,
                     decoration: InputDecoration(
                       hintText: hintText,
-                      hintStyle: TextStyle(fontSize: 16.sp, color: Colors.grey),
+                      hintStyle: TextStyle(
+                        fontSize: 16.sp,
+                        color: Color(0xFF8E8E8E),
+                        fontWeight: FontWeight.w300,
+                      ),
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.zero,
                     ),
@@ -90,8 +96,7 @@ class CarDetailFormItem extends StatelessWidget {
               ),
           ],
         ),
-        SizedBox(height: 16.h),
-        Divider(height: 1.h, color: Color(0xFFEEEEEE)),
+        SizedBox(height: 18.h),
       ],
     );
   }

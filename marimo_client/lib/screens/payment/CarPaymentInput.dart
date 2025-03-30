@@ -74,14 +74,7 @@ class _CarPaymentInputState extends State<CarPaymentInput> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // 📅 날짜 선택 위젯
-                CarPaymentDateInput(
-                  selectedDate: selectedDate,
-                  onDateSelected: (picked) {
-                    setState(() {
-                      selectedDate = picked;
-                    });
-                  },
-                ),
+                CarPaymentDateInput(),
                 SizedBox(height: 20.5.h),
                 const CarPaymentCategorySelector(),
               ],

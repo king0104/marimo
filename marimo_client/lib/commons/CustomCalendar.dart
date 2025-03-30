@@ -9,8 +9,8 @@ Future<void> showCustomCalendarPopup({
   required DateTime initialDate,
   required Function(DateTime) onDateSelected,
 }) async {
-  // 초기 선택 날짜를 null로 시작하여 날짜를 선택하지 않은 상태 표시
-  DateTime? selectedDate = null;
+  // 초기 선택 날짜를 initialDate로 설정 (null로 시작하지 않음)
+  DateTime selectedDate = initialDate;
   DateTime currentViewDate = initialDate;
   final DateTime today = DateTime.now();
 
@@ -569,8 +569,7 @@ Widget _buildFixedCalendarGrid(
                       date.day,
                     );
                     final isBeforeToday = currentDate.isBefore(todayDate);
-                    final isTodayOrFuture =
-                        currentDate.isAfter(todayDate) || isToday;
+                    final isFuture = currentDate.isAfter(todayDate);
 
                     // 선택 가능한 날짜인지 확인 (오늘 포함 이전 날짜만 선택 가능)
                     final isSelectable = !currentDate.isAfter(todayDate);
@@ -587,42 +586,53 @@ Widget _buildFixedCalendarGrid(
                     return Expanded(
                       child: GestureDetector(
                         onTap: isSelectable ? () => onSelectDate(date) : null,
-                        child: Container(
-                          alignment: Alignment.center,
-                          decoration:
-                              shouldHighlight
-                                  ? BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: Colors.black,
-                                      width: 2.w,
-                                    ),
-                                  )
-                                  : null,
-                          child: Text(
-                            date.day.toString(),
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              // 선택된 빨간색 날짜는 FontWeight.w900(더 굵게)
-                              // 선택된 일반 날짜는 FontWeight.w800
-                              // 나머지는 FontWeight.w600
-                              fontWeight:
-                                  isSelectedSunday
-                                      ? FontWeight.w600
-                                      : (shouldHighlight
-                                          ? FontWeight.w600
-                                          : FontWeight.w400),
-                              // 오늘 포함 이전 날짜는 검정색, 이후 날짜는 회색
-                              color:
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            // InkWell 추가해서 터치 피드백 제공
+                            splashColor: Colors.transparent, // 스플래시 효과 없애기
+                            highlightColor: Colors.transparent, // 하이라이트 효과 없애기
+                            // 터치 영역을 최대한 확장
+                            child: Container(
+                              width: double.infinity,
+                              height: double.infinity,
+                              margin: EdgeInsets.all(2.w), // 약간의 여백 추가
+                              decoration:
                                   shouldHighlight
-                                      ? (isSunday
-                                          ? Colors.red[300]
-                                          : Colors.black)
-                                      : (isTodayOrFuture
-                                          ? Colors.grey[400] // 미래 날짜는 회색
-                                          : (isSunday
-                                              ? Colors.red[300] // 일요일은 빨간색
-                                              : Colors.black)), // 과거 날짜는 검정색
+                                      ? BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: Colors.black,
+                                          width: 2.w,
+                                        ),
+                                      )
+                                      : null,
+                              child: Center(
+                                child: Text(
+                                  date.day.toString(),
+                                  style: TextStyle(
+                                    fontSize: 14.sp,
+                                    fontWeight:
+                                        isSelectedSunday
+                                            ? FontWeight.w600
+                                            : (shouldHighlight
+                                                ? FontWeight.w600
+                                                : FontWeight.w400),
+                                    color:
+                                        shouldHighlight
+                                            ? (isSunday
+                                                ? Colors.red[300]
+                                                : Colors.black)
+                                            : (isFuture
+                                                ? Colors.grey[400] // 미래 날짜는 회색
+                                                : (isSunday
+                                                    ? Colors
+                                                        .red[300] // 일요일은 빨간색
+                                                    : Colors
+                                                        .black)), // 과거 날짜는 검정색
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ),
