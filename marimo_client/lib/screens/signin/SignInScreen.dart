@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/main.dart';
 import 'package:marimo_client/providers/member/auth_provider.dart';
 import 'package:marimo_client/screens/signin/widgets/sign_in/LoginButton.dart';
@@ -63,25 +64,26 @@ class _SignInScreenState extends State<SignInScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              SizedBox(height: 104.h),
               const LoginSlogan(),
-              const SizedBox(height: 18),
+              SizedBox(height: 18.h),
               const LoginHero(), // 로고 & 텍스트
-              const SizedBox(height: 38),
+              SizedBox(height: 36.h),
               // 이메일 입력 (LoginInput 위젯에 controller 파라미터 추가)
               LoginInput(hintText: "이메일을 입력해주세요.", controller: emailController),
-              const SizedBox(height: 30),
+              SizedBox(height: 30.h),
               // 비밀번호 입력
               LoginInput(
                 hintText: "비밀번호를 입력해주세요.",
                 isPassword: true,
                 controller: passwordController,
               ),
-              const SizedBox(height: 30),
+              SizedBox(height: 30.h),
               // 로그인 버튼
               LoginButton(text: "마리모 로그인", onPressed: _login),
-              const SizedBox(height: 30),
+              SizedBox(height: 30.h),
               const LoginLinkRow(), // 비밀번호 찾기, 회원가입 링크
-              const SizedBox(height: 30),
+              SizedBox(height: 26.h),
               const OauthButtons(), // SNS 계정으로 로그인
             ],
           ),

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:marimo_client/providers/member/auth_provider.dart';
+import 'package:marimo_client/screens/signin/car/CarNicknameScreen.dart';
+import 'package:marimo_client/services/car/car_registration_service.dart';
 import 'package:provider/provider.dart';
 import 'package:marimo_client/providers/car_registration_provider.dart';
 
@@ -36,6 +39,7 @@ class _CarRegistrationStepperScreenState
     CarLastInspectionScreen(),
     CardBrandScreen(),
     CardSelectScreen(),
+    CarNicknameScreen(),
   ];
 
   @override
@@ -175,13 +179,44 @@ class _CarRegistrationStepperScreenState
                   child: SizedBox(
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: () {
-                        if (!isCarConfirmed && _currentStep == 0) {
-                          _showCarConfirmationSheet();
-                        } else if (_currentStep < _screens.length - 1) {
-                          setState(() {
-                            _currentStep += 1;
-                          });
+                      onPressed: () async {
+                        final isLastStep = _currentStep == _screens.length - 1;
+
+                        if (isLastStep) {
+                          try {
+                            final provider =
+                                Provider.of<CarRegistrationProvider>(
+                                  context,
+                                  listen: false,
+                                );
+                            final authProvider = Provider.of<AuthProvider>(
+                              context,
+                              listen: false,
+                            );
+                            final token = authProvider.accessToken;
+                            if (token == null) {
+                              throw Exception('AccessToken이 존재하지 않습니다.');
+                            }
+
+                            await CarRegistrationService.registerCar(
+                              provider: provider,
+                              accessToken: token,
+                            );
+
+                            // 등록 성공 후 처리 (예: 다음 화면으로 이동, 완료 알림 등)
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("차량 등록이 완료되었습니다!")),
+                            );
+                          } catch (e) {
+                            // 실패 시 처리
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("차량 등록 실패: $e")),
+                            );
+                            print("$e");
+                          }
+                        } else {
+                          // 다음 페이지로 이동
+                          setState(() => _currentStep += 1);
                           _pageController.nextPage(
                             duration: const Duration(milliseconds: 300),
                             curve: Curves.easeInOut,

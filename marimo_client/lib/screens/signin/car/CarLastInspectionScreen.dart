@@ -72,7 +72,7 @@ class _CarLastInspectionScreenState extends State<CarLastInspectionScreen> {
                   horizontal: 16,
                 ),
                 decoration: BoxDecoration(
-                  color: white,
+                  color: Colors.transparent,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color: lightgrayColor, // ← 너가 정의해둔 theme 색상
