@@ -9,21 +9,21 @@ class CarImageWidget extends StatelessWidget {
     return Container(
       height: 300.h,
       width: double.infinity,
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Positioned(
-              left: -330.w,
-              top: 0,
-              bottom: 0,
-              child: Image.asset(
-                'assets/images/cars/LX06_A2B.png',
-                width: 650.w,
-                fit: BoxFit.cover,
-              ),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Positioned(
+            left: -330.w,
+            top: 0,
+            bottom: 0,
+            child: Image.asset(
+              'assets/images/cars/palisade.png',
+              width: 650.w,
+              fit: BoxFit.cover,
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
     );
   }
 }
