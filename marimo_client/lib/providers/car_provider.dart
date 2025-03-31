@@ -2,19 +2,32 @@ import 'package:flutter/material.dart';
 import '../models/car_model.dart';
 
 class CarProvider with ChangeNotifier {
-  CarModel? _car;
+  final List<CarModel> _cars = [];
 
-  CarModel? get car => _car;
+  List<CarModel> get cars => _cars;
 
-  void setCar(CarModel car) {
-    _car = car;
+  void addCar(CarModel car) {
+    _cars.add(car);
     notifyListeners();
   }
 
-  void clearCar() {
-    _car = null;
+  void removeCarById(String id) {
+    _cars.removeWhere((car) => car.id == id);
     notifyListeners();
   }
 
-  bool get hasCar => _car != null;
+  bool get hasAnyCar => _cars.isNotEmpty;
+
+  void clearCars() {
+    _cars.clear();
+    notifyListeners();
+  }
+
+  CarModel? getCarById(String id) {
+    try {
+      return _cars.firstWhere((car) => car.id == id);
+    } catch (e) {
+      return null;
+    }
+  }
 }

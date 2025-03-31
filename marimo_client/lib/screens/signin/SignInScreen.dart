@@ -42,7 +42,9 @@ class _SignInScreenState extends State<SignInScreen> {
       // 전체 스택을 제거하고 MainScreen으로 이동
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => const MainScreen()),
+        MaterialPageRoute(
+          builder: (_) => const InitialRouter(),
+        ), // MainScreen → MyApp으로 변경
         (Route<dynamic> route) => false,
       );
     } catch (error) {
