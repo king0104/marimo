@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/providers/member/signup_provider.dart';
 import 'package:marimo_client/screens/signin/SignInScreen.dart';
 import 'package:marimo_client/screens/signin/car/RegisterCarScreen.dart';
@@ -8,6 +9,7 @@ import 'package:marimo_client/screens/signin/widgets/sign_up/SignUpInputWithButt
 import 'package:marimo_client/screens/signin/widgets/CustomTitleText.dart';
 import 'package:provider/provider.dart';
 import 'package:marimo_client/utils/toast.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class SignUpScreen extends StatelessWidget {
   SignUpScreen({super.key});
@@ -439,7 +441,7 @@ class _SignUpScreenBodyState extends State<SignUpScreenBody> {
       body: Consumer<SignUpProvider>(
         builder: (context, signUpProvider, child) {
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: EdgeInsets.symmetric(horizontal: 20.w),
             child: SingleChildScrollView(
               child: ConstrainedBox(
                 constraints: BoxConstraints(
@@ -449,6 +451,25 @@ class _SignUpScreenBodyState extends State<SignUpScreenBody> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      PreferredSize(
+                        preferredSize: Size.fromHeight(60.h),
+                        child: Padding(
+                          padding: EdgeInsets.only(top: 60.h), // 상태바 여백
+                          child: Row(
+                            children: [
+                              GestureDetector(
+                                onTap: () => Navigator.of(context).pop(),
+                                child: SvgPicture.asset(
+                                  'assets/images/icons/icon_back.svg',
+                                  width: 18.w,
+                                  height: 18.h,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
                       const SizedBox(height: 32),
                       CustomTitleText(
                         text: "안녕하세요!\n먼저 내 정보를 등록해주세요",
