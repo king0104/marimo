@@ -111,5 +111,4 @@ flutter:
     - assets/models/uberBlack.dae.glb
     - assets/models/generic_sedan.glb
     - assets/models/uberXL.glb
-    - assets/tire_model.tflite
-    - assets/labels.txt
+    - assets/ai/tire_model.tflite
