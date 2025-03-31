@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:marimo_client/theme.dart';
 
@@ -41,20 +42,22 @@ class _CarModelSelectorState extends State<CarModelSelector> {
         final isSelected = selectedModel == model;
 
         return ListTile(
+          splashColor: brandColor.withAlpha(14),
+          hoverColor: brandColor.withAlpha(14),
           title: Text(
             model,
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.w500,
-              fontSize: 16,
-              color: Colors.black,
+              fontSize: 16.sp,
+              color: black,
             ),
           ),
           trailing:
               isSelected
                   ? SvgPicture.asset(
                     'assets/images/icons/icon_check.svg',
-                    width: 20,
-                    height: 20,
+                    width: 20.w,
+                    height: 20.h,
                   )
                   : null,
           onTap: () {
@@ -63,8 +66,8 @@ class _CarModelSelectorState extends State<CarModelSelector> {
             });
             widget.onSelected(model);
           },
-          contentPadding: const EdgeInsets.symmetric(horizontal: 18),
-          minVerticalPadding: 18,
+          contentPadding: EdgeInsets.symmetric(horizontal: 18.w),
+          minVerticalPadding: 18.h,
         );
       },
     );
