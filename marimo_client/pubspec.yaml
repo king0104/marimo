@@ -44,6 +44,9 @@ dependencies:
   flutter_bluetooth_serial: ^0.4.0
   share_plus: ^10.1.4
 
+  # AI
+  tflite_flutter: ^0.11.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -108,3 +111,5 @@ flutter:
     - assets/models/uberBlack.dae.glb
     - assets/models/generic_sedan.glb
     - assets/models/uberXL.glb
+    - assets/tire_model.tflite
+    - assets/labels.txt

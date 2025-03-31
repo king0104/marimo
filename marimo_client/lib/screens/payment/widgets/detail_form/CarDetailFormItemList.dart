@@ -7,6 +7,7 @@ import 'package:marimo_client/providers/car_payment_provider.dart';
 import 'package:marimo_client/models/payment/car_payment_entry.dart';
 import 'CarDetailFormItem.dart';
 import 'CarDetailFormSaveButton.dart';
+import 'CarDetailFormMemo.dart';
 import 'package:marimo_client/commons/CustomCalendar.dart'; // 달력 위젯 import
 
 class CarDetailFormItemList extends StatefulWidget {
@@ -79,6 +80,24 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
         });
       },
     );
+  }
+
+  // 메모 페이지로 이동하는 함수
+  void _navigateToMemoPage() async {
+    // CarDetailFormMemo 페이지로 이동
+    final result = await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder:
+            (context) => CarDetailFormMemo(initialText: _memoController.text),
+      ),
+    );
+
+    // 결과가 반환되면 (메모가 입력되었으면) 메모 컨트롤러에 값 설정
+    if (result != null && result is String) {
+      setState(() {
+        _memoController.text = result;
+      });
+    }
   }
 
   void _saveAndNavigate() {
@@ -181,7 +200,9 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
         title: '메모',
         controller: _memoController,
         hintText: '메모할 수 있어요 (최대 100자)',
+        onTap: _navigateToMemoPage,
         maxLength: 100,
+        showIconRight: true, // 오른쪽 화살표 아이콘 표시
       ),
     );
 
