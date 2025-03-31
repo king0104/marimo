@@ -81,8 +81,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
-
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -90,7 +88,38 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFFFBFBFB),
       ),
       // 로그인 상태에 따라 시작 화면 결정: 로그인되지 않았으면 SignInScreen, 로그인되었으면 MainScreen
-      home: authProvider.isLoggedIn ? const MainScreen() : const SignInScreen(),
+      home: const InitialRouter(),
+    );
+  }
+}
+
+class InitialRouter extends StatelessWidget {
+  const InitialRouter({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final carProvider = Provider.of<CarProvider>(context, listen: false);
+
+    print('[DEBUG] 현재 차량 수: ${carProvider.cars.length}');
+
+    return FutureBuilder<void>(
+      future: Future.delayed(const Duration(milliseconds: 100)), // 상태 안정 대기
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (!authProvider.isLoggedIn) {
+          return const SignInScreen();
+        } else if (!carProvider.hasAnyCar) {
+          return const RegisterCarScreen();
+        } else {
+          return const MainScreen();
+        }
+      },
     );
   }
 }
@@ -111,7 +140,6 @@ class _MainScreenState extends State<MainScreen> {
     ObdFullScanScreen(),
     MapScreen(),
     MyScreen(),
-    // RegisterCarScreen(),
   ];
 
   void _onItemTapped(int index) {

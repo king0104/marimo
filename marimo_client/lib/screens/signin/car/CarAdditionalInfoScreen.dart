@@ -58,7 +58,7 @@ class _CarAdditionalInfoScreenState extends State<CarAdditionalInfoScreen> {
               text: "차량 추가 정보를 입력해주세요.",
               highlight: "차량 추가 정보",
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 12),
 
             /// 유종 선택
             Text(
