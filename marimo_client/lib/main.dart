@@ -37,12 +37,12 @@ void main() async {
   await dotenv.load(fileName: ".env");
 
   // 네이버 맵 초기화
-  await NaverMapSdk.instance.initialize(
-    clientId: dotenv.env['NAVER_MAP_CLIENT_ID']!,
-    onAuthFailed: (ex) {
-      print("네이버 지도 인증 오류: $ex");
-    },
-  );
+  // await NaverMapSdk.instance.initialize(
+  //   clientId: dotenv.env['NAVER_MAP_CLIENT_ID']!,
+  //   onAuthFailed: (ex) {
+  //     print("네이버 지도 인증 오류: $ex");
+  //   },
+  // );
 
   // 상태바 스타일 설정
   SystemChrome.setSystemUIOverlayStyle(
