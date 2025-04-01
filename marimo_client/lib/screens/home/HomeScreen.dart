@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:marimo_client/providers/home_animation_provider.dart';
+import 'package:provider/provider.dart';
 import 'widgets/WeatherWidget.dart';
 import 'widgets/NotificationBadges.dart';
 import 'widgets/CarProfileCard.dart';
@@ -22,75 +24,93 @@ class _HomeScreenState extends State<HomeScreen>
   late Animation<Offset> _profileOffset;
   late Animation<Offset> _badgeOffset;
 
-  late Animation<double> _fadeWeather;
-  late Animation<double> _fadeImage;
-  late Animation<double> _fadeProfile;
   late Animation<double> _fadeStatus;
-  late Animation<double> _fadeBadge;
+  late Animation<double> _fadeProfile;
+  late Animation<double> _badgeScale;
 
   @override
   void initState() {
     super.initState();
 
+    final shouldAnimate =
+        Provider.of<HomeAnimationProvider>(
+          context,
+          listen: false,
+        ).shouldAnimate;
+
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 2800),
     );
+
+    if (shouldAnimate) {
+      _controller.forward();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Provider.of<HomeAnimationProvider>(
+          context,
+          listen: false,
+        ).disableAnimation();
+      });
+    } else {
+      _controller.value = 1.0;
+    }
 
     _weatherOffset = Tween<Offset>(
-      begin: const Offset(-0.3, 0),
+      begin: const Offset(-1.2, 0),
       end: Offset.zero,
     ).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.25)),
-    );
-
-    _fadeWeather = CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.0, 0.25),
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 0.25, curve: Curves.easeOutCubic),
+      ),
     );
 
     _imageOffset = Tween<Offset>(
-      begin: const Offset(-0.3, 0),
+      begin: const Offset(-1.0, 0),
       end: Offset.zero,
     ).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.2, 0.45)),
-    );
-
-    _fadeImage = CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.2, 0.45),
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.2, 0.45, curve: Curves.easeOut),
+      ),
     );
 
     _profileOffset = Tween<Offset>(
-      begin: const Offset(0.3, 0),
+      begin: const Offset(0.8, 0),
       end: Offset.zero,
     ).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.35, 0.6)),
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.3, 0.55, curve: Curves.fastOutSlowIn),
+      ),
     );
 
     _fadeProfile = CurvedAnimation(
       parent: _controller,
-      curve: const Interval(0.35, 0.6),
+      curve: const Interval(0.3, 0.55),
     );
 
     _fadeStatus = CurvedAnimation(
       parent: _controller,
-      curve: const Interval(0.55, 0.8),
+      curve: const Interval(0.45, 0.7, curve: Curves.easeIn),
     );
 
     _badgeOffset = Tween<Offset>(
-      begin: const Offset(0.3, 0),
+      begin: const Offset(1.2, 0),
       end: Offset.zero,
     ).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.75, 1.0)),
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.75, 1.0, curve: Curves.easeOutBack),
+      ),
     );
 
-    _fadeBadge = CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.75, 1.0),
+    _badgeScale = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.6, 1.0, curve: Curves.easeOutBack),
+      ),
     );
-
-    _controller.forward();
   }
 
   @override
@@ -110,10 +130,7 @@ class _HomeScreenState extends State<HomeScreen>
               children: [
                 SlideTransition(
                   position: _weatherOffset,
-                  child: FadeTransition(
-                    opacity: _fadeWeather,
-                    child: Row(children: const [WeatherWidget(), Spacer()]),
-                  ),
+                  child: Row(children: const [WeatherWidget(), Spacer()]),
                 ),
                 SizedBox(height: 40.h),
                 Row(
@@ -123,12 +140,9 @@ class _HomeScreenState extends State<HomeScreen>
                       flex: 2,
                       child: SlideTransition(
                         position: _imageOffset,
-                        child: FadeTransition(
-                          opacity: _fadeImage,
-                          child: SizedBox(
-                            height: 280.h,
-                            child: const CarImageWidget(),
-                          ),
+                        child: SizedBox(
+                          height: 280.h,
+                          child: const CarImageWidget(),
                         ),
                       ),
                     ),
@@ -153,16 +167,14 @@ class _HomeScreenState extends State<HomeScreen>
               ],
             ),
           ),
-
-          // 🔽 알림 뱃지: 마지막에 오른쪽 → 왼쪽 등장
           Positioned(
             top: 12.h,
             right: 0,
             child: SlideTransition(
               position: _badgeOffset,
-              child: FadeTransition(
-                opacity: _fadeBadge,
-                child: NotificationBadges(),
+              child: ScaleTransition(
+                scale: _badgeScale,
+                child: const NotificationBadges(),
               ),
             ),
           ),

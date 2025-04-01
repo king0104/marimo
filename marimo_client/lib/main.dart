@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/providers/car_registration_provider.dart';
+import 'package:marimo_client/providers/home_animation_provider.dart';
 import 'package:marimo_client/providers/member/auth_provider.dart';
 import 'package:marimo_client/providers/map_provider.dart';
 import 'package:marimo_client/providers/obd_data_provider.dart';
@@ -57,6 +58,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => MapStateProvider()),
         ChangeNotifierProvider(create: (_) => ObdPollingProvider()),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
+        ChangeNotifierProvider(create: (_) => HomeAnimationProvider()),
       ],
       child: ScreenUtilInit(
         designSize: const Size(360, 800),
