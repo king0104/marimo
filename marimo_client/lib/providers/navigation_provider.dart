@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-class NavigationProvider with ChangeNotifier {
-  int _currentIndex = 0;
+class NavigationProvider extends ChangeNotifier {
+  int _selectedIndex = 0;
 
-  int get currentIndex => _currentIndex;
+  int get selectedIndex => _selectedIndex;
 
-  void changeIndex(int index) {
-    _currentIndex = index;
+  void setIndex(int index) {
+    _selectedIndex = index;
     notifyListeners();
   }
 }
