@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:marimo_client/theme.dart';
 import 'package:marimo_client/providers/car_payment_provider.dart';
 import 'package:marimo_client/screens/payment/CarPaymentDetailForm.dart';
+import 'package:marimo_client/commons/CustomNumberPad.dart';
 
 class CarPaymentAmountInput extends StatefulWidget {
   const CarPaymentAmountInput({super.key});
@@ -19,6 +20,13 @@ class _CarPaymentAmountInputState extends State<CarPaymentAmountInput> {
   String input = '';
   int? tappedIndex;
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final provider = Provider.of<CarPaymentProvider>(context);
+    input = provider.selectedAmount.toString(); // ✅ 동기화
+  }
+
   void _onPressed(String value, int index) {
     setState(() {
       tappedIndex = index;
@@ -27,15 +35,18 @@ class _CarPaymentAmountInputState extends State<CarPaymentAmountInput> {
         setState(() => tappedIndex = null);
       });
 
+      final provider = Provider.of<CarPaymentProvider>(context, listen: false);
+      String nextInput = provider.selectedAmount.toString();
+
       if (value == '<') {
         if (input.isNotEmpty) {
           input = input.substring(0, input.length - 1);
         }
       } else {
-        // ✅ 자릿수 제한: 최대 15자리까지만 입력 허용
+        // ✅ 자릿수 제한: 최대 10자리까지만 입력 허용
         final nextInput = input + value;
         final numericInput = nextInput.replaceAll(RegExp(r'[^0-9]'), '');
-        if (numericInput.length <= 15) {
+        if (numericInput.length <= 10) {
           input = nextInput;
         }
       }
@@ -68,26 +79,25 @@ class _CarPaymentAmountInputState extends State<CarPaymentAmountInput> {
 
   @override
   Widget build(BuildContext context) {
-    final buttons = [
-      '1',
-      '2',
-      '3',
-      '4',
-      '5',
-      '6',
-      '7',
-      '8',
-      '9',
-      '00',
-      '0',
-      '<',
-    ];
+    // // ✅ Provider 값 출력
+    // final providerAmount =
+    //     Provider.of<CarPaymentProvider>(context).selectedAmount;
+    // print('[CarPaymentAmountInput] provider.selectedAmount: $providerAmount');
+
+    final provider = Provider.of<CarPaymentProvider>(context);
+    final selectedAmount = provider.selectedAmount;
+
+    final formattedAmount = NumberFormat(
+      '###,###,###',
+    ).format(int.tryParse(selectedAmount.toString()) ?? 0);
 
     return Column(
       children: [
         Center(
           child:
-              input.isEmpty
+              (input.isEmpty ||
+                      int.tryParse(input.replaceAll(RegExp(r'[^0-9]'), '')) ==
+                          0)
                   ? Text(
                     '얼마를 쓰셨나요?',
                     style: TextStyle(
@@ -149,66 +159,11 @@ class _CarPaymentAmountInputState extends State<CarPaymentAmountInput> {
             ),
           ),
 
-        Container(
-          color: Colors.white,
-          height: 274.h,
-          width: double.infinity,
-          child: Column(
-            children: List.generate(4, (row) {
-              return Expanded(
-                child: Row(
-                  children: List.generate(3, (col) {
-                    int index = row * 3 + col;
-                    String label = buttons[index];
-                    bool isTapped = tappedIndex == index;
-
-                    return Expanded(
-                      child: GestureDetector(
-                        onTap: () => _onPressed(label, index),
-                        behavior: HitTestBehavior.opaque,
-                        child: Center(
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              AnimatedOpacity(
-                                duration: const Duration(milliseconds: 200),
-                                opacity: isTapped ? 1 : 0,
-                                child: ImageFiltered(
-                                  imageFilter: ImageFilter.blur(
-                                    sigmaX: 12,
-                                    sigmaY: 12,
-                                  ),
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 200),
-                                    width: 44.w,
-                                    height: 44.w,
-                                    decoration: BoxDecoration(
-                                      color: brandColor.withOpacity(0.4),
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              label == '<'
-                                  ? Icon(Icons.backspace_outlined, size: 22.sp)
-                                  : Text(
-                                    label,
-                                    style: TextStyle(
-                                      fontSize: 26.sp,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  }),
-                ),
-              );
-            }),
-          ),
+        // ✅ 키패드 부분 CustomNumberPad로 교체
+        CustomNumberPad(
+          input: input,
+          tappedIndex: tappedIndex,
+          onPressed: _onPressed,
         ),
       ],
     );
