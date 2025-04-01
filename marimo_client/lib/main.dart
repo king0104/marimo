@@ -10,6 +10,7 @@ import 'package:marimo_client/providers/obd_data_provider.dart';
 import 'package:marimo_client/providers/obd_polling_provider.dart';
 import 'package:marimo_client/screens/monitoring/ObdFullScanScreen.dart';
 import 'package:marimo_client/screens/signin/car/RegisterCarScreen.dart';
+import 'package:marimo_client/theme.dart';
 import 'package:marimo_client/utils/permission_util.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
@@ -79,6 +80,11 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: 'Freesentation',
         scaffoldBackgroundColor: const Color(0xFFFBFBFB),
+        textSelectionTheme: TextSelectionThemeData(
+          cursorColor: brandColor, // 커서 색
+          selectionColor: brandColor.withAlpha(80), // 선택된 배경 색
+          selectionHandleColor: brandColor, // 마커 (핸들) 색
+        ),
       ),
       home: const InitialRouter(),
     );

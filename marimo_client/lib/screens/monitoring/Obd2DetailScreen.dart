@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:marimo_client/screens/monitoring/widgets/ObdSearchBar.dart';
 import 'package:marimo_client/utils/obd_response_parser.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -16,6 +18,7 @@ class Obd2DetailScreen extends StatefulWidget {
 
 class _Obd2DetailScreenState extends State<Obd2DetailScreen> {
   int? selectedIndex;
+  String _searchQuery = "";
 
   @override
   Widget build(BuildContext context) {
@@ -78,6 +81,13 @@ class _Obd2DetailScreenState extends State<Obd2DetailScreen> {
       {"title": "SCR 온도", "value": parsed.scrTemp, "unit": "°C"},
     ];
 
+    final filteredItems =
+        obdItems.where((item) {
+          final title = item["title"]?.toLowerCase() ?? '';
+          final value = item["value"]?.toString().toLowerCase() ?? '';
+          return title.contains(_searchQuery) || value.contains(_searchQuery);
+        }).toList();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("OBD2 상세"),
@@ -117,50 +127,31 @@ class _Obd2DetailScreenState extends State<Obd2DetailScreen> {
         backgroundColor: white,
         foregroundColor: black,
         toolbarHeight: 60.h,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: white,
+          statusBarIconBrightness: Brightness.dark,
+          statusBarBrightness: Brightness.light,
+        ),
+        scrolledUnderElevation: 0,
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.w),
         child: Column(
           children: [
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 16.h),
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              height: 45.h,
-              decoration: BoxDecoration(
-                color: white,
-                borderRadius: BorderRadius.circular(49),
-                border: Border.all(color: lightgrayColor, width: 0.5),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: "코드 검색",
-                        hintStyle: TextStyle(
-                          color: lightgrayColor,
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w300,
-                        ),
-                        border: InputBorder.none,
-                        isCollapsed: true,
-                        contentPadding: EdgeInsets.symmetric(vertical: 12.h),
-                      ),
-                    ),
-                  ),
-                  _iconButton(
-                    'assets/images/icons/icon_search_24_grey.svg',
-                    () {},
-                  ),
-                ],
-              ),
+            ObdSearchBar(
+              hintText: "코드 검색",
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value.toLowerCase();
+                });
+              },
             ),
             Expanded(
               child: ListView.builder(
-                itemCount: obdItems.length,
+                itemCount: filteredItems.length,
                 itemBuilder: (_, index) {
                   final isSelected = selectedIndex == index;
-                  final item = obdItems[index];
+                  final item = filteredItems[index];
                   final rawValue = item["value"];
                   final displayValue =
                       rawValue == null
