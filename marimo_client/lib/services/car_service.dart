@@ -1,46 +1,37 @@
+// car_service.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:marimo_client/models/car_model.dart';
+import 'package:marimo_client/services/commons/api.dart';
 
 class CarService {
-  final String baseUrl;
+  static final String baseUrl =
+      dotenv.env['API_BASE_URL'] ?? 'http://j12a605.p.ssafy.io:8080';
 
-  CarService({required this.baseUrl});
+  /// 차량 목록 조회
+  static Future<List<CarModel>> getCars({required String accessToken}) async {
+    final url = Uri.parse('$baseUrl/api/v1/cars');
+    final headers = buildHeaders(token: accessToken);
 
-  Future<String?> registerCar({
-    required Map<String, dynamic> carData,
-    required String accessToken,
-  }) async {
-    final url = Uri.parse('$baseUrl/car/register');
+    print('📡 [REQUEST] GET $url');
+    print('🧾 Headers: $headers');
 
-    try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $accessToken',
-        },
-        body: jsonEncode(carData),
-      );
+    final response = await http.get(url, headers: headers);
 
-      final data = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      final body = utf8.decode(response.bodyBytes);
+      final json = jsonDecode(body);
+      print("✅ 차량 목록 응답: $json");
 
-      switch (response.statusCode) {
-        case 200:
-        case 201:
-          return data['carId']; // 등록 성공 시 carId 반환
-
-        case 400:
-          throw Exception('잘못된 요청: ${data['errorMessage']}');
-        case 401:
-          throw Exception('인증 실패: ${data['errorMessage']}');
-        case 500:
-          throw Exception('서버 오류: ${data['errorMessage']}');
-        default:
-          throw Exception('알 수 없는 오류: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('🚨 차량 등록 중 오류: $e');
-      rethrow;
+      final List<dynamic> carListJson = json['carInfoDtos'] ?? [];
+      return carListJson
+          .map((e) => CarModel.fromJson({...e, 'id': e['carId']}))
+          .toList();
+    } else {
+      final errorBody = utf8.decode(response.bodyBytes);
+      print("❌ 차량 목록 조회 실패: $errorBody");
+      throw Exception("차량 목록 조회 실패: $errorBody");
     }
   }
 }
