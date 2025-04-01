@@ -46,9 +46,10 @@ dependencies:
   geolocator: ^10.0.0
   flutter_bluetooth_serial: ^0.4.0
   share_plus: ^10.1.4
+  openai_dart: ^0.4.5
 
   # AI
-  tflite_flutter: ^0.11.0
+  # tflite_flutter: ^0.11.0
 
 dev_dependencies:
   flutter_test:

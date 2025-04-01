@@ -11,6 +11,21 @@ class CarProfileCard extends StatelessWidget {
     final carProvider = Provider.of<CarProvider>(context);
     final car = carProvider.cars.isNotEmpty ? carProvider.cars.first : null;
 
+    String _formatFuelType(String? fuelType) {
+      switch (fuelType) {
+        case 'NORMAL_GASOLINE':
+          return '휘발유';
+        case 'DIESEL':
+          return '경유';
+        case 'LPG':
+          return 'LPG';
+        case 'PREMIUM_GASOLINE':
+          return '고급 휘발유';
+        default:
+          return '정보 없음';
+      }
+    }
+
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
@@ -35,13 +50,13 @@ class CarProfileCard extends StatelessWidget {
             car?.vehicleIdentificationNumber ?? '정보 없음',
           ),
           SizedBox(height: 12.h),
-          _buildProfileItem('연료 타입', car?.fuelType ?? '정보 없음'),
+          _buildProfileItem('연료 타입', _formatFuelType(car?.fuelType)),
           SizedBox(height: 12.h),
           _buildProfileItem(
             '마지막 점검',
             car?.lastCheckedDate != null
                 ? _formatDate(car!.lastCheckedDate!)
-                : '정보 없음',
+                : '날짜 없음',
           ),
         ],
       ),

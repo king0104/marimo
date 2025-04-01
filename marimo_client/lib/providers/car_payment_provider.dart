@@ -92,4 +92,13 @@ class CarPaymentProvider with ChangeNotifier {
     _selectedDate = date;
     notifyListeners();
   }
+
+  // ✅ 선택된 금액 상태
+  int _selectedAmount = 0;
+  int get selectedAmount => _selectedAmount;
+
+  void setSelectedAmount(int amount) {
+    _selectedAmount = amount;
+    notifyListeners();
+  }
 }
