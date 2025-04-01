@@ -6,13 +6,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 class CustomAppHeader extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final VoidCallback onBackPressed;
-  
+
   const CustomAppHeader({
-    Key? key, 
+    Key? key,
     required this.title,
     required this.onBackPressed,
   }) : super(key: key);
-  
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -38,7 +38,7 @@ class CustomAppHeader extends StatelessWidget implements PreferredSizeWidget {
             children: [
               // 🔙 뒤로가기 버튼
               Positioned(
-                left: 16.w,
+                left: 20.w,
                 top: 0,
                 bottom: 0,
                 child: Center(

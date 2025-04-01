@@ -1,114 +1,128 @@
+// CarDetailFormMemo.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:marimo_client/theme.dart';
 import 'package:marimo_client/commons/CustomAppHeader.dart';
+import 'package:marimo_client/theme.dart';
 
-class CarPaymentMemo extends StatefulWidget {
-  final Function(String) onSave;
-  final String initialValue;
+class CarDetailFormMemo extends StatefulWidget {
+  final String initialText;
 
-  const CarPaymentMemo({Key? key, required this.onSave, this.initialValue = ''})
-    : super(key: key);
+  const CarDetailFormMemo({Key? key, this.initialText = ''}) : super(key: key);
 
   @override
-  State<CarPaymentMemo> createState() => _CarPaymentMemoState();
+  State<CarDetailFormMemo> createState() => _CarDetailFormMemoState();
 }
 
-class _CarPaymentMemoState extends State<CarPaymentMemo> {
-  final TextEditingController _memoController = TextEditingController();
-  final FocusNode _focusNode = FocusNode();
-  final int _maxLength = 20;
+class _CarDetailFormMemoState extends State<CarDetailFormMemo> {
+  late TextEditingController _memoController;
+  int _currentLength = 0;
+  final int _maxLength = 100;
 
   @override
   void initState() {
     super.initState();
-    // 초기값 설정
-    _memoController.text = widget.initialValue;
+    _memoController = TextEditingController(text: widget.initialText);
+    _currentLength = widget.initialText.length;
 
-    // 화면이 표시되면 자동으로 키보드 표시
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      FocusScope.of(context).requestFocus(_focusNode);
+    // 텍스트 변경 리스너 추가
+    _memoController.addListener(() {
+      setState(() {
+        _currentLength = _memoController.text.length;
+      });
     });
   }
 
   @override
   void dispose() {
     _memoController.dispose();
-    _focusNode.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      // CustomAppHeader 사용
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(60.h),
-        child: Stack(
-          children: [
-            // CustomAppHeader 배치
-            CustomAppHeader(
-              title: '메모',
-              onBackPressed: () => Navigator.pop(context),
-            ),
-
-            // 완료 버튼을 오른쪽에 배치
-            Positioned(
-              top: MediaQuery.of(context).padding.top + 20.h,
-              right: 16.w,
-              child: GestureDetector(
-                onTap: () {
-                  widget.onSave(_memoController.text);
-                  Navigator.pop(context);
-                },
-                child: Text(
-                  '완료',
-                  style: TextStyle(
-                    color: brandColor,
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
       body: Column(
         children: [
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.w),
-              child: TextField(
-                controller: _memoController,
-                focusNode: _focusNode,
-                maxLength: _maxLength,
-                decoration: InputDecoration(
-                  hintText: '메모를 입력해주세요',
-                  hintStyle: TextStyle(
-                    color: Colors.grey[400],
-                    fontSize: 16.sp,
-                  ),
-                  border: InputBorder.none,
-                  counterText: '', // 기본 카운터 제거
-                ),
-                style: TextStyle(color: Colors.black, fontSize: 16.sp),
-                onChanged: (value) {
-                  setState(() {}); // 텍스트 변경 시 UI 업데이트
+          // 헤더 부분: CustomAppHeader + 완료 버튼
+          Stack(
+            children: [
+              // CustomAppHeader
+              CustomAppHeader(
+                title: '메모',
+                onBackPressed: () {
+                  Navigator.pop(context);
                 },
               ),
-            ),
+
+              // 완료 버튼 (오른쪽 상단에 추가)
+              Positioned(
+                top: MediaQuery.of(context).padding.top, // 상태바 높이만큼 여백
+                right: 16.w,
+                height: 60.h, // CustomAppHeader의 높이와 동일하게
+                child: Center(
+                  child: TextButton(
+                    onPressed: () {
+                      // 입력된 메모 텍스트를 이전 화면으로 전달
+                      Navigator.pop(context, _memoController.text);
+                    },
+                    child: Text(
+                      '완료',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w300,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
 
-          // 카운터를 오른쪽 하단에 별도로 표시
-          Padding(
-            padding: EdgeInsets.only(right: 20.w, bottom: 10.h),
-            child: Align(
-              alignment: Alignment.bottomRight,
-              child: Text(
-                '${_memoController.text.length}/$_maxLength',
-                style: TextStyle(color: Colors.grey[600], fontSize: 14.sp),
+          // 메모 입력 부분
+          Expanded(
+            child: Container(
+              padding: EdgeInsets.all(16.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _memoController,
+                      maxLength: _maxLength,
+                      maxLines: null, // 여러 줄 입력 가능
+                      expands: true, // 사용 가능한 공간을 모두 채우도록
+                      textAlignVertical: TextAlignVertical.top,
+                      style: TextStyle(fontSize: 16.sp, color: Colors.black),
+                      decoration: InputDecoration(
+                        hintText: '메모를 입력하세요',
+                        hintStyle: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF8E8E8E),
+                        ),
+                        border: InputBorder.none,
+                        counterText: '', // 기본 카운터 텍스트 숨기기
+                      ),
+                    ),
+                  ),
+                  // 커스텀 카운터 (100자 제한)
+                  Container(
+                    alignment: Alignment.centerRight,
+                    padding: EdgeInsets.only(top: 8.h),
+                    child: Text(
+                      '$_currentLength/$_maxLength',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w500,
+                        color:
+                            _currentLength == _maxLength
+                                ? pointRedColor
+                                : Color(0xFF8E8E8E),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

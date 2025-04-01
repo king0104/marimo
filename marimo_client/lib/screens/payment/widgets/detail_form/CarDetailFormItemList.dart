@@ -7,7 +7,10 @@ import 'package:marimo_client/providers/car_payment_provider.dart';
 import 'package:marimo_client/models/payment/car_payment_entry.dart';
 import 'CarDetailFormItem.dart';
 import 'CarDetailFormSaveButton.dart';
+import 'CarDetailFormMemo.dart';
 import 'package:marimo_client/commons/CustomCalendar.dart'; // 달력 위젯 import
+import 'package:marimo_client/commons/CustomDropdownList.dart';
+import 'CarDetailFormRepairList.dart';
 
 class CarDetailFormItemList extends StatefulWidget {
   final String category;
@@ -29,6 +32,8 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
   final _placeController = TextEditingController(); // 주유소/정비소/세차장
   final _typeController = TextEditingController(); // 유종/정비항목/세차유형
   final _memoController = TextEditingController();
+  final LayerLink _dropdownLink = LayerLink(); // 드롭다운 포지션 고정용
+
   late DateTime _selectedDate;
   late CarPaymentProvider _provider;
 
@@ -79,6 +84,77 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
         });
       },
     );
+  }
+
+  // 메모 페이지로 이동하는 함수
+  void _navigateToMemoPage() async {
+    // CarDetailFormMemo 페이지로 이동
+    final result = await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder:
+            (context) => CarDetailFormMemo(initialText: _memoController.text),
+      ),
+    );
+
+    // 결과가 반환되면 (메모가 입력되었으면) 메모 컨트롤러에 값 설정
+    if (result != null && result is String) {
+      setState(() {
+        _memoController.text = result;
+      });
+    }
+  }
+
+  void _showDropdownForParts() async {
+    final List<String> partsList = ['일반 휘발유', '고급 휘발유', '경유', 'LPG'];
+
+    await showDropdownList(
+      context: context,
+      items: partsList,
+      selectedItem:
+          _typeController.text.isNotEmpty ? _typeController.text : null,
+      onItemSelected: (String selected) {
+        setState(() {
+          _typeController.text = selected;
+        });
+      },
+      layerLink: _dropdownLink,
+      width: 120,
+      height: partsList.length * 40,
+      offset: Offset(200, 45), // 선택하기 아래로 띄우기 위해 Y 오프셋 지정
+    );
+  }
+
+  void _navigateToRepairList() async {
+    final List<String> repairList = [
+      '엔진 오일',
+      '연료 필터',
+      '변속기 오일',
+      '에어클리너 필터',
+      '냉각수',
+      '타이어 교체',
+      '와이퍼',
+    ];
+
+    final result = await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder:
+            (context) => CarDetailFormRepairList(
+              selectedItem: _typeController.text,
+              repairItems: repairList,
+              onItemSelected: (String selected) {
+                setState(() {
+                  _typeController.text = selected;
+                });
+              },
+            ),
+      ),
+    );
+
+    if (result != null && result is String) {
+      setState(() {
+        _typeController.text = result;
+      });
+    }
   }
 
   void _saveAndNavigate() {
@@ -167,10 +243,19 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
     // 3. 유형 항목 (유종/부품/세차 유형) - 세차의 경우 부품 항목이 없음
     if (widget.category == '주유' || widget.category == '정비') {
       items.add(
-        CarDetailFormItem(
-          title: _getTypeFieldName(),
-          controller: _typeController,
-          hintText: _getTypeHintText(),
+        CompositedTransformTarget(
+          link: widget.category == '주유' ? _dropdownLink : LayerLink(),
+          child: CarDetailFormItem(
+            title: _getTypeFieldName(),
+            controller: _typeController,
+            hintText: _getTypeHintText(),
+            onTap:
+                widget.category == '정비'
+                    ? _navigateToRepairList
+                    : _showDropdownForParts,
+            showIconRight: true,
+            iconType: 'detail',
+          ),
         ),
       );
     }
@@ -181,7 +266,9 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
         title: '메모',
         controller: _memoController,
         hintText: '메모할 수 있어요 (최대 100자)',
+        onTap: _navigateToMemoPage,
         maxLength: 100,
+        showIconRight: true, // 오른쪽 화살표 아이콘 표시
       ),
     );
 

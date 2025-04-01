@@ -13,7 +13,8 @@ class CarDetailFormItem extends StatelessWidget {
   final Function()? onTap;
   final bool showIconRight;
   final int? maxLength;
-  final bool isDateField; // 추가된 매개변수
+  final bool isDateField;
+  final String iconType;
 
   const CarDetailFormItem({
     Key? key,
@@ -25,17 +26,22 @@ class CarDetailFormItem extends StatelessWidget {
     this.onTap,
     this.showIconRight = true,
     this.maxLength,
-    this.isDateField = false, // 기본값 설정
+    this.isDateField = false,
+    this.iconType = 'down', // ✅ 기본값을 'down'으로 설정
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          children: [
-            // 항목 제목
-            Text(
+    final bool isMemoField = title == '메모';
+
+    return Container(
+      height: 45.h,
+      margin: EdgeInsets.only(bottom: 20.h),
+      child: Row(
+        children: [
+          Container(
+            width: 60.w,
+            child: Text(
               title,
               style: TextStyle(
                 fontSize: 16.sp,
@@ -43,61 +49,138 @@ class CarDetailFormItem extends StatelessWidget {
                 color: Colors.black,
               ),
             ),
-            Spacer(),
-            // 입력 필드 또는 선택 영역
+          ),
+
+          /// ✅ 메모 필드
+          if (isMemoField)
+            Expanded(
+              child: GestureDetector(
+                onTap: onTap,
+                behavior: HitTestBehavior.opaque,
+                child: Container(
+                  alignment: Alignment.centerRight,
+                  constraints: BoxConstraints(minHeight: 45.h),
+                  child: Stack(
+                    alignment: Alignment.centerRight,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(
+                          right: showIconRight ? 20.w : 0,
+                        ),
+                        child: Text(
+                          controller.text.isNotEmpty
+                              ? (controller.text.length > 12
+                                  ? '${controller.text.substring(0, 12)}..'
+                                  : controller.text)
+                              : (hintText ?? '메모할 수 있어요 (최대 100자)'),
+                          textAlign: TextAlign.right,
+                          maxLines: 1,
+                          overflow: TextOverflow.clip,
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            color:
+                                controller.text.isNotEmpty
+                                    ? Colors.black
+                                    : const Color(0xFF8E8E8E),
+                            fontWeight: FontWeight.w300,
+                          ),
+                        ),
+                      ),
+                      if (showIconRight)
+                        Positioned(
+                          right: 0,
+                          child: SvgPicture.asset(
+                            'assets/images/icons/icon_detail.svg',
+                            width: 6.w,
+                            height: 10.h,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            )
+          /// ✅ 일반 필드
+          else
             Expanded(
               child: GestureDetector(
                 onTap: onTap,
                 child: AbsorbPointer(
-                  absorbing: onTap != null, // onTap이 있으면 터치 이벤트 흡수
-                  child: TextFormField(
-                    controller: controller,
-                    textAlign: TextAlign.right,
-                    decoration: InputDecoration(
-                      hintText: hintText,
-                      hintStyle: TextStyle(
-                        fontSize: 16.sp,
-                        color: Color(0xFF8E8E8E),
-                        fontWeight: FontWeight.w300,
+                  absorbing: onTap != null,
+                  child: Stack(
+                    alignment: Alignment.centerRight,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(
+                          right:
+                              (showIconRight && hintText != '장소를 입력하세요')
+                                  ? 20.w
+                                  : 0,
+                        ),
+                        child: TextFormField(
+                          controller: controller,
+                          textAlign: TextAlign.right,
+                          decoration: InputDecoration(
+                            hintText: hintText,
+                            hintStyle: TextStyle(
+                              fontSize: 16.sp,
+                              color: const Color(0xFF8E8E8E),
+                              fontWeight: FontWeight.w300,
+                            ),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                          maxLength: title == '장소' ? 50 : maxLength,
+                          buildCounter:
+                              (
+                                _, {
+                                required currentLength,
+                                required isFocused,
+                                maxLength,
+                              }) => null,
+                          validator:
+                              isRequired
+                                  ? (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return '$title을(를) 입력해주세요';
+                                    }
+                                    return null;
+                                  }
+                                  : null,
+                        ),
                       ),
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                    maxLength: maxLength,
-                    buildCounter:
-                        (
-                          _, {
-                          required currentLength,
-                          required isFocused,
-                          maxLength,
-                        }) => null,
-                    validator:
-                        isRequired
-                            ? (value) {
-                              if (value == null || value.isEmpty) {
-                                return '$title을(를) 입력해주세요';
-                              }
-                              return null;
-                            }
-                            : null,
+                      if (showIconRight && hintText != '장소를 입력하세요')
+                        Positioned(
+                          right: 0,
+                          child: SvgPicture.asset(
+                            () {
+                              if (iconType == 'detail')
+                                return 'assets/images/icons/icon_detail.svg';
+                              if (iconType == 'calendar' || isDateField)
+                                return 'assets/images/icons/icon_calendar.svg';
+                              return 'assets/images/icons/icon_down.svg';
+                            }(),
+                            width: () {
+                              if (iconType == 'detail') return 6.w;
+                              if (iconType == 'calendar' || isDateField)
+                                return 14.w;
+                              return 8.w;
+                            }(),
+                            height: () {
+                              if (iconType == 'detail') return 10.h;
+                              if (iconType == 'calendar' || isDateField)
+                                return 14.h;
+                              return 5.h;
+                            }(),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),
             ),
-            // 오른쪽 화살표 아이콘 (필요한 경우)
-            if (showIconRight)
-              Padding(
-                padding: EdgeInsets.only(left: 8.w),
-                child: SvgPicture.asset(
-                  'assets/images/icons/icon_right.svg',
-                  width: 16.w,
-                  height: 16.h,
-                ),
-              ),
-          ],
-        ),
-        SizedBox(height: 18.h),
-      ],
+        ],
+      ),
     );
   }
 }

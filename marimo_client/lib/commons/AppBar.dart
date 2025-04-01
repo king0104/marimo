@@ -65,6 +65,10 @@ class _CommonAppBarState extends State<CommonAppBar> {
   void _removeNotification(String id) {
     setState(() {
       notifications.removeWhere((item) => item['id'] == id);
+      // 모든 알림이 삭제되면 다이얼로그 닫기
+      if (notifications.isEmpty) {
+        Navigator.of(context).pop();
+      }
     });
   }
 

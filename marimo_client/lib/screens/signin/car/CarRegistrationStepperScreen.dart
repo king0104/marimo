@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:marimo_client/main.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:marimo_client/providers/car_provider.dart';
+import 'package:marimo_client/providers/member/auth_provider.dart';
+import 'package:marimo_client/screens/signin/car/CarNicknameScreen.dart';
+import 'package:marimo_client/services/car/car_registration_service.dart';
+import 'package:marimo_client/utils/toast.dart';
 import 'package:provider/provider.dart';
 import 'package:marimo_client/providers/car_registration_provider.dart';
 
@@ -36,6 +42,7 @@ class _CarRegistrationStepperScreenState
     CarLastInspectionScreen(),
     CardBrandScreen(),
     CardSelectScreen(),
+    CarNicknameScreen(),
   ];
 
   @override
@@ -175,13 +182,69 @@ class _CarRegistrationStepperScreenState
                   child: SizedBox(
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: () {
-                        if (!isCarConfirmed && _currentStep == 0) {
-                          _showCarConfirmationSheet();
-                        } else if (_currentStep < _screens.length - 1) {
-                          setState(() {
-                            _currentStep += 1;
-                          });
+                      onPressed: () async {
+                        final isLastStep = _currentStep == _screens.length - 1;
+
+                        if (isLastStep) {
+                          try {
+                            final provider =
+                                Provider.of<CarRegistrationProvider>(
+                                  context,
+                                  listen: false,
+                                );
+                            final authProvider = Provider.of<AuthProvider>(
+                              context,
+                              listen: false,
+                            );
+                            final carProvider = Provider.of<CarProvider>(
+                              context,
+                              listen: false,
+                            );
+
+                            final token = authProvider.accessToken;
+                            if (token == null)
+                              throw Exception('AccessToken이 존재하지 않습니다.');
+
+                            // ✅ 차량 등록 및 carId 받아오기
+                            await CarRegistrationService.registerCar(
+                              provider: provider,
+                              accessToken: token,
+                            );
+
+                            // ✅ 서버에서 차량 목록 다시 불러오기
+                            await carProvider.fetchCarsFromServer(token);
+
+                            // ✅ 확인 로그
+                            print("✅ 현재 차량 개수: ${carProvider.cars.length}");
+                            print("✅ 현재 내 차 : ${carProvider.cars}");
+
+                            // ✅ 성공 토스트 or SnackBar
+                            showToast(
+                              context,
+                              "차량 등록이 완료되었습니다!",
+                              icon: Icons.check_circle,
+                              type: 'success',
+                            );
+                            await Future.delayed(
+                              const Duration(milliseconds: 200),
+                            );
+                            Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(
+                                builder: (_) => const InitialRouter(),
+                              ),
+                              (route) => false,
+                            );
+                          } catch (e) {
+                            showToast(
+                              context,
+                              "차량 등록 실패: $e",
+                              icon: Icons.error,
+                              type: 'error',
+                            );
+                            print("❌ 차량 등록 실패: $e");
+                          }
+                        } else {
+                          setState(() => _currentStep += 1);
                           _pageController.nextPage(
                             duration: const Duration(milliseconds: 300),
                             curve: Curves.easeInOut,
