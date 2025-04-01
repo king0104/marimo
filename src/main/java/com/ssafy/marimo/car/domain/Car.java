@@ -67,7 +67,7 @@ public class Car extends BaseTimeEntity {
     private LocalDateTime lastUpdateDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(nullable = true, length = 20)
     private OBD2Status obd2Status;
 
     @Column(nullable = false)
@@ -115,6 +115,7 @@ public class Car extends BaseTimeEntity {
                 .plateNumber(plateNumber)
                 .vehicleIdentificationNumber(vehicleIdentificationNumber)
                 .fuelType(fuelType)
+                .obd2Status(OBD2Status.NOT_CONNECTED)
                 .build();
     }
 

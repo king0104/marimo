@@ -66,13 +66,13 @@ public class CarService {
                         car.getModelName(),
                         car.getPlateNumber(),
                         car.getVehicleIdentificationNumber(),
-                        car.getFuelType().name(),
+                        car.getFuelType(),
                         car.getLastCheckedDate(),
                         car.getTireCheckedDate(),
                         car.getTotalDistance(),
                         car.getFuelEfficiency(),
                         car.getFuelLevel(),
-                        car.getObd2Status().name(),
+                        car.getObd2Status(),
                         car.getLastUpdateDate()
                 ))
                 .toList();
