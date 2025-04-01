@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:marimo_client/main.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:marimo_client/providers/car_provider.dart';
 import 'package:marimo_client/providers/member/auth_provider.dart';
 import 'package:marimo_client/screens/signin/car/CarNicknameScreen.dart';
 import 'package:marimo_client/services/car/car_registration_service.dart';
+import 'package:marimo_client/utils/toast.dart';
 import 'package:provider/provider.dart';
 import 'package:marimo_client/providers/car_registration_provider.dart';
 
@@ -193,29 +196,55 @@ class _CarRegistrationStepperScreenState
                               context,
                               listen: false,
                             );
-                            final token = authProvider.accessToken;
-                            if (token == null) {
-                              throw Exception('AccessToken이 존재하지 않습니다.');
-                            }
-
-                            await CarRegistrationService.registerCar(
-                              provider: provider,
-                              accessToken: token,
+                            final carProvider = Provider.of<CarProvider>(
+                              context,
+                              listen: false,
                             );
 
-                            // 등록 성공 후 처리 (예: 다음 화면으로 이동, 완료 알림 등)
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("차량 등록이 완료되었습니다!")),
+                            final token = authProvider.accessToken;
+                            if (token == null)
+                              throw Exception('AccessToken이 존재하지 않습니다.');
+
+                            // ✅ 차량 등록 및 carId 받아오기
+                            final newCar =
+                                await CarRegistrationService.registerCar(
+                                  provider: provider,
+                                  accessToken: token,
+                                );
+
+                            // ✅ 차량 목록에 추가
+                            carProvider.addCar(newCar);
+
+                            // ✅ 확인 로그
+                            print("🚗 등록된 차량 ID: ${newCar.id}");
+                            print("✅ 현재 차량 개수: ${carProvider.cars.length}");
+
+                            // ✅ 성공 토스트 or SnackBar
+                            showToast(
+                              context,
+                              "차량 등록이 완료되었습니다!",
+                              icon: Icons.check_circle,
+                              type: 'success',
+                            );
+                            await Future.delayed(
+                              const Duration(milliseconds: 200),
+                            );
+                            Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(
+                                builder: (_) => const InitialRouter(),
+                              ),
+                              (route) => false,
                             );
                           } catch (e) {
-                            // 실패 시 처리
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("차량 등록 실패: $e")),
+                            showToast(
+                              context,
+                              "차량 등록 실패: $e",
+                              icon: Icons.error,
+                              type: 'error',
                             );
-                            print("$e");
+                            print("❌ 차량 등록 실패: $e");
                           }
                         } else {
-                          // 다음 페이지로 이동
                           setState(() => _currentStep += 1);
                           _pageController.nextPage(
                             duration: const Duration(milliseconds: 300),
