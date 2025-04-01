@@ -10,7 +10,7 @@ import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.FilterDef;
 import org.hibernate.annotations.ParamDef;
 import org.hibernate.annotations.SQLDelete;
-
+import org.springframework.cglib.core.Local;
 
 
 @Entity
@@ -84,7 +84,12 @@ public class Car extends BaseTimeEntity {
                 Integer totalDistance,
                 Float fuelEfficiency,
                 Float fuelLevel,
-                OBD2Status obd2Status) {
+                OBD2Status obd2Status,
+                LocalDateTime lastCheckedDate,
+                LocalDateTime lastUpdateDate,
+                LocalDateTime tireCheckedDate,
+                Integer score
+    ) {
         this.member = member;
         this.brand = brand;
         this.nickname = nickname;
@@ -96,6 +101,10 @@ public class Car extends BaseTimeEntity {
         this.fuelEfficiency = fuelEfficiency;
         this.fuelLevel = fuelLevel;
         this.obd2Status = obd2Status;
+        this.lastCheckedDate = lastCheckedDate;
+        this.lastUpdateDate = lastUpdateDate;
+        this.tireCheckedDate = tireCheckedDate;
+        this.score = score;
     }
 
     public static Car createInitalCar(
@@ -105,7 +114,8 @@ public class Car extends BaseTimeEntity {
             String modelName,
             String plateNumber,
             String vehicleIdentificationNumber,
-            FuelType fuelType
+            FuelType fuelType,
+            LocalDateTime lastCheckedDate
     ) {
         return Car.builder()
                 .member(member)
@@ -116,6 +126,7 @@ public class Car extends BaseTimeEntity {
                 .vehicleIdentificationNumber(vehicleIdentificationNumber)
                 .fuelType(fuelType)
                 .obd2Status(OBD2Status.NOT_CONNECTED)
+                .lastCheckedDate(lastCheckedDate)
                 .build();
     }
 
