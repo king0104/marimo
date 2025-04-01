@@ -9,6 +9,7 @@ import 'CarDetailFormItem.dart';
 import 'CarDetailFormSaveButton.dart';
 import 'CarDetailFormMemo.dart';
 import 'package:marimo_client/commons/CustomCalendar.dart'; // 달력 위젯 import
+import 'package:marimo_client/commons/CustomDropdownList.dart';
 
 class CarDetailFormItemList extends StatefulWidget {
   final String category;
@@ -30,6 +31,8 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
   final _placeController = TextEditingController(); // 주유소/정비소/세차장
   final _typeController = TextEditingController(); // 유종/정비항목/세차유형
   final _memoController = TextEditingController();
+  final LayerLink _dropdownLink = LayerLink(); // 드롭다운 포지션 고정용
+
   late DateTime _selectedDate;
   late CarPaymentProvider _provider;
 
@@ -98,6 +101,26 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
         _memoController.text = result;
       });
     }
+  }
+
+  void _showDropdownForParts() async {
+    final List<String> partsList = ['일반 휘발유', '고급 휘발유', '경유', 'LPG'];
+
+    await showDropdownList(
+      context: context,
+      items: partsList,
+      selectedItem:
+          _typeController.text.isNotEmpty ? _typeController.text : null,
+      onItemSelected: (String selected) {
+        setState(() {
+          _typeController.text = selected;
+        });
+      },
+      layerLink: _dropdownLink,
+      width: 120,
+      height: partsList.length * 40,
+      offset: Offset(200, 45), // 선택하기 아래로 띄우기 위해 Y 오프셋 지정
+    );
   }
 
   void _saveAndNavigate() {
@@ -186,10 +209,14 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
     // 3. 유형 항목 (유종/부품/세차 유형) - 세차의 경우 부품 항목이 없음
     if (widget.category == '주유' || widget.category == '정비') {
       items.add(
-        CarDetailFormItem(
-          title: _getTypeFieldName(),
-          controller: _typeController,
-          hintText: _getTypeHintText(),
+        CompositedTransformTarget(
+          link: widget.category == '주유' ? _dropdownLink : LayerLink(),
+          child: CarDetailFormItem(
+            title: _getTypeFieldName(),
+            controller: _typeController,
+            hintText: _getTypeHintText(),
+            onTap: widget.category == '주유' ? _showDropdownForParts : null,
+          ),
         ),
       );
     }
