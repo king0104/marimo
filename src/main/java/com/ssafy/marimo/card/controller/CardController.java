@@ -38,6 +38,4 @@ public class CardController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(getCardsWithBenefitResponse);
     }
-
-
 }
