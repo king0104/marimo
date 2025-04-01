@@ -1,8 +1,8 @@
 package com.ssafy.marimo.car.controller;
 
-import com.ssafy.marimo.car.dto.GetCarResponse;
-import com.ssafy.marimo.car.dto.PostCarRequest;
-import com.ssafy.marimo.car.dto.PostCarResponse;
+import com.ssafy.marimo.car.dto.response.GetCarResponse;
+import com.ssafy.marimo.car.dto.request.PostCarRequest;
+import com.ssafy.marimo.car.dto.response.PostCarResponse;
 import com.ssafy.marimo.car.service.CarService;
 import com.ssafy.marimo.common.annotation.CurrentMemberId;
 import jakarta.validation.Valid;
