@@ -42,7 +42,9 @@ public class CarService {
                 postCarRequest.modelName(),
                 postCarRequest.plateNumber(),
                 postCarRequest.vehicleIdentificationNumber(),
-                postCarRequest.fuelType()
+                postCarRequest.fuelType(),
+                postCarRequest.lastCheckedDate()
+
         );
 
         Car savedCar = carRepository.save(car);
