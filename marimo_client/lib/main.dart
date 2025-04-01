@@ -52,7 +52,6 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => CarProvider()),
         ChangeNotifierProvider(create: (_) => CarRegistrationProvider()),
-        ChangeNotifierProvider(create: (_) => ObdDataProvider()),
         ChangeNotifierProvider(create: (_) => CarPaymentProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => MapStateProvider()),
@@ -166,7 +165,7 @@ class _MainScreenState extends State<MainScreen>
     final screens = [
       const HomeScreen(),
       MonitoringScreen(),
-      const ObdFullScanScreen(),
+      MonitoringScreen(),
       const MapScreen(),
       const MyScreen(),
     ];

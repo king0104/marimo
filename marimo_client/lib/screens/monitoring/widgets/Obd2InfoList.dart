@@ -5,7 +5,8 @@ import 'package:marimo_client/screens/monitoring/widgets/DtcInfoCard.dart';
 import 'package:marimo_client/screens/monitoring/widgets/StatusInfoCard.dart';
 import 'package:marimo_client/screens/monitoring/widgets/ListToggle.dart';
 import 'package:provider/provider.dart';
-import 'package:marimo_client/providers/obd_data_provider.dart';
+import 'package:marimo_client/providers/obd_polling_provider.dart';
+import 'package:marimo_client/utils/obd_response_parser.dart';
 
 class Obd2InfoList extends StatefulWidget {
   const Obd2InfoList({super.key});
@@ -18,7 +19,6 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
   bool showDtcInfo = true;
   int? selectedIndex;
 
-  // 고장 코드 더미
   final List<Map<String, String>> dtcData = [
     {"code": "P13E7FD", "description": "엔진열이 너무 높아요"},
     {"code": "P0420", "description": "촉매 변환 장치 문제"},
@@ -27,8 +27,8 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
 
   @override
   Widget build(BuildContext context) {
-    final obd = context.watch<ObdDataProvider>();
-    final data = obd.data;
+    final responses = context.watch<ObdPollingProvider>().responses;
+    final data = parseObdResponses(responses);
 
     final statusData = [
       {
@@ -136,7 +136,7 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
                   child:
                       showDtcInfo
                           ? (() {
-                            final item = dtcData[index]; // ✅ 여기 추가됨!
+                            final item = dtcData[index];
                             return DtcInfoCard(
                               code: item["code"]!,
                               description: item["description"]!,
