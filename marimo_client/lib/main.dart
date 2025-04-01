@@ -138,8 +138,11 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends State<MainScreen>
+    with SingleTickerProviderStateMixin {
   int _selectedIndex = 0;
+  late AnimationController _controller;
+  late Animation<Offset> _animation;
 
   final List<Widget> _screens = [
     HomeScreen(),
@@ -149,15 +152,24 @@ class _MainScreenState extends State<MainScreen> {
     MyScreen(),
   ];
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
   @override
   void initState() {
     super.initState();
+
+    // 애니메이션 초기화
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+
+    _animation = Tween<Offset>(
+      begin: const Offset(0, 1), // 아래에서 시작
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+
+    // 시작 시 애니메이션 실행
+    _controller.forward();
+
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.black,
@@ -169,21 +181,36 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFBFBFB),
       appBar: const CommonAppBar(),
-
       body: Stack(
         children: [
           Positioned.fill(child: _screens[_selectedIndex]),
+          // ✅ 애니메이션 추가된 BottomNavigationBar
           Positioned(
             left: 0,
             right: 0,
-            bottom: 0, // 📌 네비게이션 바를 화면 하단에 배치
-            child: CommonBottomNavigationBar(
-              currentIndex: _selectedIndex,
-              onTap: _onItemTapped,
+            bottom: 0,
+            child: SlideTransition(
+              position: _animation,
+              child: CommonBottomNavigationBar(
+                currentIndex: _selectedIndex,
+                onTap: _onItemTapped,
+              ),
             ),
           ),
         ],
