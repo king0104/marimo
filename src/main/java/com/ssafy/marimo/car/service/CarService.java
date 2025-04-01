@@ -3,9 +3,11 @@ package com.ssafy.marimo.car.service;
 import com.ssafy.marimo.car.domain.Brand;
 import com.ssafy.marimo.car.domain.Car;
 import com.ssafy.marimo.car.dto.CarInfoDto;
-import com.ssafy.marimo.car.dto.GetCarResponse;
-import com.ssafy.marimo.car.dto.PostCarRequest;
-import com.ssafy.marimo.car.dto.PostCarResponse;
+import com.ssafy.marimo.car.dto.request.PatchCarRequest;
+import com.ssafy.marimo.car.dto.response.GetCarResponse;
+import com.ssafy.marimo.car.dto.request.PostCarRequest;
+import com.ssafy.marimo.car.dto.response.PatchCarResponse;
+import com.ssafy.marimo.car.dto.response.PostCarResponse;
 import com.ssafy.marimo.car.repository.BrandRepository;
 import com.ssafy.marimo.car.repository.CarRepository;
 import com.ssafy.marimo.common.util.IdEncryptionUtil;
@@ -13,6 +15,7 @@ import com.ssafy.marimo.exception.ErrorStatus;
 import com.ssafy.marimo.exception.NotFoundException;
 import com.ssafy.marimo.member.domain.Member;
 import com.ssafy.marimo.member.repository.MemberRepository;
+import jakarta.persistence.criteria.CriteriaBuilder.In;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -80,6 +83,16 @@ public class CarService {
                 .toList();
 
         return GetCarResponse.of(carInfoDtos);
+    }
+
+    @Transactional
+    public PatchCarResponse patchCar(PatchCarRequest patchCarRequest, Integer carId) {
+        Car car = carRepository.findById(carId)
+                .orElseThrow(() -> new NotFoundException(ErrorStatus.CARD_NOT_FOUND.getErrorCode()));
+
+        car.updateFromPatchCarRequest(patchCarRequest);
+
+        return PatchCarResponse.of(idEncryptionUtil.encrypt(car.getId()));
     }
 
 }

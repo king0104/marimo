@@ -10,7 +10,7 @@ public class TestEncryptPropertiesConfig {
     @Bean
     public EncryptProperties encryptProperties() {
         EncryptProperties props = new EncryptProperties();
-        props.setKey("1234567890abcdef"); // 반드시 16바이트
+        props.setKey("3eee1c782a80fa791af57e535541398a"); // 반드시 16바이트
         return props;
     }
 }

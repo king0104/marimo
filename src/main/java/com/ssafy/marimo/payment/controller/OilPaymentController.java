@@ -10,6 +10,7 @@ import com.ssafy.marimo.payment.service.OilPaymentService;
 import jakarta.persistence.criteria.CriteriaBuilder.In;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/payments/oil")
 @RequiredArgsConstructor
@@ -48,6 +50,7 @@ public class OilPaymentController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(patchOilPaymentResponse);
     }
+
 
     @DeleteMapping("/{paymentId}")
     public ResponseEntity<Void> deleteOilPayment(
