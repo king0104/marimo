@@ -47,6 +47,15 @@ class _CarAdditionalInfoScreenState extends State<CarAdditionalInfoScreen> {
       borderSide: const BorderSide(color: brandColor, width: 1),
     );
 
+    final Map<String, String> fuelDisplayToEnum = {
+      '휘발유': 'NORMAL_GASOLINE',
+      '고급휘발유': 'PREMIUM_GASOLINE',
+      '경유': 'DIESEL',
+      'LPG': 'LPG',
+    };
+
+    final List<String> fuelDisplayOptions = ['휘발유', '고급휘발유', '경유', 'LPG'];
+
     return Scaffold(
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20),
@@ -83,12 +92,12 @@ class _CarAdditionalInfoScreenState extends State<CarAdditionalInfoScreen> {
               ),
               value: selectedFuel,
               items:
-                  ['휘발유', '경유', '하이브리드']
+                  fuelDisplayOptions
                       .map(
-                        (fuel) => DropdownMenuItem(
-                          value: fuel,
+                        (display) => DropdownMenuItem(
+                          value: display,
                           child: Text(
-                            fuel,
+                            display,
                             style: const TextStyle(
                               color: black,
                               fontSize: 14,
@@ -103,7 +112,11 @@ class _CarAdditionalInfoScreenState extends State<CarAdditionalInfoScreen> {
                   setState(() {
                     selectedFuel = value;
                   });
-                  carProvider.setFuelType(value); // ✅ Provider에도 저장
+
+                  final fuelEnum = fuelDisplayToEnum[value];
+                  if (fuelEnum != null) {
+                    carProvider.setFuelType(fuelEnum); // ✅ 서버용 ENUM 값 저장
+                  }
                 }
               },
               dropdownStyleData: DropdownStyleData(

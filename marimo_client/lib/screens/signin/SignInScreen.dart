@@ -38,6 +38,7 @@ class _SignInScreenState extends State<SignInScreen> {
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
+      print(token);
       // AuthProvider에 토큰 설정
       Provider.of<AuthProvider>(context, listen: false).setAccessToken(token);
       // 전체 스택을 제거하고 MainScreen으로 이동

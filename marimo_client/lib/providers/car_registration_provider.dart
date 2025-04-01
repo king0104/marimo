@@ -9,6 +9,13 @@ class CarRegistrationProvider with ChangeNotifier {
   String? fuelType;
   DateTime? lastCheckedDate;
 
+  final fuelDisplayToEnum = {
+    '휘발유': 'NORMAL_GASOLINE',
+    '고급휘발유': 'PREMIUM_GASOLINE',
+    '경유': 'DIESEL',
+    'LPG': 'LPG',
+  };
+
   void setNickname(String value) {
     nickname = value;
     notifyListeners();
@@ -51,7 +58,7 @@ class CarRegistrationProvider with ChangeNotifier {
       "modelName": modelName,
       "plateNumber": plateNumber,
       "vehicleIdentificationNumber": vehicleIdentificationNumber,
-      "fuelType": fuelType,
+      "fuelType": fuelDisplayToEnum[fuelType],
     };
   }
 
