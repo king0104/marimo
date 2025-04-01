@@ -206,18 +206,17 @@ class _CarRegistrationStepperScreenState
                               throw Exception('AccessToken이 존재하지 않습니다.');
 
                             // ✅ 차량 등록 및 carId 받아오기
-                            final newCar =
-                                await CarRegistrationService.registerCar(
-                                  provider: provider,
-                                  accessToken: token,
-                                );
+                            await CarRegistrationService.registerCar(
+                              provider: provider,
+                              accessToken: token,
+                            );
 
-                            // ✅ 차량 목록에 추가
-                            carProvider.addCar(newCar);
+                            // ✅ 서버에서 차량 목록 다시 불러오기
+                            await carProvider.fetchCarsFromServer(token);
 
                             // ✅ 확인 로그
-                            print("🚗 등록된 차량 ID: ${newCar.id}");
                             print("✅ 현재 차량 개수: ${carProvider.cars.length}");
+                            print("✅ 현재 내 차 : ${carProvider.cars}");
 
                             // ✅ 성공 토스트 or SnackBar
                             showToast(

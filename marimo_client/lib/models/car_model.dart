@@ -45,7 +45,7 @@ class CarModel {
 
   factory CarModel.fromJson(Map<String, dynamic> json) {
     return CarModel(
-      id: json['id'],
+      id: json['carId'], // ✅ 'carId'로 변경
       memberId: json['memberId'],
       brandId: json['brandId'],
       nickname: json['nickname'],
@@ -63,7 +63,7 @@ class CarModel {
               : null,
       totalDistance: json['totalDistance'],
       fuelEfficiency: (json['fuelEfficiency'] as num?)?.toDouble(),
-      fuelLevel: (json['fuelLevel'] as num?)?.toDouble(),
+      fuelLevel: (json['remainingFuel'] as num?)?.toDouble(), // ✅ key 변경
       lastUpdateDate:
           json['lastUpdateDate'] != null
               ? DateTime.tryParse(json['lastUpdateDate'])

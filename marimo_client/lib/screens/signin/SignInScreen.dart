@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/main.dart';
+import 'package:marimo_client/providers/car_provider.dart';
 import 'package:marimo_client/providers/member/auth_provider.dart';
 import 'package:marimo_client/screens/signin/widgets/sign_in/LoginButton.dart';
 import 'package:marimo_client/screens/signin/widgets/sign_in/LoginHero.dart';
@@ -33,23 +34,38 @@ class _SignInScreenState extends State<SignInScreen> {
 
   Future<void> _login() async {
     try {
-      // 로그인 API 호출 후 토큰 반환
+      // 1. 로그인 요청 → accessToken 반환
       final token = await AuthService.login(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
-      print(token);
-      // AuthProvider에 토큰 설정
-      Provider.of<AuthProvider>(context, listen: false).setAccessToken(token);
-      // 전체 스택을 제거하고 MainScreen으로 이동
+
+      // 2. 토큰 저장
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final carProvider = Provider.of<CarProvider>(context, listen: false);
+      authProvider.setAccessToken(token);
+
+      // 3. 차량 목록 받아오되, 실패해도 무시
+      try {
+        await carProvider.fetchCarsFromServer(token);
+      } catch (e) {
+        showToast(
+          context,
+          '차량 목록 불러오기 실패 (나중에 다시 시도해주세요)',
+          icon: Icons.warning,
+          type: 'error',
+        );
+        print('🚨 차량 목록 조회 실패 (무시됨): $e');
+      }
+
+      // 4. 라우팅
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(
-          builder: (_) => const InitialRouter(),
-        ), // MainScreen → MyApp으로 변경
+        MaterialPageRoute(builder: (_) => const InitialRouter()),
         (Route<dynamic> route) => false,
       );
     } catch (error) {
+      // ❌ 로그인 자체 실패
       showToast(context, "로그인 실패: $error", icon: Icons.error, type: 'error');
     }
   }
