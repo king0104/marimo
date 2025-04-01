@@ -2,6 +2,8 @@ package com.ssafy.marimo.car.service;
 
 import com.ssafy.marimo.car.domain.Brand;
 import com.ssafy.marimo.car.domain.Car;
+import com.ssafy.marimo.car.dto.CarInfoDto;
+import com.ssafy.marimo.car.dto.GetCarResponse;
 import com.ssafy.marimo.car.dto.PostCarRequest;
 import com.ssafy.marimo.car.dto.PostCarResponse;
 import com.ssafy.marimo.car.repository.BrandRepository;
@@ -11,6 +13,7 @@ import com.ssafy.marimo.exception.ErrorStatus;
 import com.ssafy.marimo.exception.NotFoundException;
 import com.ssafy.marimo.member.domain.Member;
 import com.ssafy.marimo.member.repository.MemberRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +30,7 @@ public class CarService {
     public PostCarResponse postCar(PostCarRequest postCarRequest, Integer memberId) {
 
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new NotFoundException(ErrorStatus.BRAND_NOT_FOUND.getErrorCode()));
+                .orElseThrow(() -> new NotFoundException(ErrorStatus.MEMBER_NOT_FOUND.getErrorCode()));
 
         Brand brand = brandRepository.findByName(postCarRequest.brand())
                 .orElseThrow(() -> new NotFoundException(ErrorStatus.BRAND_NOT_FOUND.getErrorCode()));
@@ -47,4 +50,34 @@ public class CarService {
         return PostCarResponse.of(
                 idEncryptionUtil.encrypt(savedCar.getId()));
     }
+
+    public GetCarResponse getCar(Integer memberId) {
+        if (!memberRepository.existsById(memberId)) {
+            throw new NotFoundException(ErrorStatus.MEMBER_NOT_FOUND.getErrorCode());
+        }
+
+        List<Car> cars = carRepository.findCarsByMemberId(memberId);
+
+        List<CarInfoDto> carInfoDtos = cars.stream()
+                .map(car -> CarInfoDto.of(
+                        idEncryptionUtil.encrypt(car.getId()),
+                        car.getNickname(),
+                        car.getBrand().getName(),
+                        car.getModelName(),
+                        car.getPlateNumber(),
+                        car.getVehicleIdentificationNumber(),
+                        car.getFuelType().name(),
+                        car.getLastCheckedDate(),
+                        car.getTireCheckedDate(),
+                        car.getTotalDistance(),
+                        car.getFuelEfficiency(),
+                        car.getFuelLevel(),
+                        car.getObd2Status().name(),
+                        car.getLastUpdateDate()
+                ))
+                .toList();
+
+        return GetCarResponse.of(carInfoDtos);
+    }
+
 }
