@@ -61,7 +61,7 @@ public class Car extends BaseTimeEntity {
     private Float fuelEfficiency;
 
     @Column(nullable = false)
-    private Integer fuelLevel;
+    private Float fuelLevel;
 
     @Column(nullable = true)
     private LocalDateTime lastUpdateDate;
@@ -83,7 +83,7 @@ public class Car extends BaseTimeEntity {
                 FuelType fuelType,
                 Integer totalDistance,
                 Float fuelEfficiency,
-                Integer fuelLevel,
+                Float fuelLevel,
                 OBD2Status obd2Status) {
         this.member = member;
         this.brand = brand;
