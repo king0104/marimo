@@ -47,6 +47,7 @@ public enum ErrorStatus {
     BRAND_NOT_FOUND("해당 브랜드명에 해당하는 브랜드를 찾을 수 없습니다"),
     CARD_NOT_FOUND("해당 카드를 찾을 수 없습니다"),
     MEMBER_NOT_FOUND("해당 멤버를 찾을 수 없습니다"),
+    INSURANCE_NOT_FOUND("해당 보험을 찾을 수 없습니다"),
 
     /**
      * 405 METHOD_NOT_ALLOWED
