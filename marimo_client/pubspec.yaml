@@ -112,3 +112,5 @@ flutter:
     - assets/models/generic_sedan.glb
     - assets/models/uberXL.glb
     - assets/ai/tire_model.tflite
+    - assets/ai/tire_wear_model.tflite
+    - assets/ai/tire_wear_model3.tflite

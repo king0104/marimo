@@ -112,13 +112,15 @@ class InitialRouter extends StatelessWidget {
           );
         }
 
-        if (!authProvider.isLoggedIn) {
-          return const SignInScreen();
-        } else if (!carProvider.hasAnyCar) {
-          return const RegisterCarScreen();
-        } else {
-          return const MainScreen();
-        }
+        // if (!authProvider.isLoggedIn) {
+        //   return const SignInScreen();
+        // } else
+        // if (!carProvider.hasAnyCar) {
+        //   return const RegisterCarScreen();
+        // }
+        // else {
+        return const MainScreen();
+        // }
       },
     );
   }
