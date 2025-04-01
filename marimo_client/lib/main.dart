@@ -30,6 +30,7 @@ import 'commons/BottomNavigationBar.dart';
 // Providersz
 import 'providers/car_provider.dart';
 import 'providers/car_payment_provider.dart';
+import 'providers/navigation_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -69,6 +70,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => MapStateProvider()),
         ChangeNotifierProvider(create: (_) => ObdPollingProvider()),
+        ChangeNotifierProvider(create: (_) => NavigationProvider()),
         // 향후 다른 Provider들도 여기에 추가 가능
       ],
       child: ScreenUtilInit(
@@ -131,63 +133,42 @@ class InitialRouter extends StatelessWidget {
   }
 }
 
-class MainScreen extends StatefulWidget {
+class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
 
-  @override
-  State<MainScreen> createState() => _MainScreenState();
-}
-
-class _MainScreenState extends State<MainScreen> {
-  int _selectedIndex = 0;
-
-  final List<Widget> _screens = [
-    HomeScreen(),
+  static final List<Widget> _screens = [
+    const HomeScreen(),
     MonitoringScreen(),
-    ObdFullScanScreen(),
-    MapScreen(),
-    MyScreen(),
+    const ObdFullScanScreen(),
+    const MapScreen(),
+    const MyScreen(),
   ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        statusBarColor: Colors.black,
-        statusBarIconBrightness: Brightness.light,
-        systemNavigationBarColor: Colors.black,
-        systemNavigationBarIconBrightness: Brightness.light,
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFFBFBFB),
-      appBar: const CommonAppBar(),
-
-      body: Stack(
-        children: [
-          Positioned.fill(child: _screens[_selectedIndex]),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0, // 📌 네비게이션 바를 화면 하단에 배치
-            child: CommonBottomNavigationBar(
-              currentIndex: _selectedIndex,
-              onTap: _onItemTapped,
-            ),
+    return Consumer<NavigationProvider>(
+      builder: (context, navigationProvider, child) {
+        return Scaffold(
+          backgroundColor: const Color(0xFFFBFBFB),
+          appBar: const CommonAppBar(),
+          body: Stack(
+            children: [
+              Positioned.fill(
+                child: _screens[navigationProvider.selectedIndex],
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: CommonBottomNavigationBar(
+                  currentIndex: navigationProvider.selectedIndex,
+                  onTap: (index) => navigationProvider.setIndex(index),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
