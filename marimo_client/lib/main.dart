@@ -3,12 +3,14 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/providers/car_registration_provider.dart';
+import 'package:marimo_client/providers/home_animation_provider.dart';
 import 'package:marimo_client/providers/member/auth_provider.dart';
 import 'package:marimo_client/providers/map_provider.dart';
 import 'package:marimo_client/providers/obd_data_provider.dart';
 import 'package:marimo_client/providers/obd_polling_provider.dart';
 import 'package:marimo_client/screens/monitoring/ObdFullScanScreen.dart';
 import 'package:marimo_client/screens/signin/car/RegisterCarScreen.dart';
+import 'package:marimo_client/theme.dart';
 import 'package:marimo_client/utils/permission_util.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
@@ -51,12 +53,12 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => CarProvider()),
         ChangeNotifierProvider(create: (_) => CarRegistrationProvider()),
-        ChangeNotifierProvider(create: (_) => ObdDataProvider()),
         ChangeNotifierProvider(create: (_) => CarPaymentProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => MapStateProvider()),
         ChangeNotifierProvider(create: (_) => ObdPollingProvider()),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
+        ChangeNotifierProvider(create: (_) => HomeAnimationProvider()),
       ],
       child: ScreenUtilInit(
         designSize: const Size(360, 800),
@@ -78,6 +80,11 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: 'Freesentation',
         scaffoldBackgroundColor: const Color(0xFFFBFBFB),
+        textSelectionTheme: TextSelectionThemeData(
+          cursorColor: brandColor, // 커서 색
+          selectionColor: brandColor.withAlpha(80), // 선택된 배경 색
+          selectionHandleColor: brandColor, // 마커 (핸들) 색
+        ),
       ),
       home: const InitialRouter(),
     );
@@ -164,7 +171,7 @@ class _MainScreenState extends State<MainScreen>
     final screens = [
       const HomeScreen(),
       MonitoringScreen(),
-      const ObdFullScanScreen(),
+      MonitoringScreen(),
       const MapScreen(),
       const MyScreen(),
     ];
