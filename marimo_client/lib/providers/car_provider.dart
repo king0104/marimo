@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/car_model.dart';
-import 'package:marimo_client/services/car_service.dart';
+import 'package:marimo_client/services/car/car_service.dart';
 
 class CarProvider with ChangeNotifier {
   final List<CarModel> _cars = [];

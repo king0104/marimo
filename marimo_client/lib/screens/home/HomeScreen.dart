@@ -15,7 +15,11 @@ class HomeScreen extends StatelessWidget {
       child: Stack(
         children: [
           Padding(
-            padding: EdgeInsets.only(left: 20.w, top: 12.h, right: 20.w), // ✅ 기존 패딩 유지
+            padding: EdgeInsets.only(
+              left: 20.w,
+              top: 12.h,
+              right: 20.w,
+            ), // ✅ 기존 패딩 유지
             child: Column(
               children: [
                 Row(
@@ -32,7 +36,8 @@ class HomeScreen extends StatelessWidget {
                       flex: 2,
                       child: Container(
                         height: 280.h,
-                        child: const CarImageWidget(), // ✅ BoxFit.cover 사용한 이미지 제외
+                        child:
+                            const CarImageWidget(), // ✅ BoxFit.cover 사용한 이미지 제외
                       ),
                     ),
                     Expanded(flex: 2, child: const CarProfileCard()),
@@ -40,7 +45,7 @@ class HomeScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 20.h),
                 const CarStatusWidget(),
-                SizedBox(height: 120),
+                SizedBox(height: 120.h),
               ],
             ),
           ),
