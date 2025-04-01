@@ -7,7 +7,6 @@ import 'package:marimo_client/providers/member/auth_provider.dart';
 import 'package:marimo_client/providers/map_provider.dart';
 import 'package:marimo_client/providers/obd_data_provider.dart';
 import 'package:marimo_client/providers/obd_polling_provider.dart';
-import 'package:marimo_client/screens/monitoring/ObdDtcScanScreen.dart';
 import 'package:marimo_client/screens/monitoring/ObdFullScanScreen.dart';
 import 'package:marimo_client/screens/signin/car/RegisterCarScreen.dart';
 import 'package:marimo_client/utils/permission_util.dart';
@@ -17,7 +16,6 @@ import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:marimo_client/screens/home/HomeScreen.dart';
 import 'package:marimo_client/screens/signin/SignInScreen.dart';
 import 'package:marimo_client/screens/monitoring/MonitoringScreen.dart';
-import 'package:marimo_client/screens/monitoring/BluetoothTestScreen.dart';
 import 'package:marimo_client/screens/map/MapScreen.dart';
 import 'package:marimo_client/screens/my/MyScreen.dart';
 
@@ -132,7 +130,7 @@ class _MainScreenState extends State<MainScreen>
     super.initState();
 
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 700),
       vsync: this,
     );
 
@@ -165,7 +163,7 @@ class _MainScreenState extends State<MainScreen>
 
     final screens = [
       const HomeScreen(),
-      const MonitoringScreen(),
+      MonitoringScreen(),
       const ObdFullScanScreen(),
       const MapScreen(),
       const MyScreen(),
