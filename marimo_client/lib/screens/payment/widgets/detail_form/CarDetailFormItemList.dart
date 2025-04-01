@@ -10,6 +10,7 @@ import 'CarDetailFormSaveButton.dart';
 import 'CarDetailFormMemo.dart';
 import 'package:marimo_client/commons/CustomCalendar.dart'; // 달력 위젯 import
 import 'package:marimo_client/commons/CustomDropdownList.dart';
+import 'CarDetailFormRepairList.dart';
 
 class CarDetailFormItemList extends StatefulWidget {
   final String category;
@@ -123,6 +124,39 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
     );
   }
 
+  void _navigateToRepairList() async {
+    final List<String> repairList = [
+      '엔진 오일',
+      '연료 필터',
+      '변속기 오일',
+      '에어클리너 필터',
+      '냉각수',
+      '타이어 교체',
+      '와이퍼',
+    ];
+
+    final result = await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder:
+            (context) => CarDetailFormRepairList(
+              selectedItem: _typeController.text,
+              repairItems: repairList,
+              onItemSelected: (String selected) {
+                setState(() {
+                  _typeController.text = selected;
+                });
+              },
+            ),
+      ),
+    );
+
+    if (result != null && result is String) {
+      setState(() {
+        _typeController.text = result;
+      });
+    }
+  }
+
   void _saveAndNavigate() {
     if (_formKey.currentState!.validate()) {
       final provider = Provider.of<CarPaymentProvider>(context, listen: false);
@@ -215,7 +249,12 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
             title: _getTypeFieldName(),
             controller: _typeController,
             hintText: _getTypeHintText(),
-            onTap: widget.category == '주유' ? _showDropdownForParts : null,
+            onTap:
+                widget.category == '정비'
+                    ? _navigateToRepairList
+                    : _showDropdownForParts,
+            showIconRight: true,
+            iconType: 'detail',
           ),
         ),
       );

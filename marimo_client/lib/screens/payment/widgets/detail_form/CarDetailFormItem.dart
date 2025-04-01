@@ -14,6 +14,7 @@ class CarDetailFormItem extends StatelessWidget {
   final bool showIconRight;
   final int? maxLength;
   final bool isDateField;
+  final String iconType;
 
   const CarDetailFormItem({
     Key? key,
@@ -26,6 +27,7 @@ class CarDetailFormItem extends StatelessWidget {
     this.showIconRight = true,
     this.maxLength,
     this.isDateField = false,
+    this.iconType = 'down', // ✅ 기본값을 'down'으로 설정
   }) : super(key: key);
 
   @override
@@ -151,11 +153,25 @@ class CarDetailFormItem extends StatelessWidget {
                         Positioned(
                           right: 0,
                           child: SvgPicture.asset(
-                            isDateField
-                                ? 'assets/images/icons/icon_calendar.svg'
-                                : 'assets/images/icons/icon_down.svg',
-                            width: isDateField ? 14.w : 8.w,
-                            height: isDateField ? 14.h : 5.h,
+                            () {
+                              if (iconType == 'detail')
+                                return 'assets/images/icons/icon_detail.svg';
+                              if (iconType == 'calendar' || isDateField)
+                                return 'assets/images/icons/icon_calendar.svg';
+                              return 'assets/images/icons/icon_down.svg';
+                            }(),
+                            width: () {
+                              if (iconType == 'detail') return 6.w;
+                              if (iconType == 'calendar' || isDateField)
+                                return 14.w;
+                              return 8.w;
+                            }(),
+                            height: () {
+                              if (iconType == 'detail') return 10.h;
+                              if (iconType == 'calendar' || isDateField)
+                                return 14.h;
+                              return 5.h;
+                            }(),
                           ),
                         ),
                     ],
