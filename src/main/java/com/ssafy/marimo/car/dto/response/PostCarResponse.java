@@ -1,4 +1,4 @@
-package com.ssafy.marimo.car.dto;
+package com.ssafy.marimo.car.dto.response;
 
 import lombok.Builder;
 

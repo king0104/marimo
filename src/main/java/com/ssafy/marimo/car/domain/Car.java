@@ -1,5 +1,6 @@
 package com.ssafy.marimo.car.domain;
 
+import com.ssafy.marimo.car.dto.request.PatchCarRequest;
 import com.ssafy.marimo.common.auditing.BaseTimeEntity;
 import com.ssafy.marimo.member.domain.Member;
 import jakarta.persistence.*;
@@ -129,5 +130,27 @@ public class Car extends BaseTimeEntity {
                 .lastCheckedDate(lastCheckedDate)
                 .build();
     }
+
+    public void updateFromPatchCarRequest(PatchCarRequest patchCarRequest) {
+        if (patchCarRequest.nickname() != null) {
+            this.nickname = patchCarRequest.nickname();
+        }
+        if (patchCarRequest.plateNumber() != null) {
+            this.plateNumber = patchCarRequest.plateNumber();
+        }
+        if (patchCarRequest.vehicleIdentificationNumber() != null) {
+            this.vehicleIdentificationNumber = patchCarRequest.vehicleIdentificationNumber();
+        }
+        if (patchCarRequest.modelName() != null) {
+            this.modelName = patchCarRequest.modelName();
+        }
+        if (patchCarRequest.fuelType() != null) {
+            this.fuelType = patchCarRequest.fuelType();
+        }
+        if (patchCarRequest.lastCheckedDate() != null) {
+            this.lastCheckedDate = patchCarRequest.lastCheckedDate();
+        }
+    }
+
 
 }

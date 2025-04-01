@@ -1,4 +1,4 @@
-package com.ssafy.marimo.car.dto;
+package com.ssafy.marimo.car.dto.request;
 
 import com.ssafy.marimo.car.domain.FuelType;
 import java.time.LocalDateTime;

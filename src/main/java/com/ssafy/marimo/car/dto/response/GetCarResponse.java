@@ -1,6 +1,7 @@
-package com.ssafy.marimo.car.dto;
+package com.ssafy.marimo.car.dto.response;
 
 
+import com.ssafy.marimo.car.dto.CarInfoDto;
 import java.util.List;
 import lombok.Builder;
 
