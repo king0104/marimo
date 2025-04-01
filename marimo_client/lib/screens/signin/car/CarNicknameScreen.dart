@@ -59,6 +59,7 @@ class _CarNicknameScreenState extends State<CarNicknameScreen> {
               controller: nicknameController,
               focusNode: nicknameFocusNode,
               hintText: "예: 우리 마리모카",
+              labelText: "닉네임",
             ),
           ],
         ),

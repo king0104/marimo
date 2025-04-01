@@ -11,6 +11,7 @@ import 'package:marimo_client/providers/obd_polling_provider.dart';
 import 'package:marimo_client/screens/monitoring/ObdDtcScanScreen.dart';
 import 'package:marimo_client/screens/monitoring/ObdFullScanScreen.dart';
 import 'package:marimo_client/screens/signin/car/RegisterCarScreen.dart';
+import 'package:marimo_client/utils/permission_util.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 
@@ -32,6 +33,10 @@ import 'providers/car_payment_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // 권한 요청
+  // 1. 블루투스 권한 요청
+  await requestBluetoothPermissions();
 
   // .env 로드
   await dotenv.load(fileName: ".env");

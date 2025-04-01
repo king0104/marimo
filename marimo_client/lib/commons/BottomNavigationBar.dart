@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -129,8 +131,6 @@ class _CommonBottomNavigationBarState extends State<CommonBottomNavigationBar> {
                   if (provider.isConnected || isConnecting) return;
 
                   setState(() => isConnecting = true);
-
-                  // showToast로 연결 중 메시지 표시
                   showToast(context, 'OBD-II에 연결 중...', icon: Icons.sync);
 
                   try {
@@ -141,22 +141,40 @@ class _CommonBottomNavigationBarState extends State<CommonBottomNavigationBar> {
                         context,
                         'OBD-II 연결 성공',
                         icon: Icons.check_circle,
+                        type: 'success',
                       );
                     } else {
                       showToast(
                         context,
-                        'OBD 연결 실패',
-                        icon: Icons.error,
+                        '연결 시도는 됐지만 응답이 없습니다.',
+                        icon: Icons.warning,
                         type: 'error',
                       );
                     }
-                  } catch (e) {
+                  } on TimeoutException {
                     showToast(
                       context,
-                      'OBD 연결 실패}',
-                      icon: Icons.error,
+                      '⏱️ OBD 연결 실패: 시간 초과',
+                      icon: Icons.timer_off,
                       type: 'error',
                     );
+                  } on Exception catch (e) {
+                    if (e.toString().contains("OBD 기기를 찾을 수 없습니다")) {
+                      showToast(
+                        context,
+                        '🔍 OBD 기기를 찾을 수 없습니다.',
+                        icon: Icons.search_off,
+                        type: 'error',
+                      );
+                    } else {
+                      showToast(
+                        context,
+                        '⚠️ 연결 도중 오류 발생: $e',
+                        icon: Icons.error,
+                        type: 'error',
+                      );
+                      print('에러: $e');
+                    }
                   } finally {
                     setState(() => isConnecting = false);
                   }

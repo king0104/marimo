@@ -83,7 +83,7 @@ class _CarAdditionalInfoScreenState extends State<CarAdditionalInfoScreen> {
               ),
               value: selectedFuel,
               items:
-                  ['휘발유', '경유', '하이브리드']
+                  ['휘발유', '경유', 'LPG', '고급휘발유']
                       .map(
                         (fuel) => DropdownMenuItem(
                           value: fuel,
