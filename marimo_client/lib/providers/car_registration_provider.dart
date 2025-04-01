@@ -58,6 +58,7 @@ class CarRegistrationProvider with ChangeNotifier {
       "modelName": modelName,
       "plateNumber": plateNumber,
       "vehicleIdentificationNumber": vehicleIdentificationNumber,
+      "lastCheckedDate": lastCheckedDate?.toIso8601String(),
       "fuelType": fuelDisplayToEnum[fuelType],
     };
   }
