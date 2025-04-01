@@ -70,7 +70,21 @@ public class GasStationService {
         );
     }
 
+    private static final double EARTH_RADIUS = 6371e3; // 지구 반경(m 단위)
+
     private int calcDistance(double lat1, double lng1, Double lat2, Double lng2) {
-        return (int) (Math.sqrt(Math.pow(lat1 - lat2, 2) + Math.pow(lng1 - lng2, 2)) * 100000);
+        double latDistance = Math.toRadians(lat2 - lat1);
+        double lngDistance = Math.toRadians(lng2 - lng1);
+
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(lngDistance / 2) * Math.sin(lngDistance / 2);
+
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        double distance = EARTH_RADIUS * c; // 거리(m)
+
+        return (int) distance;
     }
+
 }

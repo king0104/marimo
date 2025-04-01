@@ -2,14 +2,17 @@ package com.ssafy.marimo.navigation.service;
 
 import com.ssafy.marimo.navigation.domain.GasStation;
 import com.ssafy.marimo.navigation.repository.GasStationRepository;
+import com.ssafy.marimo.navigation.util.CoordinateConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.locationtech.proj4j.ProjCoordinate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.w3c.dom.*;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.ByteArrayInputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -28,17 +31,15 @@ public class OpinetStationSyncService {
     private String apiKey;
 
     public void syncNearbyStations(Double lat, Double lng, Integer radius) {
-        List<String> uniIds = fetchAroundUniIds(lat, lng, radius);
-        log.info("🗺️ 동기화 시도할 주유소 수: {}", uniIds.size());
+        ProjCoordinate tm128 = CoordinateConverter.convertWGS84ToTM128(lat, lng);
+        List<String> uniIds = fetchAroundUniIds(tm128.x, tm128.y, radius);
 
-        int saveCount = 0;
         for (String uniId : uniIds) {
             if (gasStationRepository.findByRoadAddress(uniId).isPresent()) continue;
 
             GasStation station = fetchStationDetail(uniId);
             if (station != null) {
                 gasStationRepository.save(station);
-                saveCount++;
                 log.info("✅ 저장된 주유소: {}", station.getName());
             } else {
                 log.warn("⚠️ 주유소 상세정보 가져오기 실패 - uniId: {}", uniId);
@@ -46,30 +47,38 @@ public class OpinetStationSyncService {
         }
     }
 
-    private List<String> fetchAroundUniIds(Double lat, Double lng, Integer radius) {
+    // 1. 주변 주유소의 고유 ID(uni_id)를 받기 위한 메서드
+    private List<String> fetchAroundUniIds(double x, double y, Integer radius) {
         try {
             String url = String.format(
-                    "http://www.opinet.co.kr/api/aroundAll.do?code=%s&x=%f&y=%f&radius=%d",
-                    apiKey, lng, lat, radius
+                    "http://www.opinet.co.kr/api/aroundAll.do?code=%s&x=%f&y=%f&radius=%d&out=xml",
+                    apiKey, x, y, radius
             );
+
+            // XML 형태의 응답을 받음
             String response = restTemplate.getForObject(url, String.class);
 
+            // 받은 XML 응답을 Java의 XML Document 객체로 파싱 (변환)
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
                     .parse(new java.io.ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8)));
+
+            // XML에서 모든 <OIL> 태그들을 가져와 NodeList 형태로 저장
             NodeList nodeList = doc.getElementsByTagName("OIL");
 
+            // 주유소 ID를 저장할 리스트 초기화
             List<String> ids = new ArrayList<>();
+
+            // 모든 <OIL> 요소들을 하나씩 돌면서 주유소의 uni_id를 추출함
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Element element = (Element) nodeList.item(i);
-                String uniId = element.getElementsByTagName("uni_id").item(0).getTextContent();
+                String uniId = element.getElementsByTagName("UNI_ID").item(0).getTextContent();
                 ids.add(uniId);
             }
-            log.info("🛰️ 검색된 주유소 ID 개수: {}", ids.size()); // ✅ 로그 추가
 
+            log.info("🛰️ 검색된 주유소 ID 개수: {}", ids.size());
             return ids;
         } catch (Exception e) {
             log.error("❌ 주유소 ID 목록 조회 실패", e);
-            log.error("Failed to fetch station ids", e);
             return List.of();
         }
     }
@@ -80,40 +89,49 @@ public class OpinetStationSyncService {
                     "http://www.opinet.co.kr/api/detailById.do?code=%s&id=%s",
                     apiKey, URLEncoder.encode(uniId, StandardCharsets.UTF_8)
             );
+
             String response = restTemplate.getForObject(url, String.class);
 
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-                    .parse(new java.io.ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8)));
-            NodeList nodeList = doc.getElementsByTagName("OIL");
+                    .parse(new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8)));
 
-            if (nodeList.getLength() == 0) return null;
-
-            Element el = (Element) nodeList.item(0);
+            Element el = (Element) doc.getElementsByTagName("OIL").item(0);
+            if (el == null) return null;
 
             GasStation station = GasStation.createEmpty();
-            station.setName(getTag(el, "os_nm"));
-            station.setBrand(getTag(el, "poll_div_co"));
-            station.setAddress(getTag(el, "addr"));
-            station.setRoadAddress(getTag(el, "rd_addr"));
-            station.setPhone(getTag(el, "tel"));
-            station.setLatitude(parseDouble(getTag(el, "lat")));
-            station.setLongitude(parseDouble(getTag(el, "lng")));
-            station.setHasLpg("Y".equals(getTag(el, "lpg_yn")));
-            station.setHasSelfService("Y".equals(getTag(el, "self_yn")));
-            station.setHasMaintenance("Y".equals(getTag(el, "maint_yn")));
-            station.setHasCarWash("Y".equals(getTag(el, "car_wash_yn")));
-            station.setHasCvs("Y".equals(getTag(el, "cvntl_yn")));
-            station.setQualityCertified("Y".equals(getTag(el, "prod_cd")));
-            station.setPremiumGasolinePrice(getPrice(el, "b034_p"));
-            station.setNormalGasolinePrice(getPrice(el, "b027_p"));
-            station.setDieselPrice(getPrice(el, "d047_p"));
-            station.setLpgPrice(getPrice(el, "k015_p"));
+
+            station.setName(getTag(el, "OS_NM"));
+            station.setBrand(getTag(el, "POLL_DIV_CO"));
+            station.setAddress(getTag(el, "VAN_ADR"));
+            station.setRoadAddress(getTag(el, "NEW_ADR"));
+            station.setPhone(getTag(el, "TEL"));
+
+            // TM128 좌표로 응답받은 값
+            double tm128X = parseDouble(getTag(el, "GIS_X_COOR"));
+            double tm128Y = parseDouble(getTag(el, "GIS_Y_COOR"));
+
+            // TM128 → WGS84로 변환한 좌표를 DB에 저장
+            ProjCoordinate wgs84 = CoordinateConverter.convertTM128ToWGS84(tm128X, tm128Y);
+            station.setLatitude(wgs84.y);  // 위도 (latitude)
+            station.setLongitude(wgs84.x); // 경도 (longitude)
+
+
+            station.setHasLpg("Y".equals(getTag(el, "LPG_YN")));
+            station.setHasSelfService("Y".equals(getTag(el, "SELF_YN")));
+            station.setHasMaintenance("Y".equals(getTag(el, "MAINT_YN")));
+            station.setHasCarWash("Y".equals(getTag(el, "CAR_WASH_YN")));
+            station.setHasCvs("Y".equals(getTag(el, "CVS_YN")));
+            station.setQualityCertified("Y".equals(getTag(el, "KPETRO_YN")));
+            station.setPremiumGasolinePrice(getPrice(el, "B034"));
+            station.setNormalGasolinePrice(getPrice(el, "B027"));
+            station.setDieselPrice(getPrice(el, "D047"));
+            station.setLpgPrice(getPrice(el, "K015"));
             station.setStandardTime(LocalDateTime.now());
 
             return station;
 
         } catch (Exception e) {
-            log.error("Failed to fetch station detail for uniId: " + uniId, e);
+            log.error("❌ 상세정보 조회 실패 - uniId: {}", uniId, e);
             return null;
         }
     }
