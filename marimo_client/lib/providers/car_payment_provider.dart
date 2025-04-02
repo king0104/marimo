@@ -101,4 +101,12 @@ class CarPaymentProvider with ChangeNotifier {
     _selectedAmount = amount;
     notifyListeners();
   }
+
+  bool _isFromPlusButton = false;
+
+  bool get isFromPlusButton => _isFromPlusButton;
+
+  void markAsFromPlusButton(bool value) {
+    _isFromPlusButton = value;
+  }
 }
