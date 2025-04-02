@@ -390,7 +390,7 @@ PID 01FF: NO DATA
         final prefs = await SharedPreferences.getInstance();
         final stored = prefs.getString('last_obd_data');
         print('✅ SharedPreferences 확인 결과:');
-        print(stored?.substring(0, 300)); // 너무 길면 앞부분만 확인
+        print(stored?.substring(0, 400)); // 너무 길면 앞부분만 확인
         Future.delayed(const Duration(milliseconds: 100));
       }(),
       builder: (context, snapshot) {

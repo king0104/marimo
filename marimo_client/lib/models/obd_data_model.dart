@@ -16,7 +16,7 @@ class ObdDataModel {
   final double? vaporPressure; // 2E: 증기 압력 (kPa)
   final double? barometricPressure; // 2F: 대기압 (kPa)
   final double? ecmTemp; // 30: ECM 온도 (°C)
-  final double? exhaustTemp; // 31: 배기 온도 (°C)
+  final int? distanceSinceCodesCleared; // 31: 고장코드 삭제 후 주행거리 (km)
   final double? o2SensorVoltage; // 33: O2 센서 전압 (V)
   final double? noxSensor; // 34: NOx 센서 (ppm 또는 비율)
   final double? batteryVoltage; // 3C: 배터리 전압 (V)
@@ -29,7 +29,7 @@ class ObdDataModel {
   final double? fuelInjectionQuantity; // 49: 연료 주입량 (mg/str)
   final double? fuelInjectorPressure; // 4A: 연료 인젝터 압력 (kPa)
   final String? fuelType; // 4C: 연료 타입 (enum)
-  final double? engineOilTemp; // 30 또는 기타: 엔진 오일 온도 (°C)
+  final double? engineOilTemp; // 5C: 엔진 오일 온도 (°C)
   final double? fuelFilterPressure; // 62: 연료 필터 차압 (kPa)
   final double? turboPressure; // 63: 터보 압력 (kPa)
   final double? brakePressure; // 67: 브레이크 압력 (kPa)
@@ -58,7 +58,6 @@ class ObdDataModel {
     this.vaporPressure,
     this.barometricPressure,
     this.ecmTemp,
-    this.exhaustTemp,
     this.o2SensorVoltage,
     this.noxSensor,
     this.batteryVoltage,
@@ -81,6 +80,7 @@ class ObdDataModel {
     this.dpfPressure,
     this.scrStatus,
     this.scrTemp,
+    this.distanceSinceCodesCleared,
   });
 
   // Optional: Add copyWith, toString, and fromJson/toJson if needed

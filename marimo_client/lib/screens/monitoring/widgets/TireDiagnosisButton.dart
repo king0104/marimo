@@ -1,17 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:marimo_client/screens/tirediagnosis/TireDiagnosisScreen.dart';
+import 'package:marimo_client/providers/obd_polling_provider.dart';
+import 'package:marimo_client/utils/obd_response_parser.dart';
 
 class TireDiagnosisButton extends StatelessWidget {
   const TireDiagnosisButton({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final responses = context.watch<ObdPollingProvider>().responses;
+    final parsed = parseObdResponses(responses);
+    final distance = parsed.distanceSinceCodesCleared;
+
+    final formattedDistance =
+        distance != null
+            ? NumberFormat.decimalPattern().format(distance)
+            : "--";
+
     return SizedBox(
-      width: double.infinity, // ✅ 버튼을 부모 크기만큼 확장
+      width: double.infinity,
       child: ElevatedButton(
         onPressed: () {
-          // TireDiagnosis 화면으로 이동
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => const TireDiagnosisScreen(),
@@ -32,25 +44,19 @@ class TireDiagnosisButton extends StatelessWidget {
           overlayColor: const Color(0x1A4888FF),
         ),
         child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: 8.w,
-            vertical: 10.h,
-          ), // ✅ 내부 패딩 추가
+          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 10.h),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // 타이어 아이콘
               Image.asset(
                 'assets/images/icons/icon_tire.webp',
                 width: 32.w,
                 height: 32.h,
               ),
               SizedBox(width: 7.w),
-
-              // 주행 거리 정보
               Expanded(
                 child: Text(
-                  "마지막 점검 후 20000km 주행",
+                  "마지막 점검 후 $formattedDistance km 주행",
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w500,
@@ -60,8 +66,6 @@ class TireDiagnosisButton extends StatelessWidget {
                 ),
               ),
               SizedBox(width: 10.w),
-
-              // AI 진단 받기 버튼 & 아이콘
               Text(
                 "AI 진단 받기",
                 style: TextStyle(

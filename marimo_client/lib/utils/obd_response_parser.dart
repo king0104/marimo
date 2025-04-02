@@ -133,7 +133,28 @@ ObdDataModel parseObdResponses(Map<String, String> responses) {
     vaporPressure: parseHexToDouble('2E', (v) => v[0].toDouble()),
     barometricPressure: parseHexToDouble('2F', (v) => v[0].toDouble()),
     ecmTemp: parseHexToDouble('30', (v) => v[0] - 40),
-    exhaustTemp: parseHexToDouble('31', (v) => v[0] - 40),
+    distanceSinceCodesCleared:
+        (() {
+          final raw = responses['0131'];
+          if (raw == null || raw.contains('NO DATA')) return null;
+
+          try {
+            final hex = raw.replaceAll(RegExp(r'[^A-Fa-f0-9]'), '');
+            final startIndex = hex.indexOf('4131'); // '41' + '31'
+            if (startIndex == -1 || startIndex + 8 > hex.length) return null;
+
+            final dataHex = hex.substring(startIndex + 4); // 실제 데이터 부분
+            final bytes = [
+              for (var i = 0; i < dataHex.length; i += 2)
+                int.parse(dataHex.substring(i, i + 2), radix: 16),
+            ];
+
+            return bytes.length >= 2 ? bytes[0] * 256 + bytes[1] : null;
+          } catch (_) {
+            return null;
+          }
+        })(),
+
     o2SensorVoltage: parseHexToDouble('33', (v) => v[0] / 200),
     noxSensor: parseHexToDouble('34', (v) => v[0].toDouble()),
     batteryVoltage: parseHexToDouble('3C', (v) => (v[0] * 256 + v[1]) / 1000),
