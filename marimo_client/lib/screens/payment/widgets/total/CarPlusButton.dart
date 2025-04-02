@@ -39,6 +39,7 @@ class _PlusButtonState extends State<PlusButton> {
   Future<void> _selectCategoryAndNavigate(String category) async {
     final provider = Provider.of<CarPaymentProvider>(context, listen: false);
     provider.setSelectedCategory(category);
+    provider.markAsFromPlusButton(true);
     provider.setSelectedAmount(0); // ✅ 진입 시 초기화
 
     // print('[PlusButton] provider hash: ${provider.hashCode}');

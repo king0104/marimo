@@ -37,8 +37,14 @@ class _CategoryAndAmountState extends State<CategoryAndAmount> {
   void _handleAmountChange(String value, int index) {
     setState(() {
       _tappedIndex = index;
+
+      // ✅ 200ms 후 애니메이션 초기화
       Future.delayed(const Duration(milliseconds: 200), () {
-        setState(() => _tappedIndex = null);
+        if (mounted) {
+          setState(() {
+            _tappedIndex = null;
+          });
+        }
       });
 
       String current = _amount.toString();
@@ -68,19 +74,28 @@ class _CategoryAndAmountState extends State<CategoryAndAmount> {
       context: context,
       barrierDismissible: true,
       barrierLabel: '',
-      barrierColor: Colors.transparent, // ✅ 배경 완전 투명
-      transitionDuration: Duration(milliseconds: 200),
+      barrierColor: Colors.transparent,
+      transitionDuration: const Duration(milliseconds: 200),
+      transitionBuilder: (_, anim, __, child) {
+        // ✅ 애니메이션 효과 추가
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0, 1),
+            end: Offset.zero,
+          ).animate(CurvedAnimation(parent: anim, curve: Curves.easeOut)),
+          child: child,
+        );
+      },
       pageBuilder: (_, __, ___) {
         return Align(
           alignment: Alignment.bottomCenter,
           child: Material(
-            color: Colors.transparent, // ✅ 키패드 배경도 투명하게 유지
+            color: Colors.transparent,
             child: CustomNumberPad(
+              key: ValueKey(_tappedIndex),
               input: _amount.toString(),
               tappedIndex: _tappedIndex,
-              onPressed: (value, index) {
-                _handleAmountChange(value, index); // 내부 금액 업데이트
-              },
+              onPressed: _handleAmountChange,
             ),
           ),
         );
