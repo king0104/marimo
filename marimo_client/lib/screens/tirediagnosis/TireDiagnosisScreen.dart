@@ -99,22 +99,26 @@ class _TireDiagnosisScreenState extends State<TireDiagnosisScreen>
                     selectedImages: _selectedImages,
                     onAddImage: addImage,
                     onRemoveImage: removeImage,
+                    // onAnalysisPressed 콜백 내
                     onAnalysisPressed: () async {
                       if (_selectedImages.isEmpty) return;
-
                       final file = File(_selectedImages[0].path);
-                      final result = await analyzeTireImage(file);
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => TireTestPage(result: result),
-                          // (_) => TireDiagnosisResult(
-                          //   userImage:
-                          //       _selectedImages.isNotEmpty
-                          //           ? _selectedImages[0]
-                          //           : null,
-                          // ),
-                        ),
-                      );
+                      try {
+                        final resultLabel = await analyzeTireImage(file);
+                        // 분석 결과 텍스트를 출력하거나, 결과 페이지로 전달
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder:
+                                (_) => TireTestPage(
+                                  result: {"condition": resultLabel},
+                                ),
+                          ),
+                        );
+                      } catch (e) {
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text("분석 실패: $e")));
+                      }
                     },
                   ),
                 ),
