@@ -6,11 +6,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 class CustomAppHeader extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final VoidCallback onBackPressed;
+  final List<Widget>? actions;
 
   const CustomAppHeader({
     Key? key,
     required this.title,
     required this.onBackPressed,
+    this.actions,
   }) : super(key: key);
 
   @override

@@ -15,11 +15,15 @@ import 'CarDetailFormRepairList.dart';
 class CarDetailFormItemList extends StatefulWidget {
   final String category;
   final int amount;
+  final bool isEditMode;
+  final VoidCallback? onSaveComplete;
 
   const CarDetailFormItemList({
     Key? key,
     required this.category,
     required this.amount,
+    this.isEditMode = true, // ✅ 기본값 true
+    this.onSaveComplete,
   }) : super(key: key);
 
   @override
@@ -68,6 +72,7 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
 
   // 달력 팝업을 띄우는 함수
   Future<void> _selectDate() async {
+    if (!widget.isEditMode) return;
     // 커스텀 달력 팝업 표시
     await showCustomCalendarPopup(
       context: context,
@@ -88,6 +93,7 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
 
   // 메모 페이지로 이동하는 함수
   void _navigateToMemoPage() async {
+    if (!widget.isEditMode) return;
     // CarDetailFormMemo 페이지로 이동
     final result = await Navigator.of(context).push(
       MaterialPageRoute(
@@ -105,8 +111,8 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
   }
 
   void _showDropdownForParts() async {
+    if (!widget.isEditMode) return;
     final List<String> partsList = ['일반 휘발유', '고급 휘발유', '경유', 'LPG'];
-
     await showDropdownList(
       context: context,
       items: partsList,
@@ -166,8 +172,8 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
       // 데이터 저장
       provider.addEntry(entry);
 
-      // 이전 화면으로 돌아가기
-      Navigator.of(context).pop();
+      // ✅ 저장 완료 후 콜백 호출
+      widget.onSaveComplete?.call();
     }
   }
 
@@ -217,6 +223,8 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
         controller: _dateController,
         onTap: _selectDate,
         isDateField: true, // 달력 아이콘 표시를 위해 true로 설정
+        enabled: widget.isEditMode,
+        showIconRight: widget.isEditMode,
       ),
     );
 
@@ -227,6 +235,8 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
         controller: _placeController,
         hintText: '장소를 입력하세요',
         isRequired: true,
+        enabled: widget.isEditMode,
+        showIconRight: false,
       ),
     );
 
@@ -240,11 +250,14 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
             controller: _typeController,
             hintText: _getTypeHintText(),
             onTap:
-                widget.category == '정비'
-                    ? _navigateToRepairList
-                    : _showDropdownForParts,
-            showIconRight: true,
+                widget.isEditMode
+                    ? (widget.category == '정비'
+                        ? _navigateToRepairList
+                        : _showDropdownForParts)
+                    : null,
+            showIconRight: widget.isEditMode,
             iconType: 'detail',
+            enabled: widget.isEditMode,
           ),
         ),
       );
@@ -256,9 +269,10 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
         title: '메모',
         controller: _memoController,
         hintText: '메모할 수 있어요 (최대 100자)',
-        onTap: _navigateToMemoPage,
+        onTap: widget.isEditMode ? _navigateToMemoPage : null,
         maxLength: 100,
-        showIconRight: true, // 오른쪽 화살표 아이콘 표시
+        showIconRight: widget.isEditMode,
+        enabled: widget.isEditMode,
       ),
     );
 
@@ -282,9 +296,6 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
                   ),
                 ),
               ),
-
-              // 분리된 저장 버튼 컴포넌트 사용
-              CarDetailFormSaveButton(onPressed: _saveAndNavigate),
             ],
           ),
         );
