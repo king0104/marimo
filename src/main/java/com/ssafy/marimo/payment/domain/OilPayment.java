@@ -32,10 +32,11 @@ public class OilPayment extends Payment {
         this.fuelType = fuelType;
     }
 
-    public static OilPayment create(Car car, Integer price, String location, String memo, FuelType fuelType) {
+    public static OilPayment create(Car car, Integer price, LocalDateTime paymentDate, String location, String memo, FuelType fuelType) {
         return OilPayment.builder()
                 .car(car)
                 .price(price)
+                .paymentDate(paymentDate)
                 .location(location)
                 .memo(memo)
                 .fuelType(fuelType)
