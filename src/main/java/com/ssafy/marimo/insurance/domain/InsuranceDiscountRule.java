@@ -1,7 +1,5 @@
 package com.ssafy.marimo.insurance.domain;
 
-import com.ssafy.marimo.car.domain.Car;
-import com.ssafy.marimo.common.auditing.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -11,24 +9,30 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Filter;
 
 @Getter
 @Entity
-@Table(name = "insurance")
+@Table(name = "insurance_discount_rule")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Insurance extends BaseTimeEntity {
-
+public class InsuranceDiscountRule {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "insurance_id", nullable = false)
+    private Insurance insurance;
+
     @Column(nullable = false)
-    private String name;
+    private Integer discountFromKm;
+
+    @Column(nullable = false)
+    private Integer discountToKm;
+
+    @Column(nullable = false)
+    private Float discountRate;
 
 }
