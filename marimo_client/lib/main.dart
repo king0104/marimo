@@ -102,19 +102,19 @@ class InitialRouter extends StatelessWidget {
     return FutureBuilder<void>(
       future: Future.delayed(const Duration(milliseconds: 100)),
       builder: (context, snapshot) {
-        // if (snapshot.connectionState != ConnectionState.done) {
-        //   return const Scaffold(
-        //     body: Center(child: CircularProgressIndicator()),
-        //   );
-        // }
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
 
-        // if (!authProvider.isLoggedIn) {
-        //   return const SignInScreen();
-        // } else if (!carProvider.hasAnyCar) {
-        //   return const RegisterCarScreen();
-        // } else {
-        return const MainScreen();
-        // }
+        if (!authProvider.isLoggedIn) {
+          return const SignInScreen();
+        } else if (!carProvider.hasAnyCar) {
+          return const RegisterCarScreen();
+        } else {
+          return const MainScreen();
+        }
       },
     );
   }

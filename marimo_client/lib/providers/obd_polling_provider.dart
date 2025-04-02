@@ -17,11 +17,11 @@ class ObdPollingProvider with ChangeNotifier {
   Completer<String>? _commandCompleter; // 명령에 대한 응답을 기다리는 Completer
   StringBuffer? _responseBuffer; // 명령 응답 버퍼
 
-  /// OBD 기기와 연결하고, 초기화 후 PID 폴링을 시작하는 함수
+  /// connectAndStartPolling() - OBD 기기와 연결하고, 초기화 후 PID 폴링을 시작하는 함수
   Future<void> connectAndStartPolling() async {
-    // 이미 페어링된 Bluetooth 기기 목록 가져오기
     final bondedDevices =
-        await FlutterBluetoothSerial.instance.getBondedDevices();
+        await FlutterBluetoothSerial.instance
+            .getBondedDevices(); // 이미 페어링된 Bluetooth 기기 목록 가져오기
 
     // 이름에 'OBD', 'ELM', 'VGATE' 등을 포함하는 기기 필터링
     final obdDevices =
