@@ -16,6 +16,7 @@ class ObdDataModel {
   final double? vaporPressure; // 2E: 증기 압력 (kPa)
   final double? barometricPressure; // 2F: 대기압 (kPa)
   final double? ecmTemp; // 30: ECM 온도 (°C)
+  final int? distanceSinceCodesCleared; // 31: 고장코드 삭제 후 주행거리 (km)
   final double? o2SensorVoltage; // 33: O2 센서 전압 (V)
   final double? noxSensor; // 34: NOx 센서 (ppm 또는 비율)
   final double? batteryVoltage; // 3C: 배터리 전압 (V)
@@ -38,7 +39,6 @@ class ObdDataModel {
   final double? dpfPressure; // 9E: DPF 압력 (kPa)
   final String? scrStatus; // A0: SCR 상태 (enum or string)
   final double? scrTemp; // A6: SCR 온도 (°C)
-  final int? distanceSinceCodesCleared; // 31: 고장코드 삭제 후 주행거리 (km)
 
   ObdDataModel({
     this.rpm,
