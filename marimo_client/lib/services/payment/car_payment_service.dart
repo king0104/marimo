@@ -38,17 +38,18 @@ class CarPaymentService {
 
     final bodyMap = provider.toJsonForDB(
       carId: carId,
-      category: category,
-      location: null,
-      memo: null,
-      fuelType:
-          category == '주유'
-              ? (provider.selectedRepairItems.isNotEmpty
-                  ? provider.selectedRepairItems.first
-                  : null)
-              : null,
-      repairParts: category != '주유' ? provider.selectedRepairItems : null,
+      location: provider.location.isNotEmpty ? provider.location : null,
+      memo: provider.memo.isNotEmpty ? provider.memo : null,
+      fuelType: category == '주유' ? provider.fuelType : null,
+      repairParts: category == '정비' ? provider.selectedRepairItems : null,
     );
+
+    // 👇 디버깅 로그 추가
+    print('📦 [디버그] provider.location: ${provider.location}');
+    print('📦 [디버그] provider.memo: ${provider.memo}');
+    print('📦 [디버그] provider.fuelType: ${provider.fuelType}');
+    print('📦 [디버그] provider.repairParts: ${provider.selectedRepairItems}');
+    print('📦 BodyMap to encode: $bodyMap');
 
     final body = jsonEncode(bodyMap);
 
