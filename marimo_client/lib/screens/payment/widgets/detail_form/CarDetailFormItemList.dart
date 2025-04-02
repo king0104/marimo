@@ -152,31 +152,6 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
     });
   }
 
-  void _saveAndNavigate() {
-    if (_formKey.currentState!.validate()) {
-      final provider = Provider.of<CarPaymentProvider>(context, listen: false);
-
-      // 새 데이터 생성
-      final entry = CarPaymentEntry(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        category: widget.category,
-        amount: widget.amount,
-        date: _selectedDate,
-        details: {
-          'place': _placeController.text,
-          'type': _typeController.text,
-          'memo': _memoController.text,
-        },
-      );
-
-      // 데이터 저장
-      provider.addEntry(entry);
-
-      // ✅ 저장 완료 후 콜백 호출
-      widget.onSaveComplete?.call();
-    }
-  }
-
   // 카테고리별 장소 필드명 반환
   String _getPlaceFieldName() {
     switch (widget.category) {

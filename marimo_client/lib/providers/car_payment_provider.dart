@@ -128,4 +128,34 @@ class CarPaymentProvider with ChangeNotifier {
     }
     notifyListeners();
   }
+
+  Map<String, dynamic> toJsonForDB({
+    required String carId,
+    required String category,
+    String? location,
+    String? memo,
+    String? fuelType,
+    List<String>? repairParts,
+  }) {
+    final baseJson = {
+      "carId": carId,
+      "price": selectedAmount,
+      "paymentDate": selectedDate.toIso8601String(),
+      if (location != null && location.isNotEmpty) "location": location,
+      if (memo != null && memo.isNotEmpty) "memo": memo,
+    };
+
+    switch (category) {
+      case '주유':
+        return {
+          ...baseJson,
+          if (fuelType != null && fuelType.isNotEmpty) "fuelType": fuelType,
+        };
+      case '정비':
+      case '세차':
+        return {...baseJson, "repairParts": repairParts ?? []};
+      default:
+        return baseJson;
+    }
+  }
 }
