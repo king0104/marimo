@@ -1,20 +1,21 @@
-// CarDetailPayment.dart
+// CarPaymentDetailList.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/screens/payment/widgets/total/CarMonthlyPayment.dart';
 import 'package:marimo_client/screens/payment/widgets/detail_list/CarDayDetailPayment.dart';
 import 'package:marimo_client/commons/CustomAppHeader.dart';
+import 'CarTotalPayment.dart';
 
-class CarDetailPayment extends StatefulWidget {
+class CarPaymentDetailList extends StatefulWidget {
   final int initialMonth;
 
-  const CarDetailPayment({super.key, required this.initialMonth});
+  const CarPaymentDetailList({super.key, required this.initialMonth});
 
   @override
-  State<CarDetailPayment> createState() => _CarDetailPaymentState();
+  State<CarPaymentDetailList> createState() => _CarDetailPaymentState();
 }
 
-class _CarDetailPaymentState extends State<CarDetailPayment>
+class _CarDetailPaymentState extends State<CarPaymentDetailList>
     with WidgetsBindingObserver, AutomaticKeepAliveClientMixin {
   late int selectedMonth;
 
@@ -57,7 +58,12 @@ class _CarDetailPaymentState extends State<CarDetailPayment>
       backgroundColor: Colors.white,
       appBar: CustomAppHeader(
         title: '내역 보기',
-        onBackPressed: () => Navigator.of(context).pop(),
+        onBackPressed: () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const CarTotalPayment()),
+          );
+        },
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.w),
