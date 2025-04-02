@@ -74,16 +74,18 @@ public class GasStationService {
     private Float determinePriceByOilType(GasStation station, String oilType) {
         if (oilType != null) {
             switch (oilType) {
-                case "premiumGasoline":
+                case "고급 휘발유":
                     return station.getPremiumGasolinePrice();
-                case "normalGasoline":
+                case "일반 휘발유":
                     return station.getNormalGasolinePrice();
-                case "diesel":
+                case "경유":
                     return station.getDieselPrice();
-                case "lpg":
+                case "LPG":
                     return station.getLpgPrice();
+                case "등유":
+                    return station.getKerosenePrice(); // 새 필드
                 default:
-                    return station.getNormalGasolinePrice(); // 기본값은 일반 가솔린 가격
+                    return station.getNormalGasolinePrice(); // 기본값
             }
         } else {
             return station.getNormalGasolinePrice(); // oilType이 null인 경우 일반 가솔린 가격
