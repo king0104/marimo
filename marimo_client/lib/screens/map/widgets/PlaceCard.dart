@@ -6,7 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 class PlaceCard extends StatelessWidget {
   final Place place;
-  final void Function(NLatLng) onTap;
+  final VoidCallback onTap;
   final bool isSelected;
 
   const PlaceCard({
@@ -33,13 +33,15 @@ class PlaceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     return GestureDetector(
-      onTap: () => onTap(NLatLng(place.lat, place.lng)),
-      child: Container(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200), // ✅ 애니메이션 속도
+        curve: Curves.easeInOut,
         margin: const EdgeInsets.only(right: 12),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: isSelected ? Colors.blue : Colors.transparent, // ✅ 바깥 stroke
+            color: isSelected ? Colors.blue : Colors.transparent,
             width: 2,
           ),
         ),

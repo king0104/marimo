@@ -5,7 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/providers/car_registration_provider.dart';
 import 'package:marimo_client/providers/home_animation_provider.dart';
 import 'package:marimo_client/providers/member/auth_provider.dart';
-import 'package:marimo_client/providers/map_provider.dart';
+import 'package:marimo_client/providers/map/location_provider.dart';
 import 'package:marimo_client/providers/obd_data_provider.dart';
 import 'package:marimo_client/providers/obd_polling_provider.dart';
 import 'package:marimo_client/screens/monitoring/ObdFullScanScreen.dart';
@@ -57,7 +57,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => CarRegistrationProvider()),
         ChangeNotifierProvider(create: (_) => CarPaymentProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => MapStateProvider()),
+        ChangeNotifierProvider(create: (_) => LocationProvider()),
         ChangeNotifierProvider(create: (_) => ObdPollingProvider()),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ChangeNotifierProvider(create: (_) => HomeAnimationProvider()),

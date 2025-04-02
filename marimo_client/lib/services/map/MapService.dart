@@ -23,7 +23,7 @@ class MapService {
     Size size = const Size(48, 48),
   }) async {
     final markerIcon = await NOverlayImage.fromAssetImage(
-      'assets/images/markers/marker_current.png', // 고정 이미지 경로
+      'assets/images/markers/marker_current.png',
     );
 
     final marker = NMarker(
@@ -32,37 +32,35 @@ class MapService {
       icon: markerIcon,
       caption: NOverlayCaption(text: caption),
     );
+
     await controller.addOverlay(marker);
   }
 
-  /// 마커 추가 (with custom icon)
-  Future<void> addMarker({
+  /// 공통 마커 추가 함수 (마커 타입과 선택 여부만 받음)
+  Future<void> _addTypedMarker({
     required NaverMapController controller,
-    required String id,
-    required NLatLng position,
-    String caption = '',
-    required String type,
-    bool isSelected = false,
-    Size size = const Size(48, 48),
+    required Place place,
+    required bool isSelected,
     void Function()? onTap,
   }) async {
     final markerIcon = await NOverlayImage.fromAssetImage(
-      _getMarkerAssetPath(type: type, isSelected: isSelected),
+      _getMarkerAssetPath(type: place.type, isSelected: isSelected),
     );
 
     final marker = NMarker(
-      id: id,
-      position: position,
+      id: place.id,
+      position: NLatLng(place.lat, place.lng),
       icon: markerIcon,
-      caption: NOverlayCaption(text: caption),
+      caption: NOverlayCaption(text: place.name),
     );
 
-    // ✅ 마커 클릭 리스너 연결
     if (onTap != null) {
       marker.setOnTapListener((overlay) {
-        onTap(); // 마커 ID 기반 클릭 처리
+        print('👉 마커 클릭됨: ${place.id}');
+        onTap();
       });
     }
+
     await controller.addOverlay(marker);
   }
 
@@ -91,38 +89,35 @@ class MapService {
     }
   }
 
-  /// 다수 마커 추가 (Place 객체 리스트 사용)
+  /// Place 리스트 기반 마커 추가
   Future<void> addPlaceMarkers({
     required NaverMapController controller,
     required List<Place> places,
     void Function(String markerId)? onMarkerTap,
   }) async {
     for (var place in places) {
-      await addMarker(
+      await _addTypedMarker(
         controller: controller,
-        id: place.id,
-        position: NLatLng(place.lat, place.lng),
-        caption: place.name,
-        type: place.type,
+        place: place,
         isSelected: false,
         onTap: onMarkerTap != null ? () => onMarkerTap(place.id) : null,
       );
     }
   }
 
-  /// 마커 강조 (선택된 마커만 스타일 바꾸기)
+  /// 마커 강조
   Future<void> highlightMarker({
     required NaverMapController controller,
     required Place place,
+    void Function()? onTap,
   }) async {
     await removeMarker(controller: controller, id: place.id);
-    await addMarker(
+    await Future.delayed(const Duration(milliseconds: 30)); // 안전한 제거 대기
+    await _addTypedMarker(
       controller: controller,
-      id: place.id,
-      position: NLatLng(place.lat, place.lng),
-      caption: place.name,
-      type: place.type,
+      place: place,
       isSelected: true,
+      onTap: onTap,
     );
   }
 
@@ -130,15 +125,15 @@ class MapService {
   Future<void> resetMarker({
     required NaverMapController controller,
     required Place place,
+    void Function()? onTap,
   }) async {
     await removeMarker(controller: controller, id: place.id);
-    await addMarker(
+    await Future.delayed(const Duration(milliseconds: 30)); // 안전한 제거 대기
+    await _addTypedMarker(
       controller: controller,
-      id: place.id,
-      position: NLatLng(place.lat, place.lng),
-      caption: place.name,
-      type: place.type,
+      place: place,
       isSelected: false,
+      onTap: onTap,
     );
   }
 
@@ -187,7 +182,6 @@ class MapService {
     final centerLat = latSum / places.length;
     final centerLng = lngSum / places.length;
 
-    // 마커 개수에 따라 줌 조정
     final zoom = switch (places.length) {
       1 => 16.0,
       2 => 15.0,
@@ -212,17 +206,14 @@ class MapService {
     overlay.setPosition(position);
   }
 
+  /// 마커 이미지 경로 계산
   String _getMarkerAssetPath({required String type, required bool isSelected}) {
     final status = isSelected ? 'selected' : 'default';
-    final path = switch (type) {
+    return switch (type) {
       'gas' => 'assets/images/markers/marker_gas_$status.png',
       'repair' => 'assets/images/markers/marker_repair_$status.png',
       'carwash' => 'assets/images/markers/marker_wash_$status.png',
       _ => 'assets/images/markers/marker_default.png',
     };
-
-    // ✅ 어떤 경로로 이미지 불러오는지 확인
-    print('🧷 marker image path → $path');
-    return path;
   }
 }

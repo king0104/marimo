@@ -34,6 +34,7 @@ dependencies:
   flutter_cube: ^0.1.1
   model_viewer_plus: ^1.9.1
   webview_flutter: ^4.10.0
+  collection: ^1.18.0
 
   # 🌅 날씨
   geocoding: ^2.1.1
@@ -125,4 +126,3 @@ flutter:
     - assets/ai/tire_wear_model3.tflite
     - assets/ai/model.tflite
     - assets/ai/gemma3-1B-it-int4.task
-
