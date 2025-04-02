@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_gemma/core/model.dart';
+import 'package:flutter_gemma/pigeon.g.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter_tts/flutter_tts.dart';
@@ -56,12 +57,11 @@ class _ChatbotState extends State<Chatbot> {
     try {
       final modelManager = FlutterGemmaPlugin.instance.modelManager;
       // 모델 설치: assets에 있는 .task 파일을 디바이스 내부에 저장 (디버그 모드에서 사용)
-      await modelManager.installModelFromAsset(
-        'assets/ai/gemma3-1B-it-int4.task',
-      );
+      await modelManager.installModelFromAsset('ai/gemma3-1B-it-int4.task');
       // 모델 추론 인스턴스 생성
       _inferenceModel = await FlutterGemmaPlugin.instance.createModel(
         modelType: ModelType.gemmaIt, // Gemma instruction-tuned 모델
+        preferredBackend: PreferredBackend.cpu, // 또는 PreferredBackend.gpu
         maxTokens: 512, // 최대 토큰 수 (필요에 따라 조정)
       );
       debugPrint('Gemma 모델 초기화 완료');
