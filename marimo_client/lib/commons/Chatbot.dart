@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_gemma/core/model.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:flutter_gemma/flutter_gemma.dart'; // flutter_gemma 플러그인 import
 
 class Chatbot extends StatefulWidget {
   const Chatbot({super.key});
@@ -16,7 +18,11 @@ class _ChatbotState extends State<Chatbot> {
   late FlutterTts _flutterTts;
   bool _isListening = false;
   bool _isProcessing = false;
-  String _recognizedText = "준비 중이에요";
+  // 기본 안내 문구를 변경
+  String _recognizedText = "AI '마리모'에게 궁금한 것을 물어봐주세요.";
+
+  // Gemma 모델 추론 인스턴스
+  InferenceModel? _inferenceModel;
 
   // 애니메이션 인덱스 및 타이머
   int _listeningIconIndex = 1;
@@ -36,15 +42,61 @@ class _ChatbotState extends State<Chatbot> {
       _stopProcessingAnimation();
       setState(() {
         _isProcessing = false;
-        _recognizedText = "준비 중이에요";
+        // 기본 안내 문구 업데이트
+        _recognizedText = "AI '마리모'에게 궁금한 것을 물어봐주세요.";
       });
     });
+
+    // Gemma 모델 초기화 (assets/ai/gemma3-1B-it-int4.task)
+    _initializeGemmaModel();
+  }
+
+  /// flutter_gemma 플러그인을 사용하여 assets에 포함된 Gemma 모델 파일을 설치하고 InferenceModel 생성
+  Future<void> _initializeGemmaModel() async {
+    try {
+      final modelManager = FlutterGemmaPlugin.instance.modelManager;
+      // 모델 설치: assets에 있는 .task 파일을 디바이스 내부에 저장 (디버그 모드에서 사용)
+      await modelManager.installModelFromAsset(
+        'assets/ai/gemma3-1B-it-int4.task',
+      );
+      // 모델 추론 인스턴스 생성
+      _inferenceModel = await FlutterGemmaPlugin.instance.createModel(
+        modelType: ModelType.gemmaIt, // Gemma instruction-tuned 모델
+        maxTokens: 512, // 최대 토큰 수 (필요에 따라 조정)
+      );
+      debugPrint('Gemma 모델 초기화 완료');
+    } catch (e) {
+      debugPrint('Gemma 모델 초기화 오류: $e');
+    }
+  }
+
+  /// Gemma 모델을 통해 추론 수행: STT로 얻은 [prompt]를 기반으로 생성된 응답 반환
+  Future<String> _performGemmaInference(String prompt) async {
+    if (_inferenceModel == null) {
+      return "모델이 초기화되지 않았습니다.";
+    }
+    try {
+      final session = await _inferenceModel!.createSession(
+        temperature: 1.0, // 생성 시 무작위성 (기본 1.0)
+        randomSeed: 1, // 재현성을 위한 랜덤 시드
+        topK: 1, // 매 스텝에서 후보 토큰 수
+      );
+      // 입력 프롬프트 추가
+      await session.addQueryChunk(Message(text: prompt));
+      // 동기식 응답 생성 (완료될 때까지 대기)
+      final response = await session.getResponse();
+      await session.close();
+      return response;
+    } catch (e) {
+      debugPrint("추론 오류: $e");
+      return "오류 발생";
+    }
   }
 
   Future<void> _startListening() async {
     bool available = await _speech.initialize(
-      onStatus: (status) => print('STT Status: $status'),
-      onError: (error) => print('STT Error: $error'),
+      onStatus: (status) => debugPrint('STT Status: $status'),
+      onError: (error) => debugPrint('STT Error: $error'),
     );
     if (available) {
       setState(() {
@@ -60,7 +112,12 @@ class _ChatbotState extends State<Chatbot> {
           if (result.finalResult) {
             await _stopListening();
             _startProcessingAnimation();
-            await _flutterTts.speak(_recognizedText);
+            // STT 결과를 기반으로 Gemma 모델 추론 수행
+            String generatedResponse = await _performGemmaInference(
+              _recognizedText,
+            );
+            // 추론 결과를 TTS로 읽어줌
+            await _flutterTts.speak(generatedResponse);
           }
         },
         listenFor: const Duration(seconds: 10),
@@ -183,11 +240,10 @@ class _ChatbotState extends State<Chatbot> {
               right: horizontalMargin,
               child: SingleChildScrollView(
                 child: Center(
-                  // Center 위젯을 사용해서 텍스트 자체를 가운데 정렬합니다.
                   child: Text(
                     _recognizedText,
-                    textAlign: TextAlign.center, // 텍스트 가운데 정렬
-                    softWrap: true, // 자동 줄바꿈 활성화
+                    textAlign: TextAlign.center,
+                    softWrap: true,
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: size.width * 0.05,
@@ -198,7 +254,6 @@ class _ChatbotState extends State<Chatbot> {
                 ),
               ),
             ),
-
             // 마이크 버튼 (하단 중앙)
             Positioned(
               bottom: micBottom,

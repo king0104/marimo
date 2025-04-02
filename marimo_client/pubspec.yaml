@@ -49,6 +49,7 @@ dependencies:
   speech_to_text: ^7.0.0
   flutter_tts: ^4.2.2
   openai_dart: ^0.4.5
+  flutter_gemma: ^0.8.4
 
   # AI
   tflite_flutter: ^0.11.0
@@ -123,3 +124,5 @@ flutter:
     - assets/ai/tire_wear_model.tflite
     - assets/ai/tire_wear_model3.tflite
     - assets/ai/model.tflite
+    - assets/ai/gemma3-1B-it-int4.task
+
