@@ -15,7 +15,7 @@ public record PostGasStationRecommendResponse(
         Boolean hasMaintenance,
         Boolean hasCarWash,
         Boolean hasCvs,
-        Boolean is24Hours,
+        // Boolean is24Hours,
         Float price,
         Float discountedPrice,
         Integer discountAmount,
@@ -33,7 +33,7 @@ public record PostGasStationRecommendResponse(
             Boolean hasMaintenance,
             Boolean hasCarWash,
             Boolean hasCvs,
-            Boolean is24Hours,
+            // Boolean is24Hours,
             Float price,
             Float discountedPrice,
             Integer discountAmount,
@@ -51,7 +51,7 @@ public record PostGasStationRecommendResponse(
                 .hasMaintenance(hasMaintenance)
                 .hasCarWash(hasCarWash)
                 .hasCvs(hasCvs)
-                .is24Hours(is24Hours)
+                // .is24Hours(is24Hours)
                 .price(price)
                 .discountedPrice(discountedPrice)
                 .discountAmount(discountAmount)

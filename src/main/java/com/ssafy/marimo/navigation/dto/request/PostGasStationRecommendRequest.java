@@ -8,11 +8,11 @@ public record PostGasStationRecommendRequest(
         @NotNull Double latitude,
         @NotNull Double longitude,
         @Nullable Integer radius,
-        @Nullable Boolean is24Hours,
+        // @Nullable Boolean is24Hours,
         @Nullable Boolean hasSelfService,
-        @Nullable Boolean hasCarWash,
         @Nullable Boolean hasMaintenance,
-        @Nullable Boolean hasCVS,
+        @Nullable Boolean hasCarWash,
+        @Nullable Boolean hasCvs,
         @Nullable String brand,
         @Nullable String oilType
 ) {}

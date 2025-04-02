@@ -122,10 +122,30 @@ public class OpinetStationSyncService {
             station.setHasCarWash("Y".equals(getTag(el, "CAR_WASH_YN")));
             station.setHasCvs("Y".equals(getTag(el, "CVS_YN")));
             station.setQualityCertified("Y".equals(getTag(el, "KPETRO_YN")));
-            station.setPremiumGasolinePrice(getPrice(el, "B034"));
-            station.setNormalGasolinePrice(getPrice(el, "B027"));
-            station.setDieselPrice(getPrice(el, "D047"));
-            station.setLpgPrice(getPrice(el, "K015"));
+
+            // 연료 종류 별 가격 받기
+            NodeList oilPrices = el.getElementsByTagName("OIL_PRICE");
+            for (int i = 0; i < oilPrices.getLength(); i++) {
+                Element priceElement = (Element) oilPrices.item(i);
+                String prodCd = getTag(priceElement, "PRODCD");
+                Float price = Float.parseFloat(getTag(priceElement, "PRICE"));
+
+                switch (prodCd) {
+                    case "B027":  // 프리미엄 가솔린
+                        station.setPremiumGasolinePrice(price);
+                        break;
+                    case "B034":  // 일반 가솔린
+                        station.setNormalGasolinePrice(price);
+                        break;
+                    case "D047":  // 디젤
+                        station.setDieselPrice(price);
+                        break;
+                    case "K015":  // LPG
+                        station.setLpgPrice(price);
+                        break;
+                }
+            }
+
             station.setStandardTime(LocalDateTime.now());
 
             return station;
@@ -138,7 +158,11 @@ public class OpinetStationSyncService {
 
     private String getTag(Element el, String tag) {
         try {
-            return el.getElementsByTagName(tag).item(0).getTextContent();
+            NodeList nodes = el.getElementsByTagName(tag);
+            if (nodes.getLength() > 0) {
+                return nodes.item(0).getTextContent();
+            }
+            return null;
         } catch (Exception e) {
             return null;
         }
@@ -147,15 +171,6 @@ public class OpinetStationSyncService {
     private Double parseDouble(String value) {
         try {
             return value != null ? Double.parseDouble(value) : null;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    private Float getPrice(Element el, String tag) {
-        try {
-            String value = getTag(el, tag);
-            return (value == null || value.isEmpty()) ? null : Float.parseFloat(value);
         } catch (Exception e) {
             return null;
         }
