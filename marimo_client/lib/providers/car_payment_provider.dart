@@ -109,4 +109,23 @@ class CarPaymentProvider with ChangeNotifier {
   void markAsFromPlusButton(bool value) {
     _isFromPlusButton = value;
   }
+
+  // ✅ 선택된 정비 부품 목록
+  List<String> _selectedRepairItems = [];
+
+  List<String> get selectedRepairItems => _selectedRepairItems;
+
+  void setSelectedRepairItems(List<String> items) {
+    _selectedRepairItems = items;
+    notifyListeners();
+  }
+
+  void toggleRepairItem(String item) {
+    if (_selectedRepairItems.contains(item)) {
+      _selectedRepairItems.remove(item);
+    } else {
+      _selectedRepairItems.add(item);
+    }
+    notifyListeners();
+  }
 }
