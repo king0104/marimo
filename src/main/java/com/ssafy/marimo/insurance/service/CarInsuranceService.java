@@ -7,10 +7,16 @@ import com.ssafy.marimo.exception.ErrorStatus;
 import com.ssafy.marimo.exception.NotFoundException;
 import com.ssafy.marimo.insurance.domain.CarInsurance;
 import com.ssafy.marimo.insurance.domain.Insurance;
+import com.ssafy.marimo.insurance.domain.InsuranceDiscountRule;
 import com.ssafy.marimo.insurance.dto.request.PostCarInsuranceRequest;
+import com.ssafy.marimo.insurance.dto.response.GetCarInsuranceResponse;
 import com.ssafy.marimo.insurance.dto.response.PostCarInsuranceResponse;
 import com.ssafy.marimo.insurance.repository.CarInsuranceRepository;
+import com.ssafy.marimo.insurance.repository.InsuranceDiscountRuleRepository;
 import com.ssafy.marimo.insurance.repository.InsuranceRepository;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +28,7 @@ public class CarInsuranceService {
     private final CarRepository carRepository;
     private final InsuranceRepository insuranceRepository;
     private final IdEncryptionUtil idEncryptionUtil;
+    private final InsuranceDiscountRuleRepository insuranceDiscountRuleRepository;
 
     public PostCarInsuranceResponse postCarInsurance(Integer carId, PostCarInsuranceRequest postCarInsuranceRequest) {
         Car car = carRepository.findById(carId)
@@ -43,8 +50,116 @@ public class CarInsuranceService {
         CarInsurance saved = carInsuranceRepository.save(carInsurance);
 
         return PostCarInsuranceResponse.of(idEncryptionUtil.encrypt(saved.getId()));
+    }
+
+    public GetCarInsuranceResponse getCarInsurance(Integer carId) {
+        // 1. 현재 계산된 주행거리 구하기
+        Car car = carRepository.findById(carId)
+                .orElseThrow(() -> new NotFoundException(ErrorStatus.CAR_NOT_FOUND.getErrorCode()));
+
+        // 2. 차량 ID로 보험 정보 조회
+        CarInsurance carInsurance = carInsuranceRepository.findByCar(car)
+                .orElseThrow(() -> new NotFoundException(ErrorStatus.CAR_INSURANCE_NOT_FOUND.getErrorCode()));
+        Integer insuranceId = carInsurance.getInsurance().getId();
+
+        // 3. 계산된 주행거리 예시 계산 / 월 평균 주행거리 게산 / 현재 날짜에 제출했을 때 예상 총 주행거리
+        int calculatedDistance = car.getTotalDistance() - carInsurance.getRegisteredDistance(); // 자동차 총 주행거리 - 등록 당시
+
+        long daysElapsed = Duration.between(carInsurance.getDistanceRegistrationDate(), LocalDateTime.now()).toDays();
+        long daysRemaining = Duration.between(LocalDateTime.now(), carInsurance.getDistanceRegistrationDate().plusYears(1)).toDays();
+
+        float dailyAverageDistance = Math.round((calculatedDistance / (float) daysElapsed) * 10) / 10.0f;
+        float totalDistanceExpectation = calculatedDistance + Math.round((calculatedDistance / (float) daysElapsed) * daysRemaining * 10) / 10.0f;
+
+        // 4. 현재 할인율 계산
+        List<InsuranceDiscountRule> insuranceDiscountRules = insuranceDiscountRuleRepository.findByInsuranceIdOrderByDiscountFromKm(insuranceId);
+
+        InsuranceDiscountRule currentRule = null;
+        InsuranceDiscountRule nextRule = null;
+
+        for (int i = 0; i < insuranceDiscountRules.size(); i++) {
+            InsuranceDiscountRule rule = insuranceDiscountRules.get(i);
+            if (calculatedDistance >= rule.getDiscountFromKm() && calculatedDistance < rule.getDiscountToKm()) {
+                currentRule = rule;
+                if (i + 1 < insuranceDiscountRules.size()) {
+                    nextRule = insuranceDiscountRules.get(i + 1);
+                }
+                break;
+            }
+        }
+
+        if (currentRule == null) {
+            throw new NotFoundException(ErrorStatus.DISCOUNT_RULE_NOT_FOUND.getErrorCode());
+        }
+
+        // 현재 주행거리를 제출해도 되는지 안되는지
+        Boolean canSubmitDistanceNow = false;
+        if (currentRule.getDiscountToKm() > totalDistanceExpectation) {
+            canSubmitDistanceNow = true;
+        }
+
+        // 4. 할인 계산
+        int insurancePremium = carInsurance.getInsurancePremium();
+
+        double currentDiscountRate = currentRule.getDiscountRate();
+        int currentDiscountAmount = (int) Math.round(insurancePremium * (currentDiscountRate / 100));
+        int currentDiscountedPremium = insurancePremium - currentDiscountAmount;
+
+        Integer remainingDistanceToNextDiscount = nextRule != null ? nextRule.getDiscountFromKm() - calculatedDistance : null;
+        Double nextDiscountRate = nextRule != null ? (double) nextRule.getDiscountRate() : null;
+        Integer nextDiscountAmount = nextRule != null
+                ? (int) Math.round(insurancePremium * (nextRule.getDiscountRate() / 100))
+                : null;
+        Integer nextDiscountedPremium = nextRule != null
+                ? insurancePremium - nextDiscountAmount
+                : null;
+
+        int discountDifferenceWithNextStage = nextRule != null ? currentDiscountAmount - nextDiscountAmount : currentDiscountAmount;
 
 
+        int drivingPercentage = (int) Math.round(
+                ((calculatedDistance - currentRule.getDiscountFromKm()) * 100.0) /
+                        (currentRule.getDiscountToKm() - currentRule.getDiscountFromKm())
+        );
+
+        // 5. 응답 객체 생성
+        return GetCarInsuranceResponse.of(
+                carInsurance.getInsurance().getName(),
+                carInsurance.getDistanceRegistrationDate(),
+                carInsurance.getRegisteredDistance(),
+                insurancePremium,
+
+                calculatedDistance,
+                currentDiscountRate,
+                currentDiscountAmount,
+                currentDiscountedPremium,
+
+                remainingDistanceToNextDiscount,
+                nextDiscountRate,
+                nextDiscountAmount,
+                nextDiscountedPremium,
+
+                dailyAverageDistance,
+                totalDistanceExpectation,
+                discountDifferenceWithNextStage,
+                canSubmitDistanceNow,
+                drivingPercentage
+
+        );
+
+        // 2. carInsurance가 갖고 있는 보험사로 보험 찾기
+
+        // 3. 계산된 주행거리를 들고 요청하면, 해당 보험사 내의 맞는 구간을 찾아서
+        //    현재 구간 리턴하기
+        //    다음 구간 리턴하기
+        // 4. 계산식 : 현재 구간의 할인율 + 낸 보험료로 계산하기
+
+        // 5. 관리팁
+        // 1. 다음 구간까지 얼마나 주행할 수 있는 지 알려줘야함 : 현재 주행거리 - 최초 등록 주행거리 (이게 계산된 주행거리)
+        // 2. 만약 오늘 제출하면, 총 주행거리가 어떻게 되는지 알려줘야 함 :
+        // 3.
+        // 계산식을 만들어야 한다
+        // 요청한 날짜에 주행거리 등록하면,
     }
 
 }
