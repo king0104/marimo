@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:marimo_client/screens/monitoring/widgets/ObdSearchBar.dart';
@@ -59,7 +60,7 @@ class _Obd2DetailScreenState extends State<Obd2DetailScreen> {
       {"title": "대기압", "value": parsed.barometricPressure, "unit": "kPa"},
       {"title": "ECM 온도", "value": parsed.ecmTemp, "unit": "°C"},
       {
-        "title": "고장코드 삭제 후 주행거리",
+        "title": "DTC 삭제 후 주행거리",
         "value": parsed.distanceSinceCodesCleared,
         "unit": "km",
       },
@@ -176,6 +177,8 @@ class _Obd2DetailScreenState extends State<Obd2DetailScreen> {
                           ? "--"
                           : rawValue is double
                           ? rawValue.toStringAsFixed(1)
+                          : rawValue is int
+                          ? NumberFormat.decimalPattern().format(rawValue)
                           : rawValue.toString();
 
                   return GestureDetector(
