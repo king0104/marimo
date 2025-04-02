@@ -133,7 +133,8 @@ ObdDataModel parseObdResponses(Map<String, String> responses) {
     vaporPressure: parseHexToDouble('2E', (v) => v[0].toDouble()),
     barometricPressure: parseHexToDouble('2F', (v) => v[0].toDouble()),
     ecmTemp: parseHexToDouble('30', (v) => v[0] - 40),
-    exhaustTemp: parseHexToDouble('31', (v) => v[0] - 40),
+    distanceSinceCodesCleared: parseHexToInt('31', (v) => v[0] * 256 + v[1]),
+
     o2SensorVoltage: parseHexToDouble('33', (v) => v[0] / 200),
     noxSensor: parseHexToDouble('34', (v) => v[0].toDouble()),
     batteryVoltage: parseHexToDouble('3C', (v) => (v[0] * 256 + v[1]) / 1000),
