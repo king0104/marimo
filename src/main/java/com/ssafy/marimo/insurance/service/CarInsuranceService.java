@@ -105,7 +105,7 @@ public class CarInsuranceService {
         int currentDiscountAmount = (int) Math.round(insurancePremium * (currentDiscountRate / 100));
         int currentDiscountedPremium = insurancePremium - currentDiscountAmount;
 
-        Integer remainingDistanceToNextDiscount = nextRule != null ? nextRule.getDiscountToKm() - calculatedDistance : null;
+        Integer remainingDistanceToNextDiscount = nextRule != null ? nextRule.getDiscountFromKm() - calculatedDistance : null;
         Double nextDiscountRate = nextRule != null ? (double) nextRule.getDiscountRate() : null;
         Integer nextDiscountAmount = nextRule != null
                 ? (int) Math.round(insurancePremium * (nextRule.getDiscountRate() / 100))
@@ -115,6 +115,12 @@ public class CarInsuranceService {
                 : null;
 
         int discountDifferenceWithNextStage = nextRule != null ? currentDiscountAmount - nextDiscountAmount : currentDiscountAmount;
+
+
+        int drivingPercentage = (int) Math.round(
+                ((calculatedDistance - currentRule.getDiscountFromKm()) * 100.0) /
+                        (currentRule.getDiscountToKm() - currentRule.getDiscountFromKm())
+        );
 
         // 5. 응답 객체 생성
         return GetCarInsuranceResponse.of(
@@ -136,7 +142,9 @@ public class CarInsuranceService {
                 dailyAverageDistance,
                 totalDistanceExpectation,
                 discountDifferenceWithNextStage,
-                canSubmitDistanceNow
+                canSubmitDistanceNow,
+                drivingPercentage
+
         );
 
         // 2. carInsurance가 갖고 있는 보험사로 보험 찾기
