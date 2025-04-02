@@ -7,6 +7,7 @@ import 'package:marimo_client/commons/CustomAppHeader.dart';
 import 'widgets/detail_form/CategoryAndAmount.dart';
 import 'widgets/detail_form/CarDetailFormItemList.dart';
 import 'widgets/detail_form/CarDetailFormSaveButton.dart';
+import 'package:marimo_client/screens/payment/CarPaymentDetailList.dart';
 
 class CarPaymentDetailForm extends StatefulWidget {
   final String selectedCategory;
@@ -46,18 +47,51 @@ class _CarPaymentDetailFormState extends State<CarPaymentDetailForm> {
       backgroundColor: Colors.white,
       appBar: CustomAppHeader(
         title: '',
-        onBackPressed: () => Navigator.pop(context),
+        onBackPressed: () {
+          if (_isEditMode) {
+            Navigator.pop(context); // 일반 뒤로가기
+          } else {
+            final provider = Provider.of<CarPaymentProvider>(
+              context,
+              listen: false,
+            );
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (_) => CarPaymentDetailList(
+                      initialMonth: provider.selectedMonth,
+                    ),
+              ),
+            );
+          }
+        },
         actions:
             _isEditMode
                 ? []
                 : [
                   TextButton(
                     onPressed: _toggleEditMode,
-                    child: Text('수정', style: TextStyle(color: Colors.black)),
+                    child: Text(
+                      '수정',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w300,
+                      ),
+                    ),
                   ),
+                  // SizedBox(width: 30.w),
                   TextButton(
                     onPressed: _deleteEntry,
-                    child: Text('삭제', style: TextStyle(color: Colors.black)),
+                    child: Text(
+                      '삭제',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w300,
+                      ),
+                    ),
                   ),
                 ],
       ),
@@ -69,6 +103,7 @@ class _CarPaymentDetailFormState extends State<CarPaymentDetailForm> {
             child: CategoryAndAmount(
               category: widget.selectedCategory,
               amount: widget.amount,
+              isEditMode: _isEditMode,
             ),
           ),
           SizedBox(height: 60.h),
@@ -85,10 +120,11 @@ class _CarPaymentDetailFormState extends State<CarPaymentDetailForm> {
           ),
 
           // ✅ 저장 버튼 추가 위치
-          Padding(
-            padding: EdgeInsets.only(left: 20.w, right: 20.w),
-            child: CarDetailFormSaveButton(onPressed: _saveAction),
-          ),
+          if (_isEditMode)
+            Padding(
+              padding: EdgeInsets.only(left: 20.w, right: 20.w),
+              child: CarDetailFormSaveButton(onPressed: _saveAction),
+            ),
         ],
       ),
     );

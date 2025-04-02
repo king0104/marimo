@@ -87,7 +87,7 @@ class _CarTotalPaymentState extends State<CarTotalPayment>
                   MaterialPageRoute(
                     builder:
                         (context) =>
-                            CarDetailPayment(initialMonth: selectedMonth),
+                            CarPaymentDetailList(initialMonth: selectedMonth),
                   ),
                 );
               },
