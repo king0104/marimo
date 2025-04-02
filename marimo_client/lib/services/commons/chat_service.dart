@@ -26,7 +26,7 @@ class ChatService {
 진단 코드: $code
 문제: $title
 
-아래 JSON 형식으로 답변해줘:
+아래 JSON 형식으로 응답해줘. 최대 3개 나열해주고, 각 문장은 명료하고 ~~해요 체로:
 {
   "meaningList": ["설명1", "설명2", ...],
   "actionList": ["조치1", "조치2", ...]
@@ -37,7 +37,10 @@ class ChatService {
       request: CreateChatCompletionRequest(
         model: ChatCompletionModel.modelId('gpt-4o'),
         messages: [
-          ChatCompletionMessage.system(content: 'You are a helpful assistant.'),
+          ChatCompletionMessage.system(
+            content:
+                'You are a helpful assistant. Please keep answers short and concise.',
+          ),
           ChatCompletionMessage.user(
             content: ChatCompletionUserMessageContent.string(prompt),
           ),

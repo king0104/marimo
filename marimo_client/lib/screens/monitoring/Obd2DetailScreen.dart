@@ -21,10 +21,24 @@ class _Obd2DetailScreenState extends State<Obd2DetailScreen> {
   String _searchQuery = "";
 
   @override
+  void initState() {
+    super.initState();
+
+    Future.microtask(() {
+      final provider = context.read<ObdPollingProvider>();
+      provider.loadResponsesFromLocal();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final provider = context.watch<ObdPollingProvider>();
     final responses = provider.responses;
     final parsed = parseObdResponses(responses);
+
+    print('✅ parsed.rpm: ${parsed.rpm}');
+    print('✅ parsed.speed: ${parsed.speed}');
+    print('✅ parsed.raw: ${provider.responses['010C']}');
 
     final List<Map<String, dynamic>> obdItems = [
       {"title": "RPM", "value": parsed.rpm, "unit": "rpm"},
