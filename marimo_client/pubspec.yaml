@@ -114,3 +114,4 @@ flutter:
     - assets/ai/tire_model.tflite
     - assets/ai/tire_wear_model.tflite
     - assets/ai/tire_wear_model3.tflite
+    - assets/ai/model.tflite
