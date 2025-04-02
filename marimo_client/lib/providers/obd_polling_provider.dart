@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 
 import 'package:marimo_client/constants/obd_pids.dart';
@@ -103,7 +105,7 @@ class ObdPollingProvider with ChangeNotifier {
     _pollPids();
   }
 
-  /// 내부적으로 PID들을 순차적으로 요청하는 폴링 루프
+  /// pollPids() - 내부적으로 PID들을 순차적으로 요청하는 폴링 루프
   void _pollPids() async {
     while (isRunning && isConnected) {
       // 모든 PID에 대해 순차적으로 명령 전송
@@ -114,6 +116,7 @@ class ObdPollingProvider with ChangeNotifier {
           // '01' 모드에 해당 PID 전송 및 응답 대기
           final response = await _sendCommand('01$pid');
           _pidResponses['01$pid'] = response;
+          await _saveResponsesToLocal();
         } catch (_) {
           // 예외 발생 시 응답 없음 처리
           _pidResponses['01$pid'] = 'NO RESPONSE';
@@ -126,16 +129,22 @@ class ObdPollingProvider with ChangeNotifier {
     }
   }
 
-  /// 폴링 중지를 위한 함수
+  /// stopPolling() - 폴링 중지를 위한 함수
   void stopPolling() {
     isRunning = false;
     notifyListeners();
   }
 
-  /// OBD 초기화 명령들을 순차적으로 전송하는 함수
+  /// initializeObd() - OBD 초기화 명령들을 순차적으로 전송하는 함수
   Future<void> _initializeObd() async {
-    // OBD 초기화를 위한 AT 명령 리스트
-    final cmds = ['ATZ', 'ATE0', 'ATL0', 'ATS0', 'ATH1', 'ATSP0'];
+    final cmds = [
+      'ATZ',
+      'ATE0',
+      'ATL0',
+      'ATS0',
+      'ATH1',
+      'ATSP0',
+    ]; // OBD 초기화를 위한 AT 명령 리스트
     for (final cmd in cmds) {
       // 각 명령 전송 및 응답 대기
       await _sendCommand(cmd);
@@ -191,5 +200,25 @@ class ObdPollingProvider with ChangeNotifier {
     // Provider 종료 시 연결 해제
     disconnect();
     super.dispose();
+  }
+
+  // saveResponsesToLocal() - 로컬에 응답 데이터 저장
+  Future<void> _saveResponsesToLocal() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = jsonEncode(_pidResponses);
+    await prefs.setString('last_obd_data', jsonString);
+  }
+
+  // loadResponsesFromLocal() - 로컬에서 응답 데이터 불러오기
+  Future<void> loadResponsesFromLocal() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString('last_obd_data');
+    if (jsonString != null) {
+      final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+      jsonMap.forEach((key, value) {
+        _pidResponses[key] = value.toString();
+      });
+      notifyListeners();
+    }
   }
 }

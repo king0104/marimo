@@ -21,6 +21,16 @@ class _Obd2DetailScreenState extends State<Obd2DetailScreen> {
   String _searchQuery = "";
 
   @override
+  void initState() {
+    super.initState();
+
+    Future.microtask(() {
+      final provider = context.read<ObdPollingProvider>();
+      provider.loadResponsesFromLocal();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final provider = context.watch<ObdPollingProvider>();
     final responses = provider.responses;
