@@ -1,7 +1,10 @@
+// 파일명: lib/commons/common_app_bar.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:marimo_client/commons/chatbot.dart';
 import 'package:marimo_client/screens/Insurance/InsuranceScreen.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class CommonAppBar extends StatefulWidget implements PreferredSizeWidget {
   const CommonAppBar({super.key});
@@ -72,151 +75,177 @@ class _CommonAppBarState extends State<CommonAppBar> {
   void _showNotifications(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        insetPadding: EdgeInsets.zero,
-        child: GestureDetector(
-          onTap: () => Navigator.of(context).pop(),
-          child: Container(
-            width: double.infinity,
-            height: double.infinity,
-            color: Colors.transparent,
-            child: Column(
-              children: [
-                SizedBox(height: 100.h),
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20.w),
-                      child: Column(
-                        children: [
-                          ...notifications.map((notification) {
-                            return GestureDetector(
-                              onTap: () {},
-                              child: Padding(
-                                padding: EdgeInsets.only(bottom: 8.h),
-                                child: Dismissible(
-                                  key: Key(notification['id']),
-                                  direction: DismissDirection.horizontal,
-                                  onDismissed: (direction) => 
-                                      _removeNotification(notification['id']),
-                                  background: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.red.withOpacity(0.2),
-                                      borderRadius: BorderRadius.circular(12.r),
-                                    ),
-                                    alignment: Alignment.centerLeft,
-                                    padding: EdgeInsets.symmetric(horizontal: 20.w),
-                                    child: const Icon(
-                                      Icons.delete,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  secondaryBackground: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.red.withOpacity(0.2),
-                                      borderRadius: BorderRadius.circular(12.r),
-                                    ),
-                                    alignment: Alignment.centerRight,
-                                    padding: EdgeInsets.symmetric(horizontal: 20.w),
-                                    child: const Icon(
-                                      Icons.delete,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  child: Container(
-                                    width: double.infinity,
-                                    padding: EdgeInsets.all(16.w),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF1C1C1E),
-                                      borderRadius: BorderRadius.circular(12.r),
-                                    ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Row(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+      builder:
+          (context) => Dialog(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            insetPadding: EdgeInsets.zero,
+            child: GestureDetector(
+              onTap: () => Navigator.of(context).pop(),
+              child: Container(
+                width: double.infinity,
+                height: double.infinity,
+                color: Colors.transparent,
+                child: Column(
+                  children: [
+                    SizedBox(height: 100.h),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 20.w),
+                          child: Column(
+                            children: [
+                              ...notifications.map((notification) {
+                                return GestureDetector(
+                                  onTap: () {},
+                                  child: Padding(
+                                    padding: EdgeInsets.only(bottom: 8.h),
+                                    child: Dismissible(
+                                      key: Key(notification['id']),
+                                      direction: DismissDirection.horizontal,
+                                      onDismissed:
+                                          (direction) => _removeNotification(
+                                            notification['id'],
+                                          ),
+                                      background: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.red.withOpacity(0.2),
+                                          borderRadius: BorderRadius.circular(
+                                            12.r,
+                                          ),
+                                        ),
+                                        alignment: Alignment.centerLeft,
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 20.w,
+                                        ),
+                                        child: const Icon(
+                                          Icons.delete,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      secondaryBackground: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.red.withOpacity(0.2),
+                                          borderRadius: BorderRadius.circular(
+                                            12.r,
+                                          ),
+                                        ),
+                                        alignment: Alignment.centerRight,
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 20.w,
+                                        ),
+                                        child: const Icon(
+                                          Icons.delete,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      child: Container(
+                                        width: double.infinity,
+                                        padding: EdgeInsets.all(16.w),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF1C1C1E),
+                                          borderRadius: BorderRadius.circular(
+                                            12.r,
+                                          ),
+                                        ),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            Container(
-                                              padding: EdgeInsets.all(6.w),
-                                              decoration: BoxDecoration(
-                                                color: notification['color'],
-                                                borderRadius: BorderRadius.circular(8.r),
-                                              ),
-                                              child: Icon(
-                                                notification['icon'],
-                                                color: Colors.white,
-                                                size: 20.w,
-                                              ),
+                                            Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Container(
+                                                  padding: EdgeInsets.all(6.w),
+                                                  decoration: BoxDecoration(
+                                                    color:
+                                                        notification['color'],
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          8.r,
+                                                        ),
+                                                  ),
+                                                  child: Icon(
+                                                    notification['icon'],
+                                                    color: Colors.white,
+                                                    size: 20.w,
+                                                  ),
+                                                ),
+                                                SizedBox(width: 12.w),
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        notification['content1'],
+                                                        style: TextStyle(
+                                                          fontSize: 14.sp,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                                      SizedBox(height: 4.h),
+                                                      Text(
+                                                        notification['content2'],
+                                                        style: TextStyle(
+                                                          fontSize: 14.sp,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
                                             ),
-                                            SizedBox(width: 12.w),
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                            SizedBox(height: 12.h),
+                                            GestureDetector(
+                                              onTap:
+                                                  () => notification['action'](
+                                                    context,
+                                                  ),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                mainAxisSize: MainAxisSize.min,
                                                 children: [
                                                   Text(
-                                                    notification['content1'],
+                                                    notification['actionText'],
                                                     style: TextStyle(
-                                                      fontSize: 14.sp,
-                                                      fontWeight: FontWeight.w500,
                                                       color: Colors.white,
+                                                      fontSize: 14.sp,
                                                     ),
                                                   ),
-                                                  SizedBox(height: 4.h),
-                                                  Text(
-                                                    notification['content2'],
-                                                    style: TextStyle(
-                                                      fontSize: 14.sp,
-                                                      fontWeight: FontWeight.w500,
-                                                      color: Colors.white,
-                                                    ),
+                                                  Icon(
+                                                    Icons.chevron_right,
+                                                    size: 20.w,
+                                                    color: Colors.white,
                                                   ),
                                                 ],
                                               ),
                                             ),
                                           ],
                                         ),
-                                        SizedBox(height: 12.h),
-                                        GestureDetector(
-                                          onTap: () => notification['action'](context),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.end,
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Text(
-                                                notification['actionText'],
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 14.sp,
-                                                ),
-                                              ),
-                                              Icon(
-                                                Icons.chevron_right,
-                                                size: 20.w,
-                                                color: Colors.white,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          SizedBox(height: 100.h),
-                        ],
+                                );
+                              }).toList(),
+                              SizedBox(height: 100.h),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
     );
   }
 
@@ -233,15 +262,19 @@ class _CommonAppBarState extends State<CommonAppBar> {
       leadingWidth: 70.w,
       leading: Padding(
         padding: EdgeInsets.only(left: 0.w),
-        child: Image.asset(
-          'assets/images/logo/marimo_logo.png',
-          width: 30.w,
-        ),
+        child: Image.asset('assets/images/logo/marimo_logo.png', width: 30.w),
       ),
       actions: [
+        // 마이크 아이콘 클릭 시 Chatbot UI를 모달로 띄움
         IconButton(
           icon: Icon(Icons.mic, size: 24.w),
-          onPressed: () {},
+          onPressed: () {
+            showModalBottomSheet(
+              context: context,
+              backgroundColor: Colors.transparent,
+              builder: (context) => const Chatbot(),
+            );
+          },
         ),
         Stack(
           children: [
