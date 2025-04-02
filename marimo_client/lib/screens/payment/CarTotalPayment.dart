@@ -2,12 +2,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/commons/AppBar.dart';
-import 'package:marimo_client/commons/BottomNavigationBar.dart';
-import 'package:marimo_client/screens/payment/widgets/CarMonthlyPayment.dart';
-import 'package:marimo_client/screens/payment/widgets/CarPaymentItemList.dart';
-import 'package:marimo_client/screens/payment/widgets/CarPlusButton.dart';
-import 'package:marimo_client/screens/payment/widgets/CarPaymentHistoryButton.dart';
-import 'CarDetailPaymentList.dart';
+import 'package:marimo_client/screens/payment/widgets/total/CarMonthlyPayment.dart';
+import 'package:marimo_client/screens/payment/widgets/total/CarPaymentItemList.dart';
+import 'package:marimo_client/screens/payment/widgets/total/CarPlusButton.dart';
+import 'package:marimo_client/screens/payment/widgets/total/CarPaymentHistoryButton.dart';
+import 'CarPaymentDetailList.dart';
 
 class CarTotalPayment extends StatefulWidget {
   const CarTotalPayment({super.key});

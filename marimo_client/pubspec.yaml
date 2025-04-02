@@ -35,6 +35,9 @@ dependencies:
   model_viewer_plus: ^1.9.1
   webview_flutter: ^4.10.0
 
+  # 🌅 날씨
+  geocoding: ^2.1.1
+
   # 📱 디바이스 기능
   flutter_blue_plus: ^1.35.3
   permission_handler: ^11.4.0
@@ -43,6 +46,13 @@ dependencies:
   geolocator: ^10.0.0
   flutter_bluetooth_serial: ^0.4.0
   share_plus: ^10.1.4
+  speech_to_text: ^7.0.0
+  flutter_tts: ^4.2.2
+  openai_dart: ^0.4.5
+
+  # AI
+  tflite_flutter: ^0.11.0
+  shared_preferences: ^2.5.3
 
 dev_dependencies:
   flutter_test:
@@ -95,6 +105,7 @@ flutter:
   assets:
     - .env
     - assets/images/
+    - assets/images/weathers/
     - assets/images/markers/
     - assets/images/cars/
     - assets/images/logo/
@@ -108,3 +119,7 @@ flutter:
     - assets/models/uberBlack.dae.glb
     - assets/models/generic_sedan.glb
     - assets/models/uberXL.glb
+    - assets/ai/tire_model.tflite
+    - assets/ai/tire_wear_model.tflite
+    - assets/ai/tire_wear_model3.tflite
+    - assets/ai/model.tflite

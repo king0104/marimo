@@ -1,4 +1,5 @@
 // TireDiagnosisScreen.dart
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
@@ -6,6 +7,8 @@ import 'widgets/TireDiagnosisCard.dart';
 import 'widgets/Instruction.dart';
 import 'package:marimo_client/commons/CustomAppHeader.dart';
 import 'TireDiagnosisResult.dart';
+import 'TireTestPage.dart';
+import 'package:marimo_client/screens/tirediagnosis/TireAnalyzeImage.dart';
 
 class TireDiagnosisScreen extends StatefulWidget {
   const TireDiagnosisScreen({Key? key}) : super(key: key);
@@ -96,16 +99,20 @@ class _TireDiagnosisScreenState extends State<TireDiagnosisScreen>
                     selectedImages: _selectedImages,
                     onAddImage: addImage,
                     onRemoveImage: removeImage,
-                    onAnalysisPressed: () {
+                    onAnalysisPressed: () async {
+                      if (_selectedImages.isEmpty) return;
+
+                      final file = File(_selectedImages[0].path);
+                      final result = await analyzeTireImage(file);
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder:
-                              (_) => TireDiagnosisResult(
-                                userImage:
-                                    _selectedImages.isNotEmpty
-                                        ? _selectedImages[0]
-                                        : null,
-                              ),
+                          builder: (_) => TireTestPage(result: result),
+                          // (_) => TireDiagnosisResult(
+                          //   userImage:
+                          //       _selectedImages.isNotEmpty
+                          //           ? _selectedImages[0]
+                          //           : null,
+                          // ),
                         ),
                       );
                     },

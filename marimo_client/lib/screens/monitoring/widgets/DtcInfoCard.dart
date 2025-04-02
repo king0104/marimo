@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:marimo_client/screens/monitoring/widgets/AIDescModal.dart';
+import 'package:marimo_client/services/commons/chat_service.dart';
 import 'package:marimo_client/theme.dart';
+import 'package:marimo_client/constants/obd_dtcs.dart';
 
 class DtcInfoCard extends StatelessWidget {
   final String code;
@@ -20,6 +22,9 @@ class DtcInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String mappedTitle =
+        dtcDescriptions[code] ?? "알 수 없는 고장 코드"; // ✅ 코드 매핑
+
     return GestureDetector(
       onTap: onTap,
       child: Stack(
@@ -27,8 +32,8 @@ class DtcInfoCard extends StatelessWidget {
           AnimatedContainer(
             duration: Duration(milliseconds: 250),
             width: double.infinity,
-            height: 80.h, // ✅ 고정 높이
-            margin: EdgeInsets.only(bottom: 12.h),
+            height: 80.h,
+            margin: EdgeInsets.only(bottom: 4.h),
             padding: EdgeInsets.only(
               left: 16.w,
               right: 8.w,
@@ -53,14 +58,8 @@ class DtcInfoCard extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            SvgPicture.asset(
-                              'assets/images/icons/icon_ai_bot.svg',
-                              width: 24.w,
-                              height: 24.h,
-                            ),
-                            SizedBox(width: 8.w),
                             Text(
-                              "빠르게 AI 챗봇으로 알아보기",
+                              "AI 챗봇으로 자세하게 알아보기",
                               style: TextStyle(
                                 fontSize: 16.sp,
                                 fontWeight: FontWeight.w400,
@@ -70,36 +69,56 @@ class DtcInfoCard extends StatelessWidget {
                           ],
                         ),
                         GestureDetector(
-                          onTap: () {
+                          onTap: () async {
                             showDialog(
                               context: context,
+                              barrierDismissible: false,
                               builder:
-                                  (_) => AIDescModal(
-                                    code: code,
-                                    title: "엔진 실화 발생", // 실제 코드에 따라 다르게 처리 가능
-                                    meaningList: [
-                                      "불규칙한 실화(Misfire)가 여러 실린더에서 발생했어요.",
-                                      "차량이 떨리거나 주행 성능이 저하될 수 있습니다.",
-                                      "점화, 연료, 공기 공급 문제 또는 엔진 압축 저하가 원인일 수 있습니다.",
-                                    ],
-                                    actionList: [
-                                      "운전 중이면, 즉시 가속 페달을 서서히 조절하며 안전한 장소로 이동하세요.",
-                                      "차량이 심하게 떨리면, 엔진을 꺼주세요.",
-                                      "점화 플러그, 점화 코일, 연료 시스템을 점검하세요.",
-                                    ],
+                                  (_) => Center(
+                                    child: CircularProgressIndicator(
+                                      color: brandColor,
+                                    ),
                                   ),
                             );
+
+                            try {
+                              final chatService = ChatService.create();
+                              final response = await chatService
+                                  .fetchChatGPTResponse(
+                                    code: code,
+                                    title: mappedTitle, // ✅ 여기에 매핑된 title 사용
+                                  );
+                              Navigator.of(context).pop();
+
+                              showDialog(
+                                context: context,
+                                builder:
+                                    (_) => AIDescModal(
+                                      code: code,
+                                      title: mappedTitle,
+                                      meaningList: response.meaningList,
+                                      actionList: response.actionList,
+                                    ),
+                              );
+                            } catch (e, stackTrace) {
+                              debugPrint('Error fetching AI diagnosis: $e');
+                              debugPrint('Stack trace: $stackTrace');
+                              Navigator.of(context).pop();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text("AI 진단 정보를 가져오는데 실패했습니다."),
+                                ),
+                              );
+                            }
                           },
-                          behavior: HitTestBehavior.translucent, // 터치 감지 확실히
+                          behavior: HitTestBehavior.translucent,
                           child: Container(
-                            padding: EdgeInsets.all(
-                              12.w,
-                            ), // 터치 범위 넓힘 (16~20도 가능)
-                            alignment: Alignment.center, // 아이콘이 가운데 오게
+                            padding: EdgeInsets.all(12.w),
+                            alignment: Alignment.center,
                             child: SvgPicture.asset(
-                              'assets/images/icons/icon_next_brand_16.svg',
-                              width: 16.w,
-                              height: 16.h,
+                              'assets/images/icons/icon_ai_bot.svg',
+                              width: 24.w,
+                              height: 24.h,
                             ),
                           ),
                         ),
@@ -107,7 +126,7 @@ class DtcInfoCard extends StatelessWidget {
                     )
                     : Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center, // ✅ 중앙 정렬
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
                           code,
@@ -129,7 +148,6 @@ class DtcInfoCard extends StatelessWidget {
                       ],
                     ),
           ),
-
           Positioned(
             top: 0,
             right: 0,

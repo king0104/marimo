@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/main.dart';
+import 'package:marimo_client/providers/car_provider.dart';
 import 'package:marimo_client/providers/member/auth_provider.dart';
 import 'package:marimo_client/screens/signin/widgets/sign_in/LoginButton.dart';
 import 'package:marimo_client/screens/signin/widgets/sign_in/LoginHero.dart';
@@ -32,20 +34,38 @@ class _SignInScreenState extends State<SignInScreen> {
 
   Future<void> _login() async {
     try {
-      // 로그인 API 호출 후 토큰 반환
+      // 1. 로그인 요청 → accessToken 반환
       final token = await AuthService.login(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
-      // AuthProvider에 토큰 설정
-      Provider.of<AuthProvider>(context, listen: false).setAccessToken(token);
-      // 전체 스택을 제거하고 MainScreen으로 이동
+
+      // 2. 토큰 저장
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final carProvider = Provider.of<CarProvider>(context, listen: false);
+      authProvider.setAccessToken(token);
+
+      // 3. 차량 목록 받아오되, 실패해도 무시
+      try {
+        await carProvider.fetchCarsFromServer(token);
+      } catch (e) {
+        showToast(
+          context,
+          '차량 목록 불러오기 실패 (나중에 다시 시도해주세요)',
+          icon: Icons.warning,
+          type: 'error',
+        );
+        print('🚨 차량 목록 조회 실패 (무시됨): $e');
+      }
+
+      // 4. 라우팅
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => const MainScreen()),
+        MaterialPageRoute(builder: (_) => const InitialRouter()),
         (Route<dynamic> route) => false,
       );
     } catch (error) {
+      // ❌ 로그인 자체 실패
       showToast(context, "로그인 실패: $error", icon: Icons.error, type: 'error');
     }
   }
@@ -61,25 +81,26 @@ class _SignInScreenState extends State<SignInScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              SizedBox(height: 104.h),
               const LoginSlogan(),
-              const SizedBox(height: 18),
+              SizedBox(height: 18.h),
               const LoginHero(), // 로고 & 텍스트
-              const SizedBox(height: 38),
+              SizedBox(height: 36.h),
               // 이메일 입력 (LoginInput 위젯에 controller 파라미터 추가)
               LoginInput(hintText: "이메일을 입력해주세요.", controller: emailController),
-              const SizedBox(height: 30),
+              SizedBox(height: 30.h),
               // 비밀번호 입력
               LoginInput(
                 hintText: "비밀번호를 입력해주세요.",
                 isPassword: true,
                 controller: passwordController,
               ),
-              const SizedBox(height: 30),
+              SizedBox(height: 30.h),
               // 로그인 버튼
               LoginButton(text: "마리모 로그인", onPressed: _login),
-              const SizedBox(height: 30),
+              SizedBox(height: 30.h),
               const LoginLinkRow(), // 비밀번호 찾기, 회원가입 링크
-              const SizedBox(height: 30),
+              SizedBox(height: 26.h),
               const OauthButtons(), // SNS 계정으로 로그인
             ],
           ),

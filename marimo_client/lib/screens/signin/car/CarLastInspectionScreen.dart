@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:marimo_client/commons/CustomCalendar.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:marimo_client/providers/car_registration_provider.dart';
@@ -9,7 +10,7 @@ class CarLastInspectionScreen extends StatefulWidget {
   const CarLastInspectionScreen({super.key});
 
   @override
-  _CarLastInspectionScreenState createState() =>
+  State<CarLastInspectionScreen> createState() =>
       _CarLastInspectionScreenState();
 }
 
@@ -23,24 +24,36 @@ class _CarLastInspectionScreenState extends State<CarLastInspectionScreen> {
       context,
       listen: false,
     );
-    selectedDate = provider.lastCheckedDate ?? DateTime.now(); // ✅ 기존 값 있으면 불러옴
+    selectedDate = provider.lastCheckedDate ?? DateTime.now();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    // ✅ 화면이 그려진 직후 키보드 내리기
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      FocusScope.of(context).unfocus();
-    });
-
+  void _openCalendarPopup() async {
     final provider = Provider.of<CarRegistrationProvider>(
       context,
       listen: false,
     );
+    await showCustomCalendarPopup(
+      context: context,
+      initialDate: selectedDate,
+      onDateSelected: (newDate) {
+        setState(() {
+          selectedDate = newDate;
+        });
+        provider.setLastCheckedDate(newDate);
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // 🔽 키보드 자동 내리기
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FocusScope.of(context).unfocus();
+    });
 
     return Scaffold(
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -49,79 +62,30 @@ class _CarLastInspectionScreenState extends State<CarLastInspectionScreen> {
               text: "마지막 차량 점검일을 입력해주세요.",
               highlight: "마지막 차량 점검일",
             ),
-            const SizedBox(height: 51),
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 10),
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: white,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: black.withAlpha((0.12 * 255).toInt()),
-                    offset: const Offset(0, 3.14),
-                    blurRadius: 12.55,
+            const SizedBox(height: 12),
+            GestureDetector(
+              onTap: _openCalendarPopup,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 20,
+                  horizontal: 16,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: lightgrayColor, // ← 너가 정의해둔 theme 색상
+                    width: 0.5,
                   ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TableCalendar(
-                    rowHeight: 44,
-                    firstDay: DateTime.utc(2000, 1, 1),
-                    lastDay: DateTime.utc(2100, 12, 31),
-                    focusedDay: selectedDate,
-                    calendarFormat: CalendarFormat.month,
-                    selectedDayPredicate: (day) => isSameDay(selectedDate, day),
-                    onDaySelected: (selected, focused) {
-                      setState(() {
-                        selectedDate = selected;
-                      });
-                      provider.setLastCheckedDate(selectedDate);
-                    },
-                    headerStyle: HeaderStyle(
-                      formatButtonVisible: false,
-                      titleCentered: true,
-                      titleTextStyle: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: black,
-                      ),
-                      leftChevronIcon: const Icon(
-                        Icons.chevron_left,
-                        color: black,
-                      ),
-                      rightChevronIcon: const Icon(
-                        Icons.chevron_right,
-                        color: black,
-                      ),
-                    ),
-                    calendarStyle: CalendarStyle(
-                      todayDecoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: brandColor),
-                      ),
-                      todayTextStyle: const TextStyle(
-                        color: black,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      selectedDecoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: brandColor,
-                      ),
-                      selectedTextStyle: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    daysOfWeekHeight: 44,
-                    daysOfWeekStyle: const DaysOfWeekStyle(
-                      weekdayStyle: TextStyle(color: Colors.black54),
-                      weekendStyle: TextStyle(color: Colors.black54),
-                    ),
+                ),
+                child: Text(
+                  "${selectedDate.year}년 ${selectedDate.month}월 ${selectedDate.day}일",
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
                   ),
-                ],
+                ),
               ),
             ),
           ],

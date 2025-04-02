@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter/services.dart';
+import 'package:marimo_client/screens/monitoring/widgets/ObdSearchBar.dart';
+import 'package:marimo_client/utils/obd_response_parser.dart';
 import 'package:provider/provider.dart';
-import 'package:marimo_client/providers/obd_data_provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:marimo_client/theme.dart';
+import 'package:marimo_client/providers/obd_polling_provider.dart';
 
 class Obd2DetailScreen extends StatefulWidget {
   const Obd2DetailScreen({super.key});
@@ -14,36 +18,89 @@ class Obd2DetailScreen extends StatefulWidget {
 
 class _Obd2DetailScreenState extends State<Obd2DetailScreen> {
   int? selectedIndex;
+  String _searchQuery = "";
+
+  @override
+  void initState() {
+    super.initState();
+
+    Future.microtask(() {
+      final provider = context.read<ObdPollingProvider>();
+      provider.loadResponsesFromLocal();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final obd = context.watch<ObdDataProvider>();
-    final data = obd.data;
+    final provider = context.watch<ObdPollingProvider>();
+    final responses = provider.responses;
+    final parsed = parseObdResponses(responses);
+
+    print('✅ parsed.rpm: ${parsed.rpm}');
+    print('✅ parsed.speed: ${parsed.speed}');
+    print('✅ parsed.raw: ${provider.responses['010C']}');
 
     final List<Map<String, dynamic>> obdItems = [
-      {"title": "RPM", "value": data.rpm, "unit": "rpm"},
-      {"title": "속도", "value": data.speed, "unit": "km/h"},
-      {"title": "엔진 부하", "value": data.engineLoad, "unit": "%"},
-      {"title": "냉각수 온도", "value": data.coolantTemp, "unit": "°C"},
-      {"title": "스로틀 포지션", "value": data.throttlePosition, "unit": "%"},
-      {"title": "흡기 온도", "value": data.intakeTemp, "unit": "°C"},
-      {"title": "MAF 유량", "value": data.maf, "unit": "g/s"},
-      {"title": "연료 잔량", "value": data.fuelLevel, "unit": "%"},
-      {"title": "점화 타이밍", "value": data.timingAdvance, "unit": "°"},
-      {"title": "기압", "value": data.barometricPressure, "unit": "kPa"},
-      {"title": "외기 온도", "value": data.ambientAirTemp, "unit": "°C"},
-      {"title": "연료 압력", "value": data.fuelPressure, "unit": "kPa"},
-      {"title": "흡기 압력", "value": data.intakePressure, "unit": "kPa"},
-      {"title": "엔진 작동 시간", "value": data.runTime, "unit": "초"},
+      {"title": "RPM", "value": parsed.rpm, "unit": "rpm"},
+      {"title": "속도", "value": parsed.speed, "unit": "km/h"},
+      {"title": "엔진 부하", "value": parsed.engineLoad, "unit": "%"},
+      {"title": "냉각수 온도", "value": parsed.coolantTemp, "unit": "°C"},
+      {"title": "단기 연료 트림", "value": parsed.shortTermFuelTrim, "unit": "%"},
+      {"title": "장기 연료 트림", "value": parsed.longTermFuelTrim, "unit": "%"},
+      {"title": "흡기 매니폴드 압력", "value": parsed.intakePressure, "unit": "kPa"},
+      {"title": "점화 시기", "value": parsed.timingAdvance, "unit": "°"},
+      {"title": "흡기 온도", "value": parsed.intakeTemp, "unit": "°C"},
+      {"title": "MAF 유량", "value": parsed.maf, "unit": "g/s"},
+      {"title": "스로틀 위치", "value": parsed.throttlePosition, "unit": "%"},
+      {"title": "연료 잔량", "value": parsed.fuelLevel, "unit": "%"},
+      {"title": "연료 레일 압력", "value": parsed.fuelRailPressure, "unit": "kPa"},
+      {"title": "연료 온도", "value": parsed.fuelTemp, "unit": "°C"},
+      {"title": "증기 압력", "value": parsed.vaporPressure, "unit": "kPa"},
+      {"title": "대기압", "value": parsed.barometricPressure, "unit": "kPa"},
+      {"title": "ECM 온도", "value": parsed.ecmTemp, "unit": "°C"},
+      {"title": "배기 온도", "value": parsed.exhaustTemp, "unit": "°C"},
+      {"title": "O2 센서 전압", "value": parsed.o2SensorVoltage, "unit": "V"},
+      {"title": "NOx 센서", "value": parsed.noxSensor, "unit": "ppm"},
+      {"title": "배터리 전압", "value": parsed.batteryVoltage, "unit": "V"},
+      {"title": "엔진 실행 시간", "value": parsed.runTime, "unit": "초"},
+      {"title": "제어 모듈 전압", "value": parsed.controlModuleVoltage, "unit": "V"},
+      {"title": "부하 비율", "value": parsed.loadValue, "unit": "%"},
+      {"title": "연료 주입 타이밍", "value": parsed.fuelInjectionTiming, "unit": "ms"},
+      {"title": "점화 시기 조정", "value": parsed.ignitionTimingAdjust, "unit": "°"},
+      {"title": "외기 온도", "value": parsed.ambientAirTemp, "unit": "°C"},
       {
-        "title": "DTC 클리어 후 거리",
-        "value": data.distanceSinceCodesCleared,
-        "unit": "km",
+        "title": "연료 주입량",
+        "value": parsed.fuelInjectionQuantity,
+        "unit": "mg/str",
       },
-      {"title": "MIL 이후 거리", "value": data.distanceWithMIL, "unit": "km"},
-      {"title": "연료 종류", "value": data.fuelType, "unit": ""},
-      {"title": "엔진 오일 온도", "value": data.engineOilTemp, "unit": "°C"},
+      {
+        "title": "연료 인젝터 압력",
+        "value": parsed.fuelInjectorPressure,
+        "unit": "kPa",
+      },
+      {"title": "연료 타입", "value": parsed.fuelType, "unit": ""},
+      {"title": "엔진 오일 온도", "value": parsed.engineOilTemp, "unit": "°C"},
+      {"title": "연료 필터 압력", "value": parsed.fuelFilterPressure, "unit": "kPa"},
+      {"title": "터보 압력", "value": parsed.turboPressure, "unit": "kPa"},
+      {"title": "브레이크 압력", "value": parsed.brakePressure, "unit": "kPa"},
+      {"title": "주행 가능 거리", "value": parsed.distanceToEmpty, "unit": "km"},
+      {
+        "title": "하이브리드 배터리 전압",
+        "value": parsed.hybridBatteryVoltage,
+        "unit": "V",
+      },
+      {"title": "DPF 온도", "value": parsed.dpfTemp, "unit": "°C"},
+      {"title": "DPF 압력", "value": parsed.dpfPressure, "unit": "kPa"},
+      {"title": "SCR 상태", "value": parsed.scrStatus, "unit": ""},
+      {"title": "SCR 온도", "value": parsed.scrTemp, "unit": "°C"},
     ];
+
+    final filteredItems =
+        obdItems.where((item) {
+          final title = item["title"]?.toLowerCase() ?? '';
+          final value = item["value"]?.toString().toLowerCase() ?? '';
+          return title.contains(_searchQuery) || value.contains(_searchQuery);
+        }).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -84,55 +141,31 @@ class _Obd2DetailScreenState extends State<Obd2DetailScreen> {
         backgroundColor: white,
         foregroundColor: black,
         toolbarHeight: 60.h,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: white,
+          statusBarIconBrightness: Brightness.dark,
+          statusBarBrightness: Brightness.light,
+        ),
+        scrolledUnderElevation: 0,
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.w),
         child: Column(
           children: [
-            // 🔍 검색창
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 16.h),
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              height: 45.h,
-              decoration: BoxDecoration(
-                color: white,
-                borderRadius: BorderRadius.circular(49),
-                border: Border.all(color: lightgrayColor, width: 0.5),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: "코드 검색",
-                        hintStyle: TextStyle(
-                          color: lightgrayColor,
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w300,
-                        ),
-                        border: InputBorder.none,
-                        isCollapsed: true,
-                        contentPadding: EdgeInsets.symmetric(vertical: 12.h),
-                      ),
-                    ),
-                  ),
-                  _iconButton(
-                    'assets/images/icons/icon_search_24_grey.svg',
-                    () {
-                      // 검색 버튼 동작
-                    },
-                  ),
-                ],
-              ),
+            ObdSearchBar(
+              hintText: "코드 검색",
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value.toLowerCase();
+                });
+              },
             ),
-
-            // 📋 데이터 카드 리스트
             Expanded(
               child: ListView.builder(
-                itemCount: obdItems.length,
+                itemCount: filteredItems.length,
                 itemBuilder: (_, index) {
                   final isSelected = selectedIndex == index;
-                  final item = obdItems[index];
+                  final item = filteredItems[index];
                   final rawValue = item["value"];
                   final displayValue =
                       rawValue == null
@@ -151,7 +184,7 @@ class _Obd2DetailScreenState extends State<Obd2DetailScreen> {
                       children: [
                         AnimatedContainer(
                           height: 60.h,
-                          duration: Duration(milliseconds: 250),
+                          duration: const Duration(milliseconds: 250),
                           margin: EdgeInsets.only(bottom: 12.h),
                           padding: EdgeInsets.symmetric(
                             horizontal: 20.w,

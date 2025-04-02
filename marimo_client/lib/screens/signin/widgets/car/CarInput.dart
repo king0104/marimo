@@ -63,6 +63,9 @@ class _CarInputState extends State<CarInput> {
             case "차대 번호":
               provider.setVin(value);
               break;
+            case "닉네임":
+              provider.setNickname(value);
+              break;
           }
         },
         decoration: InputDecoration(

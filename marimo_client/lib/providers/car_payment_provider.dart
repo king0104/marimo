@@ -79,7 +79,34 @@ class CarPaymentProvider with ChangeNotifier {
 
   void setSelectedCategory(String? category) {
     _selectedCategory = category;
-    print('[Provider] setSelectedCategory: $_selectedCategory');
+    // print('[Provider] setSelectedCategory: $_selectedCategory');
     notifyListeners();
+  }
+
+  // ✅ 선택된 날짜 상태 (추가)
+  DateTime _selectedDate = DateTime.now();
+
+  DateTime get selectedDate => _selectedDate;
+
+  void setSelectedDate(DateTime date) {
+    _selectedDate = date;
+    notifyListeners();
+  }
+
+  // ✅ 선택된 금액 상태
+  int _selectedAmount = 0;
+  int get selectedAmount => _selectedAmount;
+
+  void setSelectedAmount(int amount) {
+    _selectedAmount = amount;
+    notifyListeners();
+  }
+
+  bool _isFromPlusButton = false;
+
+  bool get isFromPlusButton => _isFromPlusButton;
+
+  void markAsFromPlusButton(bool value) {
+    _isFromPlusButton = value;
   }
 }

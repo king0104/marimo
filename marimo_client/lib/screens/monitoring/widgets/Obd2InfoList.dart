@@ -4,8 +4,11 @@ import 'package:marimo_client/screens/monitoring/Obd2DetailScreen.dart';
 import 'package:marimo_client/screens/monitoring/widgets/DtcInfoCard.dart';
 import 'package:marimo_client/screens/monitoring/widgets/StatusInfoCard.dart';
 import 'package:marimo_client/screens/monitoring/widgets/ListToggle.dart';
+import 'package:marimo_client/theme.dart';
 import 'package:provider/provider.dart';
-import 'package:marimo_client/providers/obd_data_provider.dart';
+import 'package:marimo_client/providers/obd_polling_provider.dart';
+import 'package:marimo_client/utils/obd_response_parser.dart';
+import 'package:marimo_client/constants/obd_dtcs.dart'; // ✅ 추가: DTC 설명 매핑
 
 class Obd2InfoList extends StatefulWidget {
   const Obd2InfoList({super.key});
@@ -17,18 +20,26 @@ class Obd2InfoList extends StatefulWidget {
 class _Obd2InfoListState extends State<Obd2InfoList> {
   bool showDtcInfo = true;
   int? selectedIndex;
+  List<String> dtcCodes = [];
 
-  // 고장 코드 더미
-  final List<Map<String, String>> dtcData = [
-    {"code": "P13E7FD", "description": "엔진열이 너무 높아요"},
-    {"code": "P0420", "description": "촉매 변환 장치 문제"},
-    {"code": "P0301", "description": "실린더 1번 점화 이상"},
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadDtcCodes();
+  }
+
+  Future<void> _loadDtcCodes() async {
+    final provider = context.read<ObdPollingProvider>();
+    final fetchedCodes = await provider.fetchStoredDtcCodes();
+    setState(() {
+      dtcCodes = fetchedCodes;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final obd = context.watch<ObdDataProvider>();
-    final data = obd.data;
+    final responses = context.watch<ObdPollingProvider>().responses;
+    final data = parseObdResponses(responses);
 
     final statusData = [
       {
@@ -75,6 +86,8 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
                 : "--",
       },
     ];
+
+    final isDtcEmpty = showDtcInfo && dtcCodes.isEmpty;
 
     return Container(
       padding: EdgeInsets.all(12.w),
@@ -128,35 +141,128 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
           ),
           SizedBox(height: 12.h),
           Expanded(
-            child: ListView.builder(
-              itemCount: showDtcInfo ? dtcData.length : statusData.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.h),
-                  child:
-                      showDtcInfo
-                          ? (() {
-                            final item = dtcData[index]; // ✅ 여기 추가됨!
-                            return DtcInfoCard(
-                              code: item["code"]!,
-                              description: item["description"]!,
-                              isSelected: selectedIndex == index,
-                              onTap: () {
-                                setState(() {
-                                  selectedIndex =
-                                      selectedIndex == index ? null : index;
-                                });
-                              },
-                            );
-                          })()
-                          : StatusInfoCard(
-                            icon: statusData[index]["icon"] as IconData,
-                            title: statusData[index]["title"] as String,
-                            value: statusData[index]["value"] as String,
+            child:
+                isDtcEmpty
+                    ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(
+                            top: 8.h,
+                            left: 6.w,
+                            right: 6.w,
                           ),
-                );
-              },
-            ),
+                          child: Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: "차량에 고장코드가 없어요.\n",
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    color: backgroundBlackColor,
+                                    fontWeight: FontWeight.w500,
+                                    height: 1.5,
+                                  ),
+                                ),
+                                TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: "자동차가 매우 ",
+                                      style: TextStyle(
+                                        fontSize: 16.sp,
+                                        color: backgroundBlackColor,
+                                        fontWeight: FontWeight.w500,
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: "건강한 상태",
+                                      style: TextStyle(
+                                        fontSize: 16.sp,
+                                        color: brandColor,
+                                        fontWeight: FontWeight.w700,
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: "입니다! 🤗",
+                                      style: TextStyle(
+                                        fontSize: 16.sp,
+                                        color: backgroundBlackColor,
+                                        fontWeight: FontWeight.w500,
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 28.h),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 6.w),
+                          child: Text(
+                            "그렇지만 만약 고장코드가 발생한다면,\n👇 고장코드를 다음과 같이 확인할 수 있어요. ",
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              color: iconColor,
+                              fontWeight: FontWeight.w300,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 16.h),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 4.w),
+                          child: DtcInfoCard(
+                            code: "P0219",
+                            description:
+                                dtcDescriptions["P0219"] ?? "엔진 속도 초과 상태",
+                            isSelected: selectedIndex == 999,
+                            onTap: () {
+                              setState(() {
+                                selectedIndex =
+                                    selectedIndex == 999 ? null : 999;
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    )
+                    : ListView.builder(
+                      itemCount:
+                          showDtcInfo ? dtcCodes.length : statusData.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: EdgeInsets.symmetric(vertical: 4.h),
+                          child:
+                              showDtcInfo
+                                  ? (() {
+                                    final code = dtcCodes[index];
+                                    final desc =
+                                        dtcDescriptions[code] ?? "알 수 없는 고장 코드";
+                                    return DtcInfoCard(
+                                      code: code,
+                                      description: desc,
+                                      isSelected: selectedIndex == index,
+                                      onTap: () {
+                                        setState(() {
+                                          selectedIndex =
+                                              selectedIndex == index
+                                                  ? null
+                                                  : index;
+                                        });
+                                      },
+                                    );
+                                  })()
+                                  : StatusInfoCard(
+                                    icon: statusData[index]["icon"] as IconData,
+                                    title: statusData[index]["title"] as String,
+                                    value: statusData[index]["value"] as String,
+                                  ),
+                        );
+                      },
+                    ),
           ),
         ],
       ),

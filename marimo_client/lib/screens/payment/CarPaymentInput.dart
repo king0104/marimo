@@ -2,9 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'package:marimo_client/screens/payment/widgets/CarPaymentCategorySelector.dart';
-import 'package:marimo_client/screens/payment/widgets/CarPaymentAmountInput.dart';
-import 'package:marimo_client/screens/payment/widgets/CarPaymentDateInput.dart';
+import 'package:marimo_client/screens/payment/widgets/payment_input/CarPaymentCategorySelector.dart';
+import 'package:marimo_client/screens/payment/widgets/payment_input/CarPaymentAmountInput.dart';
+import 'package:marimo_client/screens/payment/widgets/payment_input/CarPaymentDateInput.dart';
 import 'package:marimo_client/commons/CustomAppHeader.dart';
 import 'package:marimo_client/theme.dart';
 import 'package:marimo_client/providers/car_payment_provider.dart';
@@ -21,26 +21,6 @@ class CarPaymentInput extends StatefulWidget {
 
 class _CarPaymentInputState extends State<CarPaymentInput> {
   DateTime selectedDate = DateTime.now();
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   // 화면이 처음 로드될 때 Provider의 selectedCategory 확인
-  //   WidgetsBinding.instance.addPostFrameCallback((_) {
-  //     if (mounted) {
-  //       final provider = Provider.of<CarPaymentProvider>(
-  //         context,
-  //         listen: false,
-  //       );
-  //       // 카테고리가 null이면 기본값으로 설정할 수도 있음
-  //       // if (provider.selectedCategory == null) {
-  //       //   provider.setSelectedCategory('주유');
-  //       // }
-  //       print('[CarPaymentInput] provider hash: ${provider.hashCode}');
-  //       print('선택된 카테고리: ${provider.selectedCategory}');
-  //     }
-  //   });
-  // }
 
   @override
   void initState() {
@@ -74,14 +54,7 @@ class _CarPaymentInputState extends State<CarPaymentInput> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // 📅 날짜 선택 위젯
-                CarPaymentDateInput(
-                  selectedDate: selectedDate,
-                  onDateSelected: (picked) {
-                    setState(() {
-                      selectedDate = picked;
-                    });
-                  },
-                ),
+                CarPaymentDateInput(),
                 SizedBox(height: 20.5.h),
                 const CarPaymentCategorySelector(),
               ],

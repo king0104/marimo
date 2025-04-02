@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/theme.dart';
 
 class LoginInput extends StatelessWidget {
@@ -9,41 +10,39 @@ class LoginInput extends StatelessWidget {
   const LoginInput({
     super.key,
     required this.hintText,
-    this.isPassword = false, // 기본 값: 이메일
+    this.isPassword = false,
     this.controller,
   });
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      obscureText: isPassword, // 비밀번호 필드 여부
-      decoration: InputDecoration(
-        hintText: hintText,
-        hintStyle: const TextStyle(color: lightgrayColor, fontSize: 16),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: lightgrayColor, width: 1.0),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(
-            color: lightgrayColor, // ✅ 테두리 색상을 명확하게 설정
-            width: 1.0,
+    return SizedBox(
+      height: 48.h, // ✅ 높이 고정
+      child: TextField(
+        controller: controller,
+        obscureText: isPassword,
+        style: TextStyle(fontSize: 16.sp),
+        decoration: InputDecoration(
+          hintText: hintText,
+          hintStyle: TextStyle(color: lightgrayColor, fontSize: 16.sp),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(color: lightgrayColor, width: 1.0),
           ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(
-            color: lightgrayColor, // ✅ 포커스 상태에서도 같은 색 유지
-            width: 1.0,
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(color: lightgrayColor, width: 1.0),
           ),
-        ),
-        filled: true,
-        fillColor: white,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 14,
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(color: lightgrayColor, width: 1.0),
+          ),
+          filled: true,
+          fillColor: white,
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: 16.w,
+            vertical: 12.h, // 내부 여백도 적절히 조절
+          ),
         ),
       ),
     );
