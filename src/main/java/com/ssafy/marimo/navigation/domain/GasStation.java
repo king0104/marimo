@@ -70,6 +70,9 @@ public class GasStation {
     private Float lpgPrice;
 
     @Column(nullable = true)
+    private Float kerosenePrice; // 등유 (자동차부탄) 가격
+
+    @Column(nullable = true)
     private LocalDateTime standardTime;
 
     // ✅ 정적 생성 메서드 추가
