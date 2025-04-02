@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gemma/core/model.dart';
 import 'package:flutter_gemma/pigeon.g.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:marimo_client/screens/my/MyScreen.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutter_gemma/flutter_gemma.dart'; // flutter_gemma 플러그인 import
@@ -19,11 +20,12 @@ class _ChatbotState extends State<Chatbot> {
   late FlutterTts _flutterTts;
   bool _isListening = false;
   bool _isProcessing = false;
-  // 기본 안내 문구를 변경
-  String _recognizedText = "AI '마리모'에게 궁금한 것을 물어봐주세요.";
+  // 마이크 버튼 클릭 시 프리셋 메시지: 음성 인식 시작 전에 기본 안내 문구를 표시
+  String _recognizedText = "안녕하세요? AI 마리모입니다.\n원하시는 내용을 말씀해주세요.";
 
-  // Gemma 모델 추론 인스턴스
+  // Gemma 모델 추론 인스턴스 및 현재 활성 세션
   InferenceModel? _inferenceModel;
+  dynamic _currentSession;
 
   // 애니메이션 인덱스 및 타이머
   int _listeningIconIndex = 1;
@@ -38,13 +40,12 @@ class _ChatbotState extends State<Chatbot> {
     _flutterTts = FlutterTts();
     _flutterTts.setLanguage("ko-KR");
 
-    // TTS 완료 시 처리
+    // TTS 완료 시 처리: 응답이 끝나면 처리 애니메이션을 중지하고 기본 안내 메시지로 복원
     _flutterTts.setCompletionHandler(() {
       _stopProcessingAnimation();
       setState(() {
         _isProcessing = false;
-        // 기본 안내 문구 업데이트
-        _recognizedText = "AI '마리모'에게 궁금한 것을 물어봐주세요.";
+        _recognizedText = "안녕하세요? AI 마리모입니다.\n원하시는 내용을 말씀해주세요.";
       });
     });
 
@@ -62,7 +63,7 @@ class _ChatbotState extends State<Chatbot> {
       _inferenceModel = await FlutterGemmaPlugin.instance.createModel(
         modelType: ModelType.gemmaIt, // Gemma instruction-tuned 모델
         preferredBackend: PreferredBackend.cpu, // 또는 PreferredBackend.gpu
-        maxTokens: 512, // 최대 토큰 수 (필요에 따라 조정)
+        maxTokens: 512, // 최대 토큰 수 (응답 길이 제한)
       );
       debugPrint('Gemma 모델 초기화 완료');
     } catch (e) {
@@ -70,22 +71,28 @@ class _ChatbotState extends State<Chatbot> {
     }
   }
 
-  /// Gemma 모델을 통해 추론 수행: STT로 얻은 [prompt]를 기반으로 생성된 응답 반환
+  /// Gemma 모델을 통해 추론 수행
+  /// 프롬프트에 "마크다운 사용 금지", "최대 1분 분량", "서비스 기능 호출 시 action: myscreen" 조건을 포함합니다.
   Future<String> _performGemmaInference(String prompt) async {
     if (_inferenceModel == null) {
       return "모델이 초기화되지 않았습니다.";
     }
     try {
       final session = await _inferenceModel!.createSession(
-        temperature: 1.0, // 생성 시 무작위성 (기본 1.0)
+        temperature: 1.0, // 생성 시 무작위성
         randomSeed: 1, // 재현성을 위한 랜덤 시드
-        topK: 1, // 매 스텝에서 후보 토큰 수
+        topK: 1, // 후보 토큰 제한
       );
-      // 입력 프롬프트 추가
-      await session.addQueryChunk(Message(text: prompt));
-      // 동기식 응답 생성 (완료될 때까지 대기)
+      _currentSession = session;
+      String modifiedPrompt =
+          "대답은 일반 텍스트로만 작성해 주세요. 마크다운이나 다른 포맷은 사용하지 마세요. "
+              "대답은 최대 1분 이내로 간결하게 작성해 주세요. 만약 사용자 요청이 서비스 기능(예: 마이 스크린 이동)을 요구하면, "
+              "'action: myscreen' 형식으로 응답해 주세요. 사용자 입력: " +
+          prompt;
+      await session.addQueryChunk(Message(text: modifiedPrompt));
       final response = await session.getResponse();
       await session.close();
+      _currentSession = null;
       return response;
     } catch (e) {
       debugPrint("추론 오류: $e");
@@ -101,23 +108,36 @@ class _ChatbotState extends State<Chatbot> {
     if (available) {
       setState(() {
         _isListening = true;
-        _recognizedText = "";
+        // 마이크 버튼 클릭 시 기본 안내 메시지를 미리 출력
+        _recognizedText = "안녕하세요? AI 마리모입니다.\n원하시는 내용을 말씀해주세요.";
       });
       _startListeningAnimation();
       _speech.listen(
         onResult: (result) async {
+          // 인식된 결과를 한 줄씩 추가하여 화면에 표시
           setState(() {
-            _recognizedText = result.recognizedWords;
+            _recognizedText += "\n" + result.recognizedWords;
           });
           if (result.finalResult) {
             await _stopListening();
             _startProcessingAnimation();
-            // STT 결과를 기반으로 Gemma 모델 추론 수행
             String generatedResponse = await _performGemmaInference(
               _recognizedText,
             );
-            // 추론 결과를 TTS로 읽어줌
-            await _flutterTts.speak(generatedResponse);
+            // Gemma 응답이 서비스 기능 호출 명령(action:)이면 TTS 대신 해당 기능 수행
+            if (generatedResponse.trim().startsWith("action:")) {
+              String action =
+                  generatedResponse.trim().substring("action:".length).trim();
+              if (action.toLowerCase() == "myscreen") {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MyScreen()),
+                );
+              }
+            } else {
+              // 일반 응답은 TTS로 읽어줌
+              await _flutterTts.speak(generatedResponse);
+            }
           }
         },
         listenFor: const Duration(seconds: 10),
@@ -177,6 +197,9 @@ class _ChatbotState extends State<Chatbot> {
   void dispose() {
     _listeningTimer?.cancel();
     _processingTimer?.cancel();
+    _speech.stop();
+    _flutterTts.stop();
+    _currentSession?.close();
     super.dispose();
   }
 
