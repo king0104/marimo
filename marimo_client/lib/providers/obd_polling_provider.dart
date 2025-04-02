@@ -205,7 +205,15 @@ class ObdPollingProvider with ChangeNotifier {
   // saveResponsesToLocal() - 로컬에 응답 데이터 저장
   Future<void> _saveResponsesToLocal() async {
     final prefs = await SharedPreferences.getInstance();
-    final jsonString = jsonEncode(_pidResponses);
+
+    final cleanedMap = <String, String>{};
+    for (final entry in _pidResponses.entries) {
+      final key = entry.key;
+      final newKey = key.startsWith('01') ? key.substring(2) : key;
+      cleanedMap[newKey] = entry.value;
+    }
+
+    final jsonString = jsonEncode(cleanedMap);
     await prefs.setString('last_obd_data', jsonString);
   }
 
@@ -213,8 +221,11 @@ class ObdPollingProvider with ChangeNotifier {
   Future<void> loadResponsesFromLocal() async {
     final prefs = await SharedPreferences.getInstance();
     final jsonString = prefs.getString('last_obd_data');
+    print('✅ 로컬에 저장된 OBD 데이터: $jsonString');
+
     if (jsonString != null) {
       final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+      _pidResponses.clear();
       jsonMap.forEach((key, value) {
         _pidResponses[key] = value.toString();
       });
