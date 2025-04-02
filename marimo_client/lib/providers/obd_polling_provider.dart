@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 
 import 'package:marimo_client/constants/obd_pids.dart';
@@ -17,11 +19,11 @@ class ObdPollingProvider with ChangeNotifier {
   Completer<String>? _commandCompleter; // 명령에 대한 응답을 기다리는 Completer
   StringBuffer? _responseBuffer; // 명령 응답 버퍼
 
-  /// OBD 기기와 연결하고, 초기화 후 PID 폴링을 시작하는 함수
+  /// connectAndStartPolling() - OBD 기기와 연결하고, 초기화 후 PID 폴링을 시작하는 함수
   Future<void> connectAndStartPolling() async {
-    // 이미 페어링된 Bluetooth 기기 목록 가져오기
     final bondedDevices =
-        await FlutterBluetoothSerial.instance.getBondedDevices();
+        await FlutterBluetoothSerial.instance
+            .getBondedDevices(); // 이미 페어링된 Bluetooth 기기 목록 가져오기
 
     // 이름에 'OBD', 'ELM', 'VGATE' 등을 포함하는 기기 필터링
     final obdDevices =
@@ -103,7 +105,7 @@ class ObdPollingProvider with ChangeNotifier {
     _pollPids();
   }
 
-  /// 내부적으로 PID들을 순차적으로 요청하는 폴링 루프
+  /// pollPids() - 내부적으로 PID들을 순차적으로 요청하는 폴링 루프
   void _pollPids() async {
     while (isRunning && isConnected) {
       // 모든 PID에 대해 순차적으로 명령 전송
@@ -114,6 +116,7 @@ class ObdPollingProvider with ChangeNotifier {
           // '01' 모드에 해당 PID 전송 및 응답 대기
           final response = await _sendCommand('01$pid');
           _pidResponses['01$pid'] = response;
+          await _saveResponsesToLocal();
         } catch (_) {
           // 예외 발생 시 응답 없음 처리
           _pidResponses['01$pid'] = 'NO RESPONSE';
@@ -126,16 +129,22 @@ class ObdPollingProvider with ChangeNotifier {
     }
   }
 
-  /// 폴링 중지를 위한 함수
+  /// stopPolling() - 폴링 중지를 위한 함수
   void stopPolling() {
     isRunning = false;
     notifyListeners();
   }
 
-  /// OBD 초기화 명령들을 순차적으로 전송하는 함수
+  /// initializeObd() - OBD 초기화 명령들을 순차적으로 전송하는 함수
   Future<void> _initializeObd() async {
-    // OBD 초기화를 위한 AT 명령 리스트
-    final cmds = ['ATZ', 'ATE0', 'ATL0', 'ATS0', 'ATH1', 'ATSP0'];
+    final cmds = [
+      'ATZ',
+      'ATE0',
+      'ATL0',
+      'ATS0',
+      'ATH1',
+      'ATSP0',
+    ]; // OBD 초기화를 위한 AT 명령 리스트
     for (final cmd in cmds) {
       // 각 명령 전송 및 응답 대기
       await _sendCommand(cmd);
@@ -191,5 +200,83 @@ class ObdPollingProvider with ChangeNotifier {
     // Provider 종료 시 연결 해제
     disconnect();
     super.dispose();
+  }
+
+  // saveResponsesToLocal() - 로컬에 응답 데이터 저장
+  Future<void> _saveResponsesToLocal() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final cleanedMap = <String, String>{};
+    for (final entry in _pidResponses.entries) {
+      final key = entry.key;
+      final newKey = key.startsWith('01') ? key.substring(2) : key;
+      cleanedMap[newKey] = entry.value;
+    }
+
+    final jsonString = jsonEncode(cleanedMap);
+    await prefs.setString('last_obd_data', jsonString);
+  }
+
+  // loadResponsesFromLocal() - 로컬에서 응답 데이터 불러오기
+  Future<void> loadResponsesFromLocal() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString('last_obd_data');
+    print('✅ 로컬에 저장된 OBD 데이터: $jsonString');
+
+    if (jsonString != null) {
+      final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+      _pidResponses.clear();
+      jsonMap.forEach((key, value) {
+        _pidResponses[key] = value.toString();
+      });
+      notifyListeners();
+    }
+  }
+
+  // ✅ ObdPollingProvider에 DTC 코드 조회 함수 추가
+  Future<List<String>> fetchStoredDtcCodes() async {
+    if (!isConnected || _connection == null) {
+      throw Exception('OBD 기기에 연결되어 있지 않습니다');
+    }
+
+    try {
+      final response = await _sendCommand('03'); // Mode 03: Stored DTCs
+      // 응답 파싱 로직 (단순화된 예시)
+      final lines =
+          response
+              .split(RegExp(r'[\r\n]+'))
+              .where((l) => l.trim().isNotEmpty)
+              .toList();
+      if (lines.isEmpty) return [];
+
+      final hexString = lines.join('').replaceAll(' ', '');
+      if (!hexString.startsWith('43')) return [];
+
+      final codeSection = hexString.substring(2); // "43" 이후의 DTC 섹션
+      final dtcCodes = <String>[];
+
+      for (int i = 0; i + 4 <= codeSection.length; i += 4) {
+        final chunk = codeSection.substring(i, i + 4);
+        final code = _convertToDtcCode(chunk);
+        dtcCodes.add(code);
+      }
+
+      return dtcCodes;
+    } catch (e) {
+      debugPrint('DTC 조회 실패: \$e');
+      return [];
+    }
+  }
+
+  String _convertToDtcCode(String raw) {
+    final firstByte = int.parse(raw.substring(0, 2), radix: 16);
+    final secondByte = raw.substring(2);
+
+    final type = ['P', 'C', 'B', 'U'][(firstByte & 0xC0) >> 6];
+    final firstDigit = ((firstByte & 0x30) >> 4).toString();
+    final lastTwo =
+        (firstByte & 0x0F).toRadixString(16).toUpperCase() + secondByte;
+
+    return '$type\$firstDigit\$lastTwo';
   }
 }

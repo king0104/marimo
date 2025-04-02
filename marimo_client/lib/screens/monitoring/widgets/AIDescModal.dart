@@ -63,7 +63,7 @@ class AIDescModal extends StatelessWidget {
             SizedBox(height: 20.h),
 
             // 🔴 의미 설명
-            _SectionTitle(icon: "❗", title: "이 상태는 무엇을 의미하나요?"),
+            _SectionTitle(icon: "🚨", title: "이 상태는 무엇을 의미하나요?"),
             ...meaningList.map(
               (text) => Padding(
                 padding: EdgeInsets.only(bottom: 6.h),
@@ -71,8 +71,8 @@ class AIDescModal extends StatelessWidget {
                   "· $text",
                   style: TextStyle(
                     fontSize: 14.sp,
-                    height: 1.5,
-                    color: Colors.black.withOpacity(0.8),
+                    height: 1.3.h,
+                    color: iconColor,
                   ),
                 ),
               ),
@@ -88,11 +88,9 @@ class AIDescModal extends StatelessWidget {
                   "· $text",
                   style: TextStyle(
                     fontSize: 14.sp,
-                    height: 1.5,
+                    height: 1.3.h,
                     color:
-                        text.contains("점화")
-                            ? Colors.black
-                            : Colors.black.withOpacity(0.8),
+                        text.contains("점화") ? backgroundBlackColor : iconColor,
                     fontWeight:
                         text.contains("점화") ? FontWeight.w600 : FontWeight.w400,
                   ),

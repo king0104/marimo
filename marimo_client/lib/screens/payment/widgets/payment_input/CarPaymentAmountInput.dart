@@ -21,10 +21,17 @@ class _CarPaymentAmountInputState extends State<CarPaymentAmountInput> {
   int? tappedIndex;
 
   @override
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final provider = Provider.of<CarPaymentProvider>(context);
-    input = provider.selectedAmount.toString(); // ✅ 동기화
+
+    if (provider.isFromPlusButton) {
+      input = '';
+      provider.markAsFromPlusButton(false);
+    } else {
+      input = provider.selectedAmount.toString();
+    }
   }
 
   void _onPressed(String value, int index) {
@@ -85,6 +92,7 @@ class _CarPaymentAmountInputState extends State<CarPaymentAmountInput> {
     // print('[CarPaymentAmountInput] provider.selectedAmount: $providerAmount');
 
     final provider = Provider.of<CarPaymentProvider>(context);
+    // input = provider.selectedAmount.toString(); // ✅ 동기화
     final selectedAmount = provider.selectedAmount;
 
     final formattedAmount = NumberFormat(
