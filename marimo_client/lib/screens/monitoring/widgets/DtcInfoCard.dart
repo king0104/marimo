@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:marimo_client/screens/monitoring/widgets/AIDescModal.dart';
 import 'package:marimo_client/services/commons/chat_service.dart';
 import 'package:marimo_client/theme.dart';
+import 'package:marimo_client/constants/obd_dtcs.dart';
 
 class DtcInfoCard extends StatelessWidget {
   final String code;
@@ -21,6 +22,9 @@ class DtcInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String mappedTitle =
+        dtcDescriptions[code] ?? "알 수 없는 고장 코드"; // ✅ 코드 매핑
+
     return GestureDetector(
       onTap: onTap,
       child: Stack(
@@ -29,7 +33,7 @@ class DtcInfoCard extends StatelessWidget {
             duration: Duration(milliseconds: 250),
             width: double.infinity,
             height: 80.h,
-            margin: EdgeInsets.only(bottom: 12.h),
+            margin: EdgeInsets.only(bottom: 4.h),
             padding: EdgeInsets.only(
               left: 16.w,
               right: 8.w,
@@ -82,7 +86,7 @@ class DtcInfoCard extends StatelessWidget {
                               final response = await chatService
                                   .fetchChatGPTResponse(
                                     code: code,
-                                    title: "엔진 실화 발생",
+                                    title: mappedTitle, // ✅ 여기에 매핑된 title 사용
                                   );
                               Navigator.of(context).pop();
 
@@ -91,14 +95,14 @@ class DtcInfoCard extends StatelessWidget {
                                 builder:
                                     (_) => AIDescModal(
                                       code: code,
-                                      title: "엔진 실화 발생",
+                                      title: mappedTitle,
                                       meaningList: response.meaningList,
                                       actionList: response.actionList,
                                     ),
                               );
                             } catch (e, stackTrace) {
-                              debugPrint('Error fetching AI diagnosis: \$e');
-                              debugPrint('Stack trace: \$stackTrace');
+                              debugPrint('Error fetching AI diagnosis: $e');
+                              debugPrint('Stack trace: $stackTrace');
                               Navigator.of(context).pop();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(

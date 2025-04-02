@@ -7,6 +7,7 @@ import 'package:marimo_client/screens/monitoring/widgets/ListToggle.dart';
 import 'package:provider/provider.dart';
 import 'package:marimo_client/providers/obd_polling_provider.dart';
 import 'package:marimo_client/utils/obd_response_parser.dart';
+import 'package:marimo_client/constants/obd_dtcs.dart'; // ✅ 추가: DTC 설명 매핑
 
 class Obd2InfoList extends StatefulWidget {
   const Obd2InfoList({super.key});
@@ -19,11 +20,8 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
   bool showDtcInfo = true;
   int? selectedIndex;
 
-  final List<Map<String, String>> dtcData = [
-    {"code": "P13E7FD", "description": "엔진열이 너무 높아요"},
-    {"code": "P0420", "description": "촉매 변환 장치 문제"},
-    {"code": "P0301", "description": "실린더 1번 점화 이상"},
-  ];
+  // ✅ 코드만 보관하고 설명은 런타임 매핑
+  final List<String> dtcCodes = ["P13E7FD", "P0420", "P0301"];
 
   @override
   Widget build(BuildContext context) {
@@ -129,17 +127,21 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
           SizedBox(height: 12.h),
           Expanded(
             child: ListView.builder(
-              itemCount: showDtcInfo ? dtcData.length : statusData.length,
+              itemCount: showDtcInfo ? dtcCodes.length : statusData.length,
               itemBuilder: (context, index) {
                 return Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.h),
+                  padding: EdgeInsets.symmetric(vertical: 4.h),
                   child:
                       showDtcInfo
                           ? (() {
-                            final item = dtcData[index];
+                            final code = dtcCodes[index];
+                            final desc =
+                                dtcDescriptions[code] ??
+                                "알 수 없는 고장 코드"; // ✅ 자동 매핑
+
                             return DtcInfoCard(
-                              code: item["code"]!,
-                              description: item["description"]!,
+                              code: code,
+                              description: desc,
                               isSelected: selectedIndex == index,
                               onTap: () {
                                 setState(() {
