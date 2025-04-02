@@ -137,24 +137,13 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
 
     final result = await Navigator.of(context).push(
       MaterialPageRoute(
-        builder:
-            (context) => CarDetailFormRepairList(
-              selectedItem: _typeController.text,
-              repairItems: repairList,
-              onItemSelected: (String selected) {
-                setState(() {
-                  _typeController.text = selected;
-                });
-              },
-            ),
+        builder: (context) => CarDetailFormRepairList(repairItems: repairList),
       ),
     );
 
-    if (result != null && result is String) {
-      setState(() {
-        _typeController.text = result;
-      });
-    }
+    setState(() {
+      _typeController.text = _provider.selectedRepairItems.join(', ');
+    });
   }
 
   void _saveAndNavigate() {
@@ -206,11 +195,12 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
 
   // 카테고리별 타입 힌트 텍스트 반환
   String _getTypeHintText() {
+    final hasSelection = _provider.selectedRepairItems.isNotEmpty;
     switch (widget.category) {
       case '주유':
         return '선택하기';
       case '정비':
-        return '선택하기';
+        return hasSelection ? _provider.selectedRepairItems.join(', ') : '선택하기';
       default:
         return '';
     }
