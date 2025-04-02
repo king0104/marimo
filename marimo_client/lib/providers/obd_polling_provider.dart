@@ -232,4 +232,51 @@ class ObdPollingProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  // ✅ ObdPollingProvider에 DTC 코드 조회 함수 추가
+  Future<List<String>> fetchStoredDtcCodes() async {
+    if (!isConnected || _connection == null) {
+      throw Exception('OBD 기기에 연결되어 있지 않습니다');
+    }
+
+    try {
+      final response = await _sendCommand('03'); // Mode 03: Stored DTCs
+      // 응답 파싱 로직 (단순화된 예시)
+      final lines =
+          response
+              .split(RegExp(r'[\r\n]+'))
+              .where((l) => l.trim().isNotEmpty)
+              .toList();
+      if (lines.isEmpty) return [];
+
+      final hexString = lines.join('').replaceAll(' ', '');
+      if (!hexString.startsWith('43')) return [];
+
+      final codeSection = hexString.substring(2); // "43" 이후의 DTC 섹션
+      final dtcCodes = <String>[];
+
+      for (int i = 0; i + 4 <= codeSection.length; i += 4) {
+        final chunk = codeSection.substring(i, i + 4);
+        final code = _convertToDtcCode(chunk);
+        dtcCodes.add(code);
+      }
+
+      return dtcCodes;
+    } catch (e) {
+      debugPrint('DTC 조회 실패: \$e');
+      return [];
+    }
+  }
+
+  String _convertToDtcCode(String raw) {
+    final firstByte = int.parse(raw.substring(0, 2), radix: 16);
+    final secondByte = raw.substring(2);
+
+    final type = ['P', 'C', 'B', 'U'][(firstByte & 0xC0) >> 6];
+    final firstDigit = ((firstByte & 0x30) >> 4).toString();
+    final lastTwo =
+        (firstByte & 0x0F).toRadixString(16).toUpperCase() + secondByte;
+
+    return '$type\$firstDigit\$lastTwo';
+  }
 }
