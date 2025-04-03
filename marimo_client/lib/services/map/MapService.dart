@@ -178,27 +178,26 @@ class MapService {
   Future<void> centerMarkersWithZoom({
     required NaverMapController controller,
     required List<Place> places,
-    double defaultZoom = 14.0,
   }) async {
     if (places.isEmpty) return;
 
-    final latSum = places.fold(0.0, (sum, p) => sum + p.lat);
-    final lngSum = places.fold(0.0, (sum, p) => sum + p.lng);
-    final centerLat = latSum / places.length;
-    final centerLng = lngSum / places.length;
+    final latList = places.map((p) => p.lat).toList();
+    final lngList = places.map((p) => p.lng).toList();
 
-    final zoom = switch (places.length) {
-      1 => 16.0,
-      2 => 15.0,
-      3 => 14.5,
-      _ => defaultZoom,
-    };
+    final southWest = NLatLng(
+      latList.reduce((a, b) => a < b ? a : b),
+      lngList.reduce((a, b) => a < b ? a : b),
+    );
+
+    final northEast = NLatLng(
+      latList.reduce((a, b) => a > b ? a : b),
+      lngList.reduce((a, b) => a > b ? a : b),
+    );
+
+    final bounds = NLatLngBounds(southWest: southWest, northEast: northEast);
 
     await controller.updateCamera(
-      NCameraUpdate.scrollAndZoomTo(
-        target: NLatLng(centerLat, centerLng),
-        zoom: zoom,
-      ),
+      NCameraUpdate.fitBounds(bounds, padding: const EdgeInsets.all(80)),
     );
   }
 
