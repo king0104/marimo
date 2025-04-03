@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:marimo_client/models/map/Place.dart';
-import 'package:marimo_client/screens/map/data/MockData.dart';
+import 'package:marimo_client/models/map/gas_station_place.dart';
+import 'package:marimo_client/providers/map/filter_provider.dart';
+import 'package:marimo_client/screens/map/utils/map_filter_mapper.dart';
 import 'package:marimo_client/screens/map/utils/map_utils.dart';
 import 'package:marimo_client/screens/map/widgets/PlaceCard.dart';
 import 'package:marimo_client/services/map/MapService.dart';
@@ -15,6 +16,10 @@ import 'package:provider/provider.dart';
 import 'widgets/FilterIcon.dart';
 import 'widgets/FilterBottomSheet.dart';
 import 'package:collection/collection.dart';
+import 'package:marimo_client/services/map/map_search_service.dart';
+import 'package:marimo_client/models/map/gas_station_place.dart';
+import 'package:marimo_client/providers/member/auth_provider.dart';
+import 'package:marimo_client/screens/map/utils/map_place_mapper.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -236,27 +241,84 @@ class _MapScreenState extends State<MapScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (context) => const FilterBottomSheet(),
+      builder: (modalContext) {
+        return Builder(
+          builder: (ctx) => const FilterBottomSheet(), // ✅ 이 ctx로 Provider 접근
+        );
+      },
     );
   }
 
   /// 카테고리 선택 시 마커 생성
+  /// 카테고리 선택 시 마커 생성
   Future<void> _onCategoryTap(String type) async {
+    final token = context.read<AuthProvider>().accessToken;
+    final position = context.read<LocationProvider>().lastKnownPosition;
+    final filters = context.read<FilterProvider>().filtersByCategory;
+    final parsed = parseFilterOptions(filters); // ✅ 이제 Map 기반 파싱
+
     await _mapService.removeMarkersByIds(
       controller: _mapController!,
       ids: _previousMarkerIds,
     );
-    final filtered = mockPlaces.where((p) => p.type == type).take(3).toList();
+
+    if (token == null || position == null) {
+      print('❗ 토큰 또는 위치 정보 없음');
+      return;
+    }
+
+    List<Place> places = [];
+
+    try {
+      if (type == 'gas') {
+        // ✅ 위치 + 필터 파라미터 포함한 POST 요청
+        final data = await MapSearchService.getGasStations(
+          accessToken: token,
+          latitude: position.latitude,
+          longitude: position.longitude,
+          radius: 3000,
+          hasSelfService: parsed.hasSelfService,
+          hasMaintenance: parsed.hasMaintenance,
+          hasCarWash: parsed.hasCarWash,
+          hasCvs: parsed.hasCvs,
+          brandList: parsed.brandList, // ✅ 수정됨
+          oilTypeList: parsed.oilTypeList, // ✅ 수정됨
+        );
+
+        print('✅ [API 응답] 받은 주유소 개수: ${data.length}');
+        print('✅ [API 응답] 첫 번째: ${data.isNotEmpty ? data.first : '없음'}');
+        // places = data.map((json) => mapGasStationJsonToPlace(json)).toList();
+        places =
+            data.map((json) {
+              final place = mapGasStationJsonToPlace(json);
+              print(
+                '🗺️ 변환된 Place: id=${place.id}, lat=${place.lat}, lng=${place.lng}',
+              );
+              return place;
+            }).toList();
+      } else {
+        // TODO: 정비소/세차장 API 완성되면 여기도 확장
+        return;
+      }
+    } catch (e) {
+      print('🚨 주유소 데이터 불러오기 실패: $e');
+      return;
+    }
+
     setState(() {
-      _currentPlaces = filtered;
+      _currentPlaces = places;
       _highlightedPlaceId = null;
-      _previousMarkerIds = filtered.map((e) => e.id).toList();
+      _previousMarkerIds = places.map((e) => e.id).toList();
     });
+
+    print('📍 현재 Place 수: ${_currentPlaces.length}');
+
     await _mapService.addPlaceMarkers(
       controller: _mapController!,
       places: _currentPlaces,
       onMarkerTap: _onMarkerTapped,
     );
+
     await Future.delayed(const Duration(milliseconds: 300));
     await _mapService.centerMarkersWithZoom(
       controller: _mapController!,

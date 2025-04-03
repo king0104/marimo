@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:marimo_client/models/map/Place.dart'; // ✅ Place 모델 import
+import 'package:marimo_client/models/map/gas_station_place.dart'; // ✅ Place 모델 import
 import 'package:marimo_client/screens/map/utils/map_utils.dart';
 
 class MapService {
@@ -44,7 +44,9 @@ class MapService {
     void Function()? onTap,
   }) async {
     final markerIcon = await NOverlayImage.fromAssetImage(
-      _getMarkerAssetPath(type: place.type, isSelected: isSelected),
+      isSelected
+          ? 'assets/images/markers/marker_gas_selected.png'
+          : 'assets/images/markers/marker_gas_default.png',
     );
 
     final marker = NMarker(
@@ -95,14 +97,17 @@ class MapService {
     required List<Place> places,
     void Function(String markerId)? onMarkerTap,
   }) async {
-    for (var place in places) {
-      await _addTypedMarker(
+    // 모든 마커 생성 Future를 한 번에 실행
+    final futures = places.map((place) {
+      return _addTypedMarker(
         controller: controller,
         place: place,
         isSelected: false,
         onTap: onMarkerTap != null ? () => onMarkerTap(place.id) : null,
       );
-    }
+    });
+
+    await Future.wait(futures); // 🔥 병렬 실행
   }
 
   /// 마커 강조

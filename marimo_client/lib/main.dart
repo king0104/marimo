@@ -29,6 +29,10 @@ import 'commons/BottomNavigationBar.dart';
 import 'providers/car_provider.dart';
 import 'providers/car_payment_provider.dart';
 import 'providers/navigation_provider.dart';
+import 'providers/map/category_provider.dart';
+import 'providers/map/filter_provider.dart';
+import 'providers/map/location_provider.dart';
+import 'providers/map/station_cards_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -57,7 +61,10 @@ void main() async {
         ChangeNotifierProvider(create: (_) => CarRegistrationProvider()),
         ChangeNotifierProvider(create: (_) => CarPaymentProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => CategoryProvider()),
+        ChangeNotifierProvider(create: (_) => FilterProvider()),
         ChangeNotifierProvider(create: (_) => LocationProvider()),
+        ChangeNotifierProvider(create: (_) => StationCardsProvider()),
         ChangeNotifierProvider(create: (_) => ObdPollingProvider()),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ChangeNotifierProvider(create: (_) => HomeAnimationProvider()),
