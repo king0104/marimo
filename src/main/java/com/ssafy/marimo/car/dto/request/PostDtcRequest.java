@@ -5,7 +5,7 @@ import lombok.Builder;
 
 @Builder
 public record PostDtcRequest (
-        List<String> dtcs;
+        List<String> dtcs
 ) {
     public static PostDtcRequest of(List<String> dtcs) {
         return PostDtcRequest.builder()

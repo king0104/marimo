@@ -20,32 +20,32 @@ import lombok.NoArgsConstructor;
 public class RepairPayment extends Payment {
 
     @Column(nullable = true, length = 50)
-    private String repairPart;
+    private String repairParts;
 
     @Builder
-    private RepairPayment(Car car, Integer price, LocalDateTime paymentDate, String location, String memo, String repairPart) {
+    private RepairPayment(Car car, Integer price, LocalDateTime paymentDate, String location, String memo, String repairParts) {
         super(car, price, paymentDate, location, memo);
-        this.repairPart = repairPart;
+        this.repairParts = repairParts;
     }
 
-    public static RepairPayment create(Car car, Integer price, LocalDateTime paymentDate, String location, String memo, String repairPart) {
+    public static RepairPayment create(Car car, Integer price, LocalDateTime paymentDate, String location, String memo, String repairParts) {
         return RepairPayment.builder()
                 .car(car)
                 .price(price)
                 .paymentDate(paymentDate)
                 .location(location)
                 .memo(memo)
-                .repairPart(repairPart)
+                .repairParts(repairParts)
                 .build();
     }
 
-    private void changeRepairPart(String repairPart) {
-        if (repairPart != null) this.repairPart = repairPart;
+    private void changeRepairParts(String repairParts) {
+        if (repairParts != null) this.repairParts = repairParts;
     }
 
     public void updateFromRequestDto(PatchRepairPaymentRequest patchRepairPaymentRequest) {
         changePayment(patchRepairPaymentRequest.price(), patchRepairPaymentRequest.paymentDate(), patchRepairPaymentRequest.location(), patchRepairPaymentRequest.memo());
-        changeRepairPart(patchRepairPaymentRequest.repairPart());
+        changeRepairParts(patchRepairPaymentRequest.repairParts());
     }
 
 }
