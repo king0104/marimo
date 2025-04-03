@@ -3,6 +3,8 @@ package com.ssafy.marimo.navigation.dto.request;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.List;
+
 
 public record PostGasStationRecommendRequest(
         @NotNull Double latitude,
@@ -13,6 +15,6 @@ public record PostGasStationRecommendRequest(
         @Nullable Boolean hasMaintenance,
         @Nullable Boolean hasCarWash,
         @Nullable Boolean hasCvs,
-        @Nullable String brand,
-        @Nullable String oilType
+        @Nullable List<String> brandList,       // ✅ 변경
+        @Nullable List<String> oilTypeList      // ✅ 변경
 ) {}

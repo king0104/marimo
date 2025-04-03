@@ -131,17 +131,20 @@ public class OpinetStationSyncService {
                 Float price = Float.parseFloat(getTag(priceElement, "PRICE"));
 
                 switch (prodCd) {
-                    case "B027":  // 프리미엄 가솔린
-                        station.setPremiumGasolinePrice(price);
-                        break;
-                    case "B034":  // 일반 가솔린
+                    case "B027":  // 일반 가솔린 (휘발유)
                         station.setNormalGasolinePrice(price);
                         break;
-                    case "D047":  // 디젤
+                    case "B034":  // 프리미엄 가솔린 (고급 휘발유)
+                        station.setPremiumGasolinePrice(price);
+                        break;
+                    case "D047":  // 디젤 (경유)
                         station.setDieselPrice(price);
                         break;
-                    case "K015":  // LPG
-                        station.setLpgPrice(price);
+                    case "C004":  // 실내등유 (등유)
+                        station.setDieselPrice(price);
+                        break;
+                    case "K015":  // 자동차부탄 (LPG)
+                        station.setKerosenePrice(price);
                         break;
                 }
             }
