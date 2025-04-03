@@ -5,8 +5,7 @@ import 'package:flutter_gemma/pigeon.g.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:flutter_gemma/flutter_gemma.dart'; // flutter_gemma 플러그인 import
-import 'package:marimo_client/screens/my/MyScreen.dart'; // MyScreen 이동을 위해 추가
+import 'package:flutter_gemma/flutter_gemma.dart';
 
 class Chatbot extends StatefulWidget {
   const Chatbot({super.key});
@@ -20,18 +19,11 @@ class _ChatbotState extends State<Chatbot> {
   late FlutterTts _flutterTts;
   bool _isListening = false;
   bool _isProcessing = false;
+  // 누적 텍스트 (타자기 효과 적용)
+  String _recognizedText = "";
 
-  // 대화 기록. 사용자 메시지는 "나:"로, AI 응답은 "마리모:"로 표시됩니다.
-  final List<String> _conversationHistory = [];
-  // 현재 사용자의 음성 입력 (실시간 STT 결과)
-  String _currentUserInput = "";
-
-  // 타입라이터 효과를 위한 변수
-  String _typewriterText = "";
-
-  // Gemma 모델 추론 인스턴스 및 현재 활성 세션
+  // Gemma 모델 추론 인스턴스
   InferenceModel? _inferenceModel;
-  dynamic _currentSession; // Session 타입 대신 dynamic 사용
 
   // 애니메이션 인덱스 및 타이머
   int _listeningIconIndex = 1;
@@ -39,30 +31,20 @@ class _ChatbotState extends State<Chatbot> {
   Timer? _listeningTimer;
   Timer? _processingTimer;
 
-  // 전체 대화창에 표시할 텍스트 (대화 기록 + 현재 입력)
-  String get _displayText {
-    String history = _conversationHistory.join("\n");
-    if (_currentUserInput.isNotEmpty) {
-      return "$history\n나: $_currentUserInput";
-    }
-    return history;
-  }
-
   @override
   void initState() {
     super.initState();
-    // 타입라이터 효과로 인사말을 보여주기 위한 초기화
-    _startTypewriterGreeting();
-
     _speech = stt.SpeechToText();
     _flutterTts = FlutterTts();
     _flutterTts.setLanguage("ko-KR");
 
-    // TTS 완료 시 처리: 단순히 처리 애니메이션 중지
+    // TTS 완료 시 처리
     _flutterTts.setCompletionHandler(() {
       _stopProcessingAnimation();
       setState(() {
         _isProcessing = false;
+        // 기본 안내 문구로 초기화
+        _recognizedText = "AI '마리모'에게 궁금한 것을 물어봐주세요.";
       });
     });
 
@@ -70,35 +52,15 @@ class _ChatbotState extends State<Chatbot> {
     _initializeGemmaModel();
   }
 
-  // 타입라이터 효과로 인사말과 안내 메시지를 보여줍니다.
-  Future<void> _startTypewriterGreeting() async {
-    String greeting = "안녕하세요, AI 마리모입니다!";
-    _typewriterText = "";
-    // 빠른 속도로 한 글자씩 추가 (예: 50ms 간격)
-    for (int i = 0; i < greeting.length; i++) {
-      await Future.delayed(const Duration(milliseconds: 50));
-      setState(() {
-        _typewriterText += greeting[i];
-      });
-    }
-    // 인사말이 완성되면 대화 기록에 추가하고, 입력 안내 메시지를 추가
-    setState(() {
-      _conversationHistory.add("마리모: " + _typewriterText);
-      _conversationHistory.add("마리모: 질문은 그냥 말씀해 주세요.");
-    });
-  }
-
-  /// flutter_gemma 플러그인을 사용하여 assets에 포함된 Gemma 모델 파일을 설치하고 InferenceModel 생성
+  // flutter_gemma 플러그인을 사용하여 모델 파일 설치 및 InferenceModel 생성
   Future<void> _initializeGemmaModel() async {
     try {
       final modelManager = FlutterGemmaPlugin.instance.modelManager;
-      // 모델 설치: assets에 있는 .task 파일을 디바이스 내부에 저장 (디버그 모드에서 사용)
       await modelManager.installModelFromAsset('ai/gemma3-1B-it-int4.task');
-      // 모델 추론 인스턴스 생성
       _inferenceModel = await FlutterGemmaPlugin.instance.createModel(
-        modelType: ModelType.gemmaIt, // Gemma instruction-tuned 모델
-        preferredBackend: PreferredBackend.cpu, // 또는 PreferredBackend.gpu
-        maxTokens: 512, // 응답 길이 제한
+        modelType: ModelType.gemmaIt,
+        preferredBackend: PreferredBackend.cpu,
+        maxTokens: 512,
       );
       debugPrint('Gemma 모델 초기화 완료');
     } catch (e) {
@@ -106,45 +68,43 @@ class _ChatbotState extends State<Chatbot> {
     }
   }
 
-  /// Gemma 모델을 통해 추론 수행
-  /// isCommand가 true면 기능 명령으로 처리, 아니면 일반 질문으로 처리
-  Future<String> _performGemmaInference(
-    String query, {
-    bool isCommand = false,
-  }) async {
+  // Gemma 모델을 통한 추론 수행
+  Future<String> _performGemmaInference(String prompt) async {
     if (_inferenceModel == null) {
       return "모델이 초기화되지 않았습니다.";
     }
     try {
+      // markdown 금지 및 1분 제한 프롬프트 추가
+      String modifiedPrompt =
+          "응답은 순수 텍스트만 사용하고 markdown 형식은 사용하지 마세요. "
+              "대답은 최대 1분 이내로 작성해주세요. " +
+          prompt;
       final session = await _inferenceModel!.createSession(
         temperature: 1.0,
         randomSeed: 1,
         topK: 1,
       );
-      _currentSession = session;
-      String modifiedPrompt;
-      if (isCommand) {
-        String commandText = query.replaceFirst(RegExp(r"^명령:"), "").trim();
-        modifiedPrompt =
-            "대답은 일반 텍스트로만 작성해 주세요. 마크다운이나 다른 포맷은 사용하지 마세요. "
-                "대답은 최대 1분 이내로 간결하게 작성해 주세요. 만약 사용자가 기능 명령(예: 마이 스크린 이동)을 요청하면, "
-                "'action: myscreen' 형식으로 응답해 주세요. 사용자 기능 명령: " +
-            commandText;
-      } else {
-        modifiedPrompt =
-            "대답은 일반 텍스트로만 작성해 주세요. 마크다운이나 다른 포맷은 사용하지 마세요. "
-                "대답은 최대 1분 이내로 간결하게 작성해 주세요. 사용자 질문: " +
-            query;
-      }
       await session.addQueryChunk(Message(text: modifiedPrompt));
       final response = await session.getResponse();
       await session.close();
-      _currentSession = null;
       return response;
     } catch (e) {
       debugPrint("추론 오류: $e");
       return "오류 발생";
     }
+  }
+
+  // 타자기 효과로 한 줄씩 텍스트 추가
+  Future<void> _appendTextWithTypewriterEffect(String newLine) async {
+    for (int i = 0; i < newLine.length; i++) {
+      await Future.delayed(const Duration(milliseconds: 50));
+      setState(() {
+        _recognizedText += newLine[i];
+      });
+    }
+    setState(() {
+      _recognizedText += "\n";
+    });
   }
 
   Future<void> _startListening() async {
@@ -155,49 +115,26 @@ class _ChatbotState extends State<Chatbot> {
     if (available) {
       setState(() {
         _isListening = true;
-        _currentUserInput = "";
+        _recognizedText = "";
       });
+      // 초기 인사말과 안내문을 타자기 효과로 표시
+      await _appendTextWithTypewriterEffect("안녕하세요? AI 마리모입니다.");
+      await _appendTextWithTypewriterEffect("원하시는 내용을 말씀해주세요.");
       _startListeningAnimation();
       _speech.listen(
         onResult: (result) async {
-          setState(() {
-            _currentUserInput = result.recognizedWords;
-          });
           if (result.finalResult) {
+            // 최종 결과를 타자기 효과로 추가
+            await _appendTextWithTypewriterEffect(result.recognizedWords);
             await _stopListening();
             _startProcessingAnimation();
-            String userMessage = _currentUserInput;
-            // 대화 기록에 사용자 메시지("나:" 접두사)를 추가
-            setState(() {
-              _conversationHistory.add("나: " + userMessage);
-              _currentUserInput = "";
-            });
-            bool isCommand = userMessage.trim().startsWith("명령:");
-            String query = userMessage;
-            if (isCommand) {
-              query = query.replaceFirst(RegExp(r"^명령:"), "").trim();
-            }
+            // Gemma 모델 추론 및 결과 타자기 효과
             String generatedResponse = await _performGemmaInference(
-              query,
-              isCommand: isCommand,
+              _recognizedText,
             );
-            // 만약 Gemma의 응답이 기능 명령(action:)이면 해당 동작 수행
-            if (generatedResponse.trim().startsWith("action:")) {
-              String action =
-                  generatedResponse.trim().substring("action:".length).trim();
-              if (action.toLowerCase() == "myscreen") {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const MyScreen()),
-                );
-              }
-            } else {
-              // 대화 기록에 AI 응답("마리모:" 접두사)를 추가 및 TTS로 읽어줌
-              setState(() {
-                _conversationHistory.add("마리모: " + generatedResponse);
-              });
-              await _flutterTts.speak(generatedResponse);
-            }
+            await _appendTextWithTypewriterEffect(generatedResponse);
+            // TTS로 음성 출력
+            await _flutterTts.speak(generatedResponse);
           }
         },
         listenFor: const Duration(seconds: 10),
@@ -257,9 +194,7 @@ class _ChatbotState extends State<Chatbot> {
   void dispose() {
     _listeningTimer?.cancel();
     _processingTimer?.cancel();
-    _speech.stop();
     _flutterTts.stop();
-    _currentSession?.close();
     super.dispose();
   }
 
@@ -315,7 +250,7 @@ class _ChatbotState extends State<Chatbot> {
                 },
               ),
             ),
-            // 대화 내용 영역 (모든 대화 기록과 실시간 입력이 중앙에 표시)
+            // 인식된 텍스트 영역 (타자기 효과로 표시)
             Positioned(
               top: textTop,
               bottom: textBottom,
@@ -324,7 +259,7 @@ class _ChatbotState extends State<Chatbot> {
               child: SingleChildScrollView(
                 child: Center(
                   child: Text(
-                    _displayText,
+                    _recognizedText,
                     textAlign: TextAlign.center,
                     softWrap: true,
                     style: TextStyle(
