@@ -120,9 +120,5 @@ flutter:
     - assets/models/uberBlack.dae.glb
     - assets/models/generic_sedan.glb
     - assets/models/uberXL.glb
-    - assets/ai/tire_model.tflite
-    - assets/ai/tire_wear_model.tflite
-    - assets/ai/tire_wear_model3.tflite
-    - assets/ai/model.tflite
+    - assets/ai/tire_depth_model.tflite
     - assets/ai/gemma3-1B-it-int4.task
-
