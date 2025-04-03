@@ -14,7 +14,7 @@ class MapSearchService {
     required double longitude,
     int radius = 3000,
     List<String>? brandList, // ✅ 수정
-    List<String>? oilTypeList, // ✅ 수정
+    String? oilType, // ✅ 수정
     bool? hasSelfService,
     bool? hasMaintenance,
     bool? hasCarWash,
@@ -32,7 +32,7 @@ class MapSearchService {
       "hasCarWash": hasCarWash,
       "hasCvs": hasCvs,
       "brandList": brandList,
-      "oilTypeList": oilTypeList,
+      "oilType": oilType,
     });
 
     print('📡 [REQUEST] POST $url');

@@ -36,12 +36,20 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
     setState(() {
       final selectedSet = selectedFiltersByCategory[category] ?? <String>{};
 
-      if (selectedSet.contains(option)) {
-        selectedSet.remove(option);
-        filterProvider.removeFilter(category, option);
-      } else {
+      if (category == '기름 종류') {
+        // ✅ 단일 선택만 허용
+        selectedSet.clear(); // 기존 선택 제거
         selectedSet.add(option);
-        filterProvider.addFilter(category, option);
+        filterProvider.setSingleFilter(category, option); // 단일 필터 메서드 호출 필요
+      } else {
+        // ✅ 일반 다중 선택 필터
+        if (selectedSet.contains(option)) {
+          selectedSet.remove(option);
+          filterProvider.removeFilter(category, option);
+        } else {
+          selectedSet.add(option);
+          filterProvider.addFilter(category, option);
+        }
       }
 
       selectedFiltersByCategory[category] = selectedSet;

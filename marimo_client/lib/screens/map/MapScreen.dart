@@ -287,7 +287,7 @@ class _MapScreenState extends State<MapScreen> {
           hasCarWash: parsed.hasCarWash,
           hasCvs: parsed.hasCvs,
           brandList: parsed.brandList,
-          oilTypeList: parsed.oilTypeList,
+          oilType: parsed.oilType,
         );
 
         print('✅ [API 응답] 받은 주유소 개수: ${data.length}');
@@ -345,6 +345,7 @@ class _MapScreenState extends State<MapScreen> {
             final place = _currentPlaces[index];
             return PlaceCard(
               place: place,
+              rank: index + 1,
               isSelected: _highlightedPlaceId == place.id,
               onTap: () => handlePlaceSelection(place.id),
               screenWidth: screenWidth,

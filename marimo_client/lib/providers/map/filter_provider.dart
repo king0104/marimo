@@ -33,4 +33,10 @@ class FilterProvider with ChangeNotifier {
     _filtersByCategory.clear();
     notifyListeners();
   }
+
+  /// 기름 종류 단일 선택
+  void setSingleFilter(String category, String value) {
+    _filtersByCategory[category] = {value};
+    notifyListeners();
+  }
 }

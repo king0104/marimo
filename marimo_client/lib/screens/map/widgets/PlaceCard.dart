@@ -8,6 +8,7 @@ class PlaceCard extends StatelessWidget {
   final VoidCallback onTap;
   final bool isSelected;
   final double screenWidth;
+  final int rank;
 
   const PlaceCard({
     super.key,
@@ -15,6 +16,7 @@ class PlaceCard extends StatelessWidget {
     required this.onTap,
     required this.screenWidth,
     this.isSelected = false,
+    required this.rank,
   });
 
   @override
@@ -42,7 +44,7 @@ class PlaceCard extends StatelessWidget {
           children: [
             // ✅ 1순위
             Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 2),
@@ -50,9 +52,19 @@ class PlaceCard extends StatelessWidget {
                     color: Colors.black,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Text(
-                    '1순위',
-                    style: TextStyle(color: Colors.white, fontSize: 10),
+                  child: Text(
+                    '${rank}순위',
+                    style: const TextStyle(color: Colors.white, fontSize: 10),
+                  ),
+                ),
+
+                // 오른쪽: 연료 종류
+                Text(
+                  place.oilType ?? '휘발유', // null-safe 기본값
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -85,6 +97,19 @@ class PlaceCard extends StatelessWidget {
             ),
 
             const SizedBox(height: 4),
+
+            // ✅ 부가 정보 태그 영역
+            Wrap(
+              spacing: 6,
+              runSpacing: 4,
+              children: [
+                if (place.hasSelfService) _buildTag("셀프"),
+                if (place.hasCarWash) _buildTag("세차"),
+                if (place.hasMaintenance) _buildTag("경정비"),
+                if (place.hasCvs) _buildTag("편의점"),
+                _buildTag("24시"), // 이건 지금 고정으로 넣었어. 필요하면 조건부로 수정 가능
+              ],
+            ),
 
             const Spacer(),
 
@@ -125,6 +150,24 @@ class PlaceCard extends StatelessWidget {
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTag(String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF3F4F6),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 12.sp,
+          fontWeight: FontWeight.w500,
+          color: const Color(0xFF4B5563),
         ),
       ),
     );

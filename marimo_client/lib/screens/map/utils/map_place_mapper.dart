@@ -17,6 +17,7 @@ Place mapGasStationJsonToPlace(Map<String, dynamic> json) {
     discountedPrice: (json['discountedPrice'] as num?)?.toDouble(),
     discountAmount: json['discountAmount'] ?? 0,
     distance: json['distance'] ?? 0,
+    oilType: json['oilType'] ?? '',
   );
 }
 

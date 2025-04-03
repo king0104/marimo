@@ -14,6 +14,7 @@ class Place {
   final double? discountedPrice;
   final int discountAmount;
   final int distance;
+  final String oilType;
 
   const Place({
     required this.id,
@@ -31,6 +32,7 @@ class Place {
     required this.discountedPrice,
     required this.discountAmount,
     required this.distance,
+    required this.oilType,
   });
 
   factory Place.fromJson(Map<String, dynamic> json) {
@@ -50,6 +52,7 @@ class Place {
       discountedPrice: (json['discountedPrice'] as num?)?.toDouble(),
       discountAmount: json['discountAmount'] ?? 0,
       distance: json['distance'] ?? 0,
+      oilType: json['oilType'] ?? '휘발유',
     );
   }
 }
