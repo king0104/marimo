@@ -7,6 +7,7 @@ import 'package:marimo_client/providers/home_animation_provider.dart';
 import 'package:marimo_client/providers/member/auth_provider.dart';
 import 'package:marimo_client/providers/map_provider.dart';
 import 'package:marimo_client/providers/obd_data_provider.dart';
+import 'package:marimo_client/providers/obd_analysis_provider.dart';
 import 'package:marimo_client/providers/obd_polling_provider.dart';
 import 'package:marimo_client/screens/monitoring/ObdFullScanScreen.dart';
 import 'package:marimo_client/screens/signin/car/RegisterCarScreen.dart';
@@ -61,6 +62,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ObdPollingProvider()),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ChangeNotifierProvider(create: (_) => HomeAnimationProvider()),
+        ChangeNotifierProvider(create: (_) => ObdAnalysisProvider()),
       ],
       child: ScreenUtilInit(
         designSize: const Size(360, 800),
@@ -86,6 +88,11 @@ class MyApp extends StatelessWidget {
           cursorColor: brandColor, // 커서 색
           selectionColor: brandColor.withAlpha(80), // 선택된 배경 색
           selectionHandleColor: brandColor, // 마커 (핸들) 색
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: white,
+          elevation: 0,
+          foregroundColor: black,
         ),
       ),
       home: const InitialRouter(),
