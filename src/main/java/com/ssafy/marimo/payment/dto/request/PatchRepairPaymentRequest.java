@@ -7,6 +7,6 @@ public record PatchRepairPaymentRequest(
         LocalDateTime paymentDate,
         String location,
         String memo,
-        String repairPart
+        String repairParts
 ) {
 }

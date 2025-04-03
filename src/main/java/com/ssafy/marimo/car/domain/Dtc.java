@@ -46,5 +46,4 @@ public class Dtc extends BaseTimeEntity {
 
     @Column(nullable = true)
     private String recommendation;
-
 }

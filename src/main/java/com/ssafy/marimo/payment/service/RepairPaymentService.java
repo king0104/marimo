@@ -13,7 +13,6 @@ import com.ssafy.marimo.payment.dto.response.PatchRepairPaymentResponse;
 import com.ssafy.marimo.payment.dto.request.PostRepairPaymentRequest;
 import com.ssafy.marimo.payment.dto.response.PostRepairPaymentResponse;
 import com.ssafy.marimo.payment.repository.RepairPaymentRepository;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,7 +38,7 @@ public class RepairPaymentService {
                         postRepairPaymentRequest.paymentDate(),
                         postRepairPaymentRequest.location(),
                         postRepairPaymentRequest.memo(),
-                        postRepairPaymentRequest.repairPart()
+                        postRepairPaymentRequest.repairParts()
                 )
         );
 
@@ -76,7 +75,7 @@ public class RepairPaymentService {
                 repairPayment.getPaymentDate(),
                 repairPayment.getLocation(),
                 repairPayment.getMemo(),
-                repairPayment.getRepairPart()
+                repairPayment.getRepairParts()
         );
     }
 
