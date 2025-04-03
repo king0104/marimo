@@ -4,9 +4,34 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class TireTestPage extends StatelessWidget {
-  final Map<String, dynamic> result;
+  // 기존에는 Map<String, dynamic> result를 기대했지만,
+  // 이제는 double 타입의 result(예측된 트레드 깊이)를 받습니다.
+  final double result;
 
   const TireTestPage({Key? key, required this.result}) : super(key: key);
+
+  /// 예측된 트레드 깊이(double)를 Map으로 변환하는 함수.
+  /// 여기서는 예시로 다음과 같이 조건과 기타 정보를 계산합니다.
+  Map<String, dynamic> _analyzeTreadDepth(double treadDepth) {
+    String condition;
+    // 예시 임계값: 7mm 이상이면 '정상', 4~7mm면 '주의', 4mm 미만이면 '교체 필요'
+    if (treadDepth >= 7.0) {
+      condition = '정상';
+    } else if (treadDepth >= 4.0) {
+      condition = '주의';
+    } else {
+      condition = '교체 필요';
+    }
+    // 예시 계산: 새 타이어 기준 10mm라 가정
+    double wearPercentage = ((10.0 - treadDepth) / 10.0) * 100;
+    double remainingLife = (treadDepth / 10.0) * 100;
+    return {
+      'condition': condition,
+      'treadDepth': treadDepth,
+      'wearPercentage': wearPercentage,
+      'remainingLife': remainingLife,
+    };
+  }
 
   Color _getConditionColor(String condition) {
     switch (condition) {
@@ -21,8 +46,40 @@ class TireTestPage extends StatelessWidget {
     }
   }
 
+  String _getRecommendation(String condition) {
+    switch (condition) {
+      case '정상':
+        return '• 타이어 상태가 양호합니다.\n• 정기적인 공기압 점검을 유지하세요.\n• 3,000~5,000km마다 타이어 상태를 확인하세요.';
+      case '주의':
+        return '• 타이어 마모가 진행 중입니다.\n• 운전 시 더 주의하세요, 특히 비나 눈이 올 때.\n• 가까운 시일 내에 타이어 교체를 계획하세요.\n• 공기압을 정확하게 유지하여 추가 마모를 방지하세요.';
+      case '교체 필요':
+        return '• 타이어를 즉시 교체하세요!\n• 현재 타이어 상태는 안전하지 않습니다.\n• 미끄러운 노면에서 제동 거리가 크게 증가할 수 있습니다.\n• 가능한 빨리 타이어 전문점을 방문하세요.';
+      default:
+        return '상태를 확인할 수 없습니다. 전문가에게 문의하세요.';
+    }
+  }
+
+  Widget _buildResultRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: TextStyle(fontSize: 16.sp, color: Colors.grey[800])),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 16.sp,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    // 예측된 트레드 깊이(double)를 Map으로 변환
+    final resultMap = _analyzeTreadDepth(result);
     final contentWidth = MediaQuery.of(context).size.width - 40;
 
     return Scaffold(
@@ -43,23 +100,21 @@ class TireTestPage extends StatelessWidget {
                     padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
                     decoration: BoxDecoration(
                       color: _getConditionColor(
-                        result['condition'],
+                        resultMap['condition'],
                       ).withOpacity(0.2),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
-                      '타이어 상태: ${result['condition']}',
+                      '타이어 상태: ${resultMap['condition']}',
                       style: TextStyle(
                         fontSize: 20.sp,
                         fontWeight: FontWeight.bold,
-                        color: _getConditionColor(result['condition']),
+                        color: _getConditionColor(resultMap['condition']),
                       ),
                     ),
                   ),
                 ),
-
                 SizedBox(height: 20.h),
-
                 // 상세 정보 카드
                 Container(
                   width: contentWidth,
@@ -87,31 +142,24 @@ class TireTestPage extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 16.h),
-
                       // 트레드 깊이
                       _buildResultRow(
                         '트레드 깊이:',
-                        '${result['treadDepth'].toStringAsFixed(2)} mm',
+                        '${resultMap['treadDepth'].toStringAsFixed(2)} mm',
                       ),
-
                       Divider(height: 24.h),
-
                       // 마모율
                       _buildResultRow(
                         '마모율:',
-                        '${result['wearPercentage'].toStringAsFixed(1)}%',
+                        '${resultMap['wearPercentage'].toStringAsFixed(1)}%',
                       ),
-
                       Divider(height: 24.h),
-
                       // 잔여 수명
                       _buildResultRow(
                         '잔여 수명:',
-                        '${result['remainingLife'].toStringAsFixed(1)}%',
+                        '${resultMap['remainingLife'].toStringAsFixed(1)}%',
                       ),
-
                       SizedBox(height: 20.h),
-
                       // 시각적 표시기
                       Text(
                         '잔여 수명 그래프',
@@ -130,11 +178,11 @@ class TireTestPage extends StatelessWidget {
                         ),
                         child: FractionallySizedBox(
                           alignment: Alignment.centerLeft,
-                          widthFactor: result['remainingLife'] / 100,
+                          widthFactor: resultMap['remainingLife'] / 100,
                           child: Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(12),
-                              color: _getConditionColor(result['condition']),
+                              color: _getConditionColor(resultMap['condition']),
                             ),
                           ),
                         ),
@@ -142,9 +190,7 @@ class TireTestPage extends StatelessWidget {
                     ],
                   ),
                 ),
-
                 SizedBox(height: 24.h),
-
                 // 권장 사항
                 Container(
                   width: contentWidth,
@@ -173,7 +219,7 @@ class TireTestPage extends StatelessWidget {
                       ),
                       SizedBox(height: 16.h),
                       Text(
-                        _getRecommendation(result['condition']),
+                        _getRecommendation(resultMap['condition']),
                         style: TextStyle(fontSize: 14.sp),
                       ),
                     ],
@@ -185,35 +231,5 @@ class TireTestPage extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Widget _buildResultRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label, style: TextStyle(fontSize: 16.sp, color: Colors.grey[800])),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-      ],
-    );
-  }
-
-  String _getRecommendation(String condition) {
-    switch (condition) {
-      case '정상':
-        return '• 타이어 상태가 양호합니다.\n• 정기적인 공기압 점검을 유지하세요.\n• 3,000~5,000km마다 타이어 상태를 확인하세요.';
-      case '주의':
-        return '• 타이어 마모가 진행 중입니다.\n• 운전 시 더 주의하세요, 특히 비나 눈이 올 때.\n• 가까운 시일 내에 타이어 교체를 계획하세요.\n• 공기압을 정확하게 유지하여 추가 마모를 방지하세요.';
-      case '교체 필요':
-        return '• 타이어를 즉시 교체하세요!\n• 현재 타이어 상태는 안전하지 않습니다.\n• 미끄러운 노면에서 제동 거리가 크게 증가할 수 있습니다.\n• 가능한 빨리 타이어 전문점을 방문하세요.';
-      default:
-        return '상태를 확인할 수 없습니다. 전문가에게 문의하세요.';
-    }
   }
 }
