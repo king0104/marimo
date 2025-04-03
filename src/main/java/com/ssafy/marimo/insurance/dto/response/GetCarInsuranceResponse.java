@@ -6,6 +6,7 @@ import lombok.Builder;
 @Builder
 public record GetCarInsuranceResponse(
         String insuranceCompanyName,
+        LocalDateTime endDate,
         LocalDateTime distanceRegistrationDate,
         Integer registeredDistance,
         Integer insurancePremium,
@@ -29,6 +30,7 @@ public record GetCarInsuranceResponse(
 ) {
     public static GetCarInsuranceResponse of(
             String insuranceCompanyName,
+            LocalDateTime endDate,
             LocalDateTime distanceRegistrationDate,
             Integer registeredDistance,
             Integer insurancePremium,
@@ -48,6 +50,7 @@ public record GetCarInsuranceResponse(
     ) {
         return GetCarInsuranceResponse.builder()
                 .insuranceCompanyName(insuranceCompanyName)
+                .endDate(endDate)
                 .distanceRegistrationDate(distanceRegistrationDate)
                 .registeredDistance(registeredDistance)
                 .insurancePremium(insurancePremium)

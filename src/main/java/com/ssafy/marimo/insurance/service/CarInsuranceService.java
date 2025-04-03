@@ -66,7 +66,7 @@ public class CarInsuranceService {
         int calculatedDistance = car.getTotalDistance() - carInsurance.getRegisteredDistance(); // 자동차 총 주행거리 - 등록 당시
 
         long daysElapsed = Duration.between(carInsurance.getDistanceRegistrationDate(), LocalDateTime.now()).toDays();
-        long daysRemaining = Duration.between(LocalDateTime.now(), carInsurance.getDistanceRegistrationDate().plusYears(1)).toDays();
+        long daysRemaining = Duration.between(LocalDateTime.now(), carInsurance.getEndDate()).toDays();
 
         float dailyAverageDistance = Math.round((calculatedDistance / (float) daysElapsed) * 10) / 10.0f;
         float totalDistanceExpectation = calculatedDistance + Math.round((calculatedDistance / (float) daysElapsed) * daysRemaining * 10) / 10.0f;
@@ -79,7 +79,7 @@ public class CarInsuranceService {
 
         for (int i = 0; i < insuranceDiscountRules.size(); i++) {
             InsuranceDiscountRule rule = insuranceDiscountRules.get(i);
-            if (calculatedDistance >= rule.getDiscountFromKm() && calculatedDistance < rule.getDiscountToKm()) {
+            if (calculatedDistance >= rule.getDiscountFromKm() && calculatedDistance <= rule.getDiscountToKm()) {
                 currentRule = rule;
                 if (i + 1 < insuranceDiscountRules.size()) {
                     nextRule = insuranceDiscountRules.get(i + 1);
@@ -125,6 +125,7 @@ public class CarInsuranceService {
         // 5. 응답 객체 생성
         return GetCarInsuranceResponse.of(
                 carInsurance.getInsurance().getName(),
+                carInsurance.getEndDate(),
                 carInsurance.getDistanceRegistrationDate(),
                 carInsurance.getRegisteredDistance(),
                 insurancePremium,
@@ -147,19 +148,6 @@ public class CarInsuranceService {
 
         );
 
-        // 2. carInsurance가 갖고 있는 보험사로 보험 찾기
-
-        // 3. 계산된 주행거리를 들고 요청하면, 해당 보험사 내의 맞는 구간을 찾아서
-        //    현재 구간 리턴하기
-        //    다음 구간 리턴하기
-        // 4. 계산식 : 현재 구간의 할인율 + 낸 보험료로 계산하기
-
-        // 5. 관리팁
-        // 1. 다음 구간까지 얼마나 주행할 수 있는 지 알려줘야함 : 현재 주행거리 - 최초 등록 주행거리 (이게 계산된 주행거리)
-        // 2. 만약 오늘 제출하면, 총 주행거리가 어떻게 되는지 알려줘야 함 :
-        // 3.
-        // 계산식을 만들어야 한다
-        // 요청한 날짜에 주행거리 등록하면,
     }
 
 }
