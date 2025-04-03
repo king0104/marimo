@@ -9,10 +9,11 @@ import 'package:provider/provider.dart';
 import 'package:marimo_client/providers/obd_polling_provider.dart';
 import 'package:marimo_client/providers/obd_analysis_provider.dart';
 import 'package:marimo_client/utils/obd_response_parser.dart';
-import 'package:marimo_client/constants/obd_dtcs.dart'; // ✅ 추가: DTC 설명 매핑
+import 'package:marimo_client/constants/obd_dtcs.dart';
 
 class Obd2InfoList extends StatefulWidget {
-  const Obd2InfoList({super.key});
+  final VoidCallback? onToggleWidgets;
+  const Obd2InfoList({super.key, this.onToggleWidgets});
 
   @override
   _Obd2InfoListState createState() => _Obd2InfoListState();
@@ -42,7 +43,6 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
     final responses = context.watch<ObdPollingProvider>().responses;
     final data = parseObdResponses(responses);
 
-    // 상태 분석 실행
     final analysisProvider = context.read<ObdAnalysisProvider>();
     analysisProvider.analyze(data);
     final statusItems = context.watch<ObdAnalysisProvider>().statusItems;
@@ -50,14 +50,12 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
     final isDtcEmpty = showDtcInfo && dtcCodes.isEmpty;
 
     return Container(
-      padding: EdgeInsets.fromLTRB(12.w, 12.h, 12.w, 100.h),
+      padding: EdgeInsets.fromLTRB(12.w, 12.h, 12.w, 80.h),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(8.r),
           topRight: Radius.circular(8.r),
-          bottomLeft: Radius.circular(0),
-          bottomRight: Radius.circular(0),
         ),
         border: Border.all(color: const Color(0xFFD7D7D7), width: 0.2),
         boxShadow: [
@@ -70,6 +68,29 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
       ),
       child: Column(
         children: [
+          Padding(
+            padding: EdgeInsets.only(bottom: 12.h),
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent, // ✅ 빈 공간도 클릭되게
+              onTap: widget.onToggleWidgets,
+              child: Column(
+                children: [
+                  Center(
+                    child: Container(
+                      width: 80.w,
+                      height: 5.h,
+                      decoration: BoxDecoration(
+                        color: lightgrayColor,
+                        borderRadius: BorderRadius.circular(4.r),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 12.h), // ✅ 아래 여백도 클릭 영역에 포함
+                ],
+              ),
+            ),
+          ),
+
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -105,6 +126,8 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
             ],
           ),
           SizedBox(height: 12.h),
+
+          // 리스트 영역
           Expanded(
             child:
                 isDtcEmpty
@@ -195,7 +218,7 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
                       ],
                     )
                     : ListView.builder(
-                      padding: EdgeInsets.only(bottom: 16.h),
+                      padding: EdgeInsets.only(bottom: 32.h),
                       itemCount:
                           showDtcInfo ? dtcCodes.length : statusItems.length,
                       itemBuilder: (context, index) {
