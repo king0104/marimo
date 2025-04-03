@@ -15,6 +15,6 @@ public record PostGasStationRecommendRequest(
         @Nullable Boolean hasMaintenance,
         @Nullable Boolean hasCarWash,
         @Nullable Boolean hasCvs,
-        @Nullable List<String> brandList,       // ✅ 변경
-        @Nullable List<String> oilTypeList      // ✅ 변경
+        @Nullable List<String> brandList,
+        @Nullable String oilType
 ) {}

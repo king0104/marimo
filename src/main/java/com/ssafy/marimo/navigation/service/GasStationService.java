@@ -31,6 +31,8 @@ public class GasStationService {
                 .filter(s -> req.hasCvs() == null || s.getHasCvs().equals(req.hasCvs()))
                 .filter(s -> req.brandList() == null || req.brandList().isEmpty()
                         || req.brandList().contains(s.getBrand()))
+                .filter(s -> isValidOilType(req.oilType(), s))
+
                 .map(s -> toRecommendResponse(s, req))
                 .filter(Objects::nonNull)
                 .sorted(Comparator.comparing(PostGasStationRecommendResponse::distance))
@@ -45,7 +47,7 @@ public class GasStationService {
         int distance = calcDistance(userLat, userLng, s.getLatitude(), s.getLongitude());
         if (distance > (req.radius() != null ? req.radius() : 3000)) return null;
 
-        Float price = determinePriceByOilType(s, req.oilTypeList());
+        Float price = determinePriceByOilType(s, req.oilType());
 
         // 가격 할인 로직은 별도로 추가하세요.
         Float discountedPrice = price; // 현재는 가격 그대로 사용
@@ -68,13 +70,14 @@ public class GasStationService {
                 price,
                 discountedPrice,
                 discountAmount,
-                distance
+                distance,
+                req.oilType() != null ? req.oilType() : "일반 휘발유" // ✅ 이거 추가
         );
     }
 
-    private Float determinePriceByOilType(GasStation station, List<String> oilTypeList) {
-        String selectedType = (oilTypeList != null && !oilTypeList.isEmpty())
-                ? oilTypeList.get(0)
+    private Float determinePriceByOilType(GasStation station, String oilType) {
+        String selectedType = (oilType != null && !oilType.isBlank())
+                ? oilType
                 : "일반 휘발유";
 
         return switch (selectedType) {
@@ -86,6 +89,20 @@ public class GasStationService {
             default -> station.getNormalGasolinePrice();
         };
     }
+
+    private boolean isValidOilType(String oilType, GasStation station) {
+        if (oilType == null || oilType.isBlank()) return true;
+
+        return switch (oilType) {
+            case "고급 휘발유" -> station.getPremiumGasolinePrice() != null;
+            case "일반 휘발유" -> station.getNormalGasolinePrice() != null;
+            case "경유" -> station.getDieselPrice() != null;
+            case "LPG" -> station.getLpgPrice() != null;
+            case "등유" -> station.getKerosenePrice() != null;
+            default -> false;
+        };
+    }
+
 
 
 

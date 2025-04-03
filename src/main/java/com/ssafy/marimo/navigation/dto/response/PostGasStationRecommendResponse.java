@@ -19,7 +19,8 @@ public record PostGasStationRecommendResponse(
         Float price,
         Float discountedPrice,
         Integer discountAmount,
-        Integer distance
+        Integer distance,
+        String oilType
 ) {
     public static PostGasStationRecommendResponse of(
             Integer id,
@@ -37,7 +38,8 @@ public record PostGasStationRecommendResponse(
             Float price,
             Float discountedPrice,
             Integer discountAmount,
-            Integer distance
+            Integer distance,
+            String oilType
     ) {
         return PostGasStationRecommendResponse.builder()
                 .id(id)
@@ -56,6 +58,7 @@ public record PostGasStationRecommendResponse(
                 .discountedPrice(discountedPrice)
                 .discountAmount(discountAmount)
                 .distance(distance)
+                .oilType(oilType)
                 .build();
     }
 }
