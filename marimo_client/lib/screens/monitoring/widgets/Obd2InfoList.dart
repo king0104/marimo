@@ -7,6 +7,7 @@ import 'package:marimo_client/screens/monitoring/widgets/ListToggle.dart';
 import 'package:marimo_client/theme.dart';
 import 'package:provider/provider.dart';
 import 'package:marimo_client/providers/obd_polling_provider.dart';
+import 'package:marimo_client/providers/obd_analysis_provider.dart';
 import 'package:marimo_client/utils/obd_response_parser.dart';
 import 'package:marimo_client/constants/obd_dtcs.dart'; // ✅ 추가: DTC 설명 매핑
 
@@ -41,59 +42,23 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
     final responses = context.watch<ObdPollingProvider>().responses;
     final data = parseObdResponses(responses);
 
-    final statusData = [
-      {
-        "icon": Icons.speed,
-        "title": "속도",
-        "value": data.speed != null ? "${data.speed} km/h" : "--",
-      },
-      {
-        "icon": Icons.settings_input_composite,
-        "title": "RPM",
-        "value":
-            data.rpm != null ? "${data.rpm!.toStringAsFixed(0)} rpm" : "--",
-      },
-      {
-        "icon": Icons.thermostat,
-        "title": "엔진 온도",
-        "value":
-            data.coolantTemp != null
-                ? "${data.coolantTemp!.toStringAsFixed(1)}°C"
-                : "--",
-      },
-      {
-        "icon": Icons.local_gas_station,
-        "title": "연료 잔량",
-        "value":
-            data.fuelLevel != null
-                ? "${data.fuelLevel!.toStringAsFixed(1)}%"
-                : "--",
-      },
-      {
-        "icon": Icons.battery_charging_full,
-        "title": "스로틀 포지션",
-        "value":
-            data.throttlePosition != null
-                ? "${data.throttlePosition!.toStringAsFixed(1)}%"
-                : "--",
-      },
-      {
-        "icon": Icons.cloud,
-        "title": "외기 온도",
-        "value":
-            data.ambientAirTemp != null
-                ? "${data.ambientAirTemp!.toStringAsFixed(1)}°C"
-                : "--",
-      },
-    ];
+    // 상태 분석 실행
+    final analysisProvider = context.read<ObdAnalysisProvider>();
+    analysisProvider.analyze(data);
+    final statusItems = context.watch<ObdAnalysisProvider>().statusItems;
 
     final isDtcEmpty = showDtcInfo && dtcCodes.isEmpty;
 
     return Container(
-      padding: EdgeInsets.all(12.w),
+      padding: EdgeInsets.fromLTRB(12.w, 12.h, 12.w, 100.h),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8.r),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(8.r),
+          topRight: Radius.circular(8.r),
+          bottomLeft: Radius.circular(0),
+          bottomRight: Radius.circular(0),
+        ),
         border: Border.all(color: const Color(0xFFD7D7D7), width: 0.2),
         boxShadow: [
           BoxShadow(
@@ -230,8 +195,9 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
                       ],
                     )
                     : ListView.builder(
+                      padding: EdgeInsets.only(bottom: 16.h),
                       itemCount:
-                          showDtcInfo ? dtcCodes.length : statusData.length,
+                          showDtcInfo ? dtcCodes.length : statusItems.length,
                       itemBuilder: (context, index) {
                         return Padding(
                           padding: EdgeInsets.symmetric(vertical: 4.h),
@@ -256,9 +222,10 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
                                     );
                                   })()
                                   : StatusInfoCard(
-                                    icon: statusData[index]["icon"] as IconData,
-                                    title: statusData[index]["title"] as String,
-                                    value: statusData[index]["value"] as String,
+                                    icon: statusItems[index].icon,
+                                    title: statusItems[index].title,
+                                    description: statusItems[index].description,
+                                    status: statusItems[index].status,
                                   ),
                         );
                       },

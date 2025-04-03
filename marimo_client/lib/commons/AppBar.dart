@@ -252,6 +252,7 @@ class _CommonAppBarState extends State<CommonAppBar> {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      scrolledUnderElevation: 0,
       backgroundColor: Colors.transparent,
       systemOverlayStyle: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
