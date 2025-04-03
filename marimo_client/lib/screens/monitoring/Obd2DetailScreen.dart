@@ -25,9 +25,12 @@ class _Obd2DetailScreenState extends State<Obd2DetailScreen> {
   void initState() {
     super.initState();
 
-    Future.microtask(() {
+    Future.microtask(() async {
       final provider = context.read<ObdPollingProvider>();
-      provider.loadResponsesFromLocal();
+      await provider.loadResponsesFromLocal(); // 이전 값 먼저 불러오고
+      if (provider.isConnected) {
+        provider.startPolling(); // 연결돼 있으면 실시간 시작
+      }
     });
   }
 

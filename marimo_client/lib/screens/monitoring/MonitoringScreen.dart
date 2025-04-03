@@ -26,8 +26,12 @@ class _MonitoringScreenState extends State<MonitoringScreen>
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      context.read<ObdPollingProvider>().loadResponsesFromLocal();
+    Future.microtask(() async {
+      final provider = context.read<ObdPollingProvider>();
+      await provider.loadResponsesFromLocal(); // 이전 값 먼저 불러오고
+      if (provider.isConnected) {
+        provider.startPolling(); // 연결돼 있으면 실시간 시작
+      }
     });
   }
 

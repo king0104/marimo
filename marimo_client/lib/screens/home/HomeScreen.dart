@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/providers/home_animation_provider.dart';
+import 'package:marimo_client/providers/obd_polling_provider.dart';
 import 'package:provider/provider.dart';
 import 'widgets/WeatherWidget.dart';
 import 'widgets/NotificationBadges.dart';
@@ -31,6 +32,14 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
+
+    Future.microtask(() async {
+      final provider = context.read<ObdPollingProvider>();
+      await provider.loadResponsesFromLocal(); // 이전 값 먼저 불러오고
+      if (provider.isConnected) {
+        provider.startPolling(); // 연결돼 있으면 실시간 시작
+      }
+    });
 
     final shouldAnimate =
         Provider.of<HomeAnimationProvider>(
