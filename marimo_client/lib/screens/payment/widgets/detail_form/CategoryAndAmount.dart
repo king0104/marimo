@@ -12,11 +12,13 @@ import 'package:marimo_client/providers/car_payment_provider.dart';
 class CategoryAndAmount extends StatefulWidget {
   final String category;
   final int amount;
+  final bool isEditMode;
 
   const CategoryAndAmount({
     Key? key,
     required this.category,
     required this.amount,
+    this.isEditMode = true,
   }) : super(key: key);
 
   @override
@@ -70,6 +72,8 @@ class _CategoryAndAmountState extends State<CategoryAndAmount> {
   }
 
   void _showNumberPad() {
+    if (!widget.isEditMode) return; // ✅ 편집 불가 시 리턴
+
     showGeneralDialog(
       context: context,
       barrierDismissible: true,

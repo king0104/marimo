@@ -128,4 +128,75 @@ class CarPaymentProvider with ChangeNotifier {
     }
     notifyListeners();
   }
+
+  String _location = '';
+  String get location => _location;
+  void setLocation(String value) {
+    _location = value;
+    notifyListeners();
+  }
+
+  String _memo = '';
+  String get memo => _memo;
+  void setMemo(String value) {
+    _memo = value;
+    notifyListeners();
+  }
+
+  String _fuelType = '';
+  String get fuelType => _fuelType;
+  void setFuelType(String value) {
+    _fuelType = value;
+    notifyListeners();
+  }
+
+  final Map<String, String> fuelDisplayToEnum = {
+    '일반 휘발유': 'NORMAL_GASOLINE',
+    '고급 휘발유': 'PREMIUM_GASOLINE',
+    '경유': 'DIESEL',
+    'LPG': 'LPG',
+  };
+
+  Map<String, dynamic> toJsonForDB({
+    required String carId,
+    String? category,
+    String? location,
+    String? memo,
+    String? fuelType,
+    List<String>? repairParts,
+  }) {
+    final baseJson = {
+      "carId": carId,
+      "price": selectedAmount,
+      "paymentDate": selectedDate.toIso8601String(),
+      if (location != null && location.isNotEmpty) "location": location,
+      if (memo != null && memo.isNotEmpty) "memo": memo,
+    };
+
+    print("🔍 toJsonForDB > baseJson: $baseJson");
+
+    switch (category) {
+      case '주유':
+        return {
+          ...baseJson,
+          if (fuelType != null && fuelType.isNotEmpty)
+            "fuelType": fuelDisplayToEnum[fuelType] ?? fuelType,
+        };
+      case '정비':
+        return {
+          ...baseJson,
+          if (repairParts != null && repairParts.isNotEmpty)
+            "repairParts": repairParts, // ✅ 복수형 유지
+        };
+      default:
+        return baseJson;
+    }
+  }
+
+  void resetInput() {
+    _selectedAmount = 0;
+    _selectedDate = DateTime.now();
+    _selectedRepairItems = [];
+    notifyListeners();
+  }
 }
