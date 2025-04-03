@@ -3,7 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:marimo_client/providers/map/filter_provider.dart';
 
 class FilterBottomSheet extends StatefulWidget {
-  const FilterBottomSheet({super.key});
+  final VoidCallback? onApply; // 콜백 추가
+  const FilterBottomSheet({super.key, this.onApply});
 
   @override
   State<FilterBottomSheet> createState() => _FilterBottomSheetState();
@@ -204,6 +205,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                         });
 
                         Navigator.pop(context);
+                        widget.onApply?.call(); // ✅ 필터 적용 후 콜백 실행
                       },
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size.fromHeight(50),

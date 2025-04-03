@@ -18,9 +18,9 @@ class GasStationFilterParams {
 
 /// ✅ 브랜드명 → 코드 매핑 (오피넷 기준)
 const Map<String, String> brandNameToCode = {
-  'SK': 'SKC',
+  'SK': 'SKE',
   'GS': 'GSC',
-  'S-OIL': 'SOC',
+  'S-OIL': 'SOL',
   '현대오일': 'HDO',
 };
 

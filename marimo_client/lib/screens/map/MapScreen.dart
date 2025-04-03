@@ -243,13 +243,15 @@ class _MapScreenState extends State<MapScreen> {
       ),
       builder: (modalContext) {
         return Builder(
-          builder: (ctx) => const FilterBottomSheet(), // ✅ 이 ctx로 Provider 접근
+          builder:
+              (modalContext) => FilterBottomSheet(
+                onApply: () => _onCategoryTap('gas'), // ✅ 현재 필터 기반으로 다시 호출
+              ), // ✅ 이 ctx로 Provider 접근
         );
       },
     );
   }
 
-  /// 카테고리 선택 시 마커 생성
   /// 카테고리 선택 시 마커 생성
   Future<void> _onCategoryTap(String type) async {
     final token = context.read<AuthProvider>().accessToken;
@@ -259,8 +261,11 @@ class _MapScreenState extends State<MapScreen> {
 
     await _mapService.removeMarkersByIds(
       controller: _mapController!,
-      ids: _previousMarkerIds,
+      ids: _previousMarkerIds.toSet().toList(),
     );
+
+    await Future.delayed(const Duration(milliseconds: 50));
+    _previousMarkerIds.clear();
 
     if (token == null || position == null) {
       print('❗ 토큰 또는 위치 정보 없음');
@@ -281,21 +286,13 @@ class _MapScreenState extends State<MapScreen> {
           hasMaintenance: parsed.hasMaintenance,
           hasCarWash: parsed.hasCarWash,
           hasCvs: parsed.hasCvs,
-          brandList: parsed.brandList, // ✅ 수정됨
-          oilTypeList: parsed.oilTypeList, // ✅ 수정됨
+          brandList: parsed.brandList,
+          oilTypeList: parsed.oilTypeList,
         );
 
         print('✅ [API 응답] 받은 주유소 개수: ${data.length}');
-        print('✅ [API 응답] 첫 번째: ${data.isNotEmpty ? data.first : '없음'}');
-        // places = data.map((json) => mapGasStationJsonToPlace(json)).toList();
-        places =
-            data.map((json) {
-              final place = mapGasStationJsonToPlace(json);
-              print(
-                '🗺️ 변환된 Place: id=${place.id}, lat=${place.lat}, lng=${place.lng}',
-              );
-              return place;
-            }).toList();
+
+        places = data.map((json) => mapGasStationJsonToPlace(json)).toList();
       } else {
         // TODO: 정비소/세차장 API 완성되면 여기도 확장
         return;
@@ -309,13 +306,14 @@ class _MapScreenState extends State<MapScreen> {
       _currentPlaces = places;
       _highlightedPlaceId = null;
       _previousMarkerIds = places.map((e) => e.id).toList();
+      _gasStationFilter = type == 'gas';
+      _repairFilter = type == 'repair';
+      _carWashFilter = type == 'carwash';
     });
-
-    print('📍 현재 Place 수: ${_currentPlaces.length}');
 
     await _mapService.addPlaceMarkers(
       controller: _mapController!,
-      places: _currentPlaces,
+      places: places,
       onMarkerTap: _onMarkerTapped,
     );
 
@@ -333,6 +331,8 @@ class _MapScreenState extends State<MapScreen> {
 
   /// 하단 장소 카드 렌더링
   Widget _buildStationCard() {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Visibility(
       visible: _currentPlaces.isNotEmpty,
       child: SizedBox(
@@ -347,6 +347,7 @@ class _MapScreenState extends State<MapScreen> {
               place: place,
               isSelected: _highlightedPlaceId == place.id,
               onTap: () => handlePlaceSelection(place.id),
+              screenWidth: screenWidth,
             );
           },
         ),
