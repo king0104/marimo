@@ -44,4 +44,7 @@ public class Card extends BaseTimeEntity {
     @Column(nullable = true)
     private Integer annualFeeGlobal;
 
+    @Column(nullable = false)
+    private Integer cvc;
+
 }
