@@ -54,14 +54,14 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => CarProvider()),
-        ChangeNotifierProvider(create: (_) => CarRegistrationProvider()),
-        ChangeNotifierProvider(create: (_) => CarPaymentProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => MapStateProvider()),
+        ChangeNotifierProvider(create: (_) => CarPaymentProvider()),
         ChangeNotifierProvider(create: (_) => ObdPollingProvider()),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
-        ChangeNotifierProvider(create: (_) => HomeAnimationProvider()),
         ChangeNotifierProvider(create: (_) => ObdAnalysisProvider()),
+        ChangeNotifierProvider(create: (_) => HomeAnimationProvider()),
+        ChangeNotifierProvider(create: (_) => CarRegistrationProvider()),
       ],
       child: ScreenUtilInit(
         designSize: const Size(360, 800),
@@ -84,9 +84,9 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Freesentation',
         scaffoldBackgroundColor: const Color(0xFFFBFBFB),
         textSelectionTheme: TextSelectionThemeData(
-          cursorColor: brandColor, // 커서 색
-          selectionColor: brandColor.withAlpha(80), // 선택된 배경 색
-          selectionHandleColor: brandColor, // 마커 (핸들) 색
+          cursorColor: brandColor,
+          selectionColor: brandColor.withAlpha(80),
+          selectionHandleColor: brandColor,
         ),
         appBarTheme: const AppBarTheme(
           backgroundColor: white,
