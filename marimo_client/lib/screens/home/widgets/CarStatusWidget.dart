@@ -13,6 +13,14 @@ class CarStatusWidget extends StatelessWidget {
     final responses = context.watch<ObdPollingProvider>().responses;
     final data = parseObdResponses(responses);
 
+    final lastPollingTime =
+        context.watch<ObdPollingProvider>().lastSuccessfulPollingTime;
+
+    final formattedDate =
+        lastPollingTime != null
+            ? DateFormat('yyyy. M. d').format(lastPollingTime.toLocal())
+            : '';
+
     final List<Map<String, dynamic>> statusData = [
       {
         'icon': 'icon_tacometer.png',
@@ -52,7 +60,7 @@ class CarStatusWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             Text(
-              '2025. 3. 4',
+              formattedDate,
               style: TextStyle(fontSize: 12.sp, color: Colors.grey[600]),
             ),
             SizedBox(width: 8.w),
@@ -63,7 +71,7 @@ class CarStatusWidget extends StatelessWidget {
                 border: Border.all(color: Colors.grey, width: 1.w),
               ),
               child: Text(
-                '업데이트됨',
+                formattedDate.isEmpty ? 'OBD2 연결 전' : '업데이트됨',
                 style: TextStyle(fontSize: 12.sp, color: Colors.grey[600]),
               ),
             ),

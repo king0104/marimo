@@ -14,6 +14,8 @@ import 'package:marimo_client/constants/obd_pids.dart';
 class ObdPollingProvider with ChangeNotifier {
   BluetoothConnection? _connection;
   StreamSubscription<Uint8List>? _inputSubscription;
+  DateTime? lastSuccessfulPollingTime;
+
   final Map<String, String> _pidResponses = {};
   final List<String> _pollingPids = pollingPids;
 
@@ -105,6 +107,7 @@ class ObdPollingProvider with ChangeNotifier {
 
       // ✅ 모든 PID 순회 후 서버 전송
       await sendObdDataToServer(context); // ⬅️ context 사용
+      lastSuccessfulPollingTime = DateTime.now();
     }
   }
 
@@ -187,6 +190,15 @@ class ObdPollingProvider with ChangeNotifier {
 
     final jsonString = jsonEncode(cleanedMap);
     await prefs.setString('last_obd_data', jsonString);
+
+    // ✅ 순회 완료 시간 저장
+    if (lastSuccessfulPollingTime != null) {
+      await prefs.setString(
+        'last_polling_time',
+        lastSuccessfulPollingTime!.toIso8601String(),
+      );
+      debugPrint('⏱️ 마지막 순회 시각 저장됨: $lastSuccessfulPollingTime');
+    }
   }
 
   Future<void> loadResponsesFromLocal(BuildContext context) async {
@@ -203,7 +215,24 @@ class ObdPollingProvider with ChangeNotifier {
       notifyListeners();
     }
 
-    // await sendObdDataToServer(context);
+    // // ######################################################################
+    // // 지울 것
+    // lastSuccessfulPollingTime = DateTime.now();
+    // if (lastSuccessfulPollingTime != null) {
+    //   await prefs.setString(
+    //     'last_polling_time',
+    //     lastSuccessfulPollingTime!.toIso8601String(),
+    //   );
+    //   debugPrint('⏱️ 마지막 순회 시각 저장됨: $lastSuccessfulPollingTime');
+    // }
+    // // ######################################################################
+
+    // ✅ 마지막 순회 시각 불러오기
+    final savedTime = prefs.getString('last_polling_time');
+    if (savedTime != null) {
+      lastSuccessfulPollingTime = DateTime.tryParse(savedTime);
+      debugPrint('⏱️ 저장된 마지막 순회 시각 불러옴: $lastSuccessfulPollingTime');
+    }
   }
 
   Future<List<String>> fetchStoredDtcCodes() async {
@@ -308,5 +337,10 @@ class ObdPollingProvider with ChangeNotifier {
     } catch (e) {
       debugPrint('❌ OBD 데이터 전송 실패: $e');
     }
+  }
+
+  String get formattedLastPollingTime {
+    if (lastSuccessfulPollingTime == null) return '없음';
+    return '${lastSuccessfulPollingTime!.toLocal()}';
   }
 }
