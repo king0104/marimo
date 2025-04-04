@@ -46,4 +46,6 @@ class CarProvider with ChangeNotifier {
       rethrow;
     }
   }
+
+  String? get firstCarId => _cars.isNotEmpty ? _cars.first.id : null;
 }
