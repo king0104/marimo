@@ -127,6 +127,7 @@ public class CarInsuranceService {
 
         // 5. 응답 객체 생성
         return GetCarInsuranceResponse.of(
+                idEncryptionUtil.encrypt(carInsurance.getId()),
                 carInsurance.getInsurance().getName(),
                 carInsurance.getEndDate(),
                 carInsurance.getDistanceRegistrationDate(),
@@ -158,9 +159,9 @@ public class CarInsuranceService {
     }
 
     @Transactional
-    public void deleteCarInsurance(Integer carId) {
-        CarInsurance carInsurance = carInsuranceRepository.findByCarId(carId)
-                .orElseThrow(() -> new NotFoundException(ErrorStatus.CARD_NOT_FOUND.getErrorCode()));
+    public void deleteCarInsurance(Integer carInsuranceId) {
+        CarInsurance carInsurance = carInsuranceRepository.findById(carInsuranceId)
+                .orElseThrow(() -> new NotFoundException(ErrorStatus.CAR_INSURANCE_NOT_FOUND.getErrorCode()));
 
         carInsuranceRepository.delete(carInsurance);
     }

@@ -48,11 +48,11 @@ public class CarInsuranceController {
                 .body(carInsuranceResponse);
     }
 
-    @DeleteMapping("/cars/{carId}")
+    @DeleteMapping("/{carInsuranceId}")
     public ResponseEntity<Void> deleteCarInsurance(
-            @PathVariable @DecryptedId Integer carId
+            @PathVariable @DecryptedId Integer carInsuranceId
     ) {
-        carInsuranceService.deleteCarInsurance(carId);
+        carInsuranceService.deleteCarInsurance(carInsuranceId);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
