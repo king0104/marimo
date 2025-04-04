@@ -1,15 +1,15 @@
 // CarPaymentDetailList.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
+import 'package:marimo_client/providers/car_payment_provider.dart';
 import 'package:marimo_client/screens/payment/widgets/total/CarMonthlyPayment.dart';
-import 'package:marimo_client/screens/payment/widgets/detail_list/CarDayDetailPayment.dart';
+import 'package:marimo_client/screens/payment/widgets/detail_list/CarDayPaymentDetail.dart';
 import 'package:marimo_client/commons/CustomAppHeader.dart';
 import 'CarTotalPayment.dart';
 
 class CarPaymentDetailList extends StatefulWidget {
-  final int initialMonth;
-
-  const CarPaymentDetailList({super.key, required this.initialMonth});
+  const CarPaymentDetailList({super.key});
 
   @override
   State<CarPaymentDetailList> createState() => _CarDetailPaymentState();
@@ -17,8 +17,6 @@ class CarPaymentDetailList extends StatefulWidget {
 
 class _CarDetailPaymentState extends State<CarPaymentDetailList>
     with WidgetsBindingObserver, AutomaticKeepAliveClientMixin {
-  late int selectedMonth;
-
   @override
   bool get wantKeepAlive => true;
 
@@ -26,7 +24,6 @@ class _CarDetailPaymentState extends State<CarPaymentDetailList>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    selectedMonth = widget.initialMonth;
   }
 
   @override
@@ -44,15 +41,13 @@ class _CarDetailPaymentState extends State<CarPaymentDetailList>
     }
   }
 
-  void _updateMonth(int month) {
-    setState(() {
-      selectedMonth = month;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     super.build(context); // AutomaticKeepAlive 필수 호출
+
+    // Provider에서 선택된 월 가져오기
+    final provider = context.watch<CarPaymentProvider>();
+    final selectedMonth = provider.selectedMonth;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -71,9 +66,18 @@ class _CarDetailPaymentState extends State<CarPaymentDetailList>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 16.h),
-            CarMonthlyPayment(),
+            const CarMonthlyPayment(), // const로 선언하여 리빌드 최적화
             SizedBox(height: 18.h),
-            Expanded(child: CarDayDetailPayment(selectedMonth: selectedMonth)),
+            // Consumer로 감싸서 Provider 변경 시 이 부분만 다시 그리도록 최적화
+            Expanded(
+              child: Consumer<CarPaymentProvider>(
+                builder: (context, provider, _) {
+                  return CarDayDetailPayment(
+                    selectedMonth: provider.selectedMonth,
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),

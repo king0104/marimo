@@ -32,6 +32,16 @@ class CarPaymentProvider with ChangeNotifier {
     });
   }
 
+  // ✅ 선택된 연도 상태
+  int _selectedYear = DateTime.now().year;
+
+  int get selectedYear => _selectedYear;
+
+  void setSelectedYear(int year) {
+    _selectedYear = year;
+    notifyListeners();
+  }
+
   // ✅ 선택된 월 상태
   int _selectedMonth = DateTime.now().month;
 
@@ -42,14 +52,18 @@ class CarPaymentProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // ✅ 선택된 월의 항목만 필터링
+  // ✅ 선택된 연도와 월의 항목만 필터링
   List<CarPaymentEntry> get filteredEntries {
     return _entries
-        .where((entry) => entry.date.month == _selectedMonth)
+        .where(
+          (entry) =>
+              entry.date.year == _selectedYear &&
+              entry.date.month == _selectedMonth,
+        )
         .toList();
   }
 
-  // ✅ 선택된 월의 카테고리별 총합
+  // ✅ 선택된 연도와 월의 카테고리별 총합
   Map<String, int> get categoryTotalsForSelectedMonth {
     final Map<String, int> totals = {'주유': 0, '정비': 0, '세차': 0};
     for (final entry in filteredEntries) {
@@ -60,17 +74,48 @@ class CarPaymentProvider with ChangeNotifier {
     return totals;
   }
 
-  // ✅ 선택된 월의 총합
+  // ✅ 선택된 연도와 월의 총합
   int get totalAmountForSelectedMonth =>
       categoryTotalsForSelectedMonth.values.fold(0, (a, b) => a + b);
 
-  // ✅ 선택된 월의 비율
+  // ✅ 선택된 연도와 월의 비율
   Map<String, String> get percentagesForSelectedMonth {
     final total = totalAmountForSelectedMonth;
     return categoryTotalsForSelectedMonth.map((category, amount) {
       final percent = total == 0 ? 0 : (amount / total * 100);
       return MapEntry(category, '${percent.toStringAsFixed(1)}%');
     });
+  }
+
+  // ✅ 이전 달 대비 증감액 계산
+  int get previousMonthDifference {
+    // 이전 달 계산
+    int prevMonth = _selectedMonth - 1;
+    int prevYear = _selectedYear;
+
+    // 1월인 경우 이전 달은 작년 12월
+    if (prevMonth == 0) {
+      prevMonth = 12;
+      prevYear--;
+    }
+
+    // 이전 달 데이터 필터링
+    final prevMonthEntries =
+        _entries
+            .where(
+              (entry) =>
+                  entry.date.year == prevYear && entry.date.month == prevMonth,
+            )
+            .toList();
+
+    // 이전 달 총액 계산
+    final prevMonthTotal = prevMonthEntries.fold(
+      0,
+      (total, entry) => total + entry.amount,
+    );
+
+    // 현재 달 총액과의 차이 반환
+    return totalAmountForSelectedMonth - prevMonthTotal;
   }
 
   // 선택된 카테고리 상태
