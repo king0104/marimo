@@ -1,5 +1,6 @@
 package com.ssafy.marimo.navigation.service;
 
+import com.ssafy.marimo.common.annotation.ExecutionTimeLog;
 import com.ssafy.marimo.navigation.domain.GasStation;
 import com.ssafy.marimo.navigation.repository.GasStationRepository;
 import com.ssafy.marimo.navigation.util.CoordinateConverter;
@@ -30,6 +31,7 @@ public class OpinetStationSyncService {
 
     @Value("${OPINET_KEY}")
     private String apiKey;
+
 
     public void syncByStationName(String keyword) {
         List<GasStation> basics = fetchBasicStationsByName(keyword);
@@ -100,8 +102,9 @@ public class OpinetStationSyncService {
         }
         return stations;
     }
-
-    private GasStation fetchStationDetail(String uniId) {
+    
+    @ExecutionTimeLog
+    public GasStation fetchStationDetail(String uniId) {
         try {
             String url = String.format(
                     "http://www.opinet.co.kr/api/detailById.do?code=%s&id=%s&out=xml",
