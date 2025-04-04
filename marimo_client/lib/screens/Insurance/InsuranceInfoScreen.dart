@@ -42,7 +42,7 @@ class _InsuranceInfoScreenState extends State<InsuranceInfoScreen> {
     return text.replaceAll(',', '');
   }
 
-  // 숫자에 콤마 추가
+  // 숫자에 콤마 추가d
   String addCommas(String text) {
     text = text.replaceAll(',', '');
     final buffer = StringBuffer();
