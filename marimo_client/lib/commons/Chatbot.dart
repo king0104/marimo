@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_gemma/core/model.dart';
 import 'package:flutter_gemma/pigeon.g.dart';
@@ -8,6 +9,9 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutter_gemma/flutter_gemma.dart';
 // 내장 기능 호출을 위한 화면 임포트 (CarPaymentDetailForm.dart)
 import 'package:marimo_client/screens/payment/CarPaymentDetailForm.dart';
+// Provider 임포트 (CarPaymentProvider)
+import 'package:provider/provider.dart';
+import 'package:marimo_client/providers/car_payment_provider.dart';
 
 class Chatbot extends StatefulWidget {
   const Chatbot({super.key});
@@ -21,7 +25,10 @@ class _ChatbotState extends State<Chatbot> {
   late FlutterTts _flutterTts;
   bool _isListening = false;
   bool _isProcessing = false;
-  // 대화 내역 또는 placeholder 텍스트
+
+  // 원래 placeholder 텍스트
+  final String _placeholderText =
+      "엔진 마모가 뭐야?\n마리모 요청: 차계부에 오늘 날짜로 GS칼텍스 방이점에 주유 2만원 기록해줘";
   String _recognizedText =
       "엔진 마모가 뭐야?\n마리모 요청: 차계부에 오늘 날짜로 GS칼텍스 방이점에 주유 2만원 기록해줘";
 
@@ -34,6 +41,9 @@ class _ChatbotState extends State<Chatbot> {
   Timer? _listeningTimer;
   Timer? _processingTimer;
 
+  // 최종 결과 중복 처리를 위한 플래그
+  bool _finalResultProcessed = false;
+
   @override
   void initState() {
     super.initState();
@@ -41,7 +51,6 @@ class _ChatbotState extends State<Chatbot> {
     _flutterTts = FlutterTts();
     _flutterTts.setLanguage("ko-KR");
 
-    // TTS 완료 시 처리: 처리 애니메이션만 중지하고, 대화 내역은 그대로 남김
     _flutterTts.setCompletionHandler(() {
       _stopProcessingAnimation();
       setState(() {
@@ -49,11 +58,9 @@ class _ChatbotState extends State<Chatbot> {
       });
     });
 
-    // Gemma 모델 초기화 (assets/ai/gemma3-1B-it-int4.task)
     _initializeGemmaModel();
   }
 
-  // flutter_gemma 플러그인을 사용하여 모델 파일 설치 및 InferenceModel 생성
   Future<void> _initializeGemmaModel() async {
     try {
       final modelManager = FlutterGemmaPlugin.instance.modelManager;
@@ -61,7 +68,7 @@ class _ChatbotState extends State<Chatbot> {
       _inferenceModel = await FlutterGemmaPlugin.instance.createModel(
         modelType: ModelType.gemmaIt,
         preferredBackend: PreferredBackend.cpu,
-        maxTokens: 512,
+        maxTokens: 1024, // 토큰 수를 1024로 증가
       );
       debugPrint('Gemma 모델 초기화 완료');
     } catch (e) {
@@ -69,20 +76,17 @@ class _ChatbotState extends State<Chatbot> {
     }
   }
 
-  // Gemma 모델을 통한 추론 수행 (자동차 전문가 페르소나 및 기타 질문 처리 지침 포함)
+  // 일반 자동차 전문가 응답을 위한 Gemma 추론 함수 (평문 응답 요청)
   Future<String> _performGemmaInference(String prompt) async {
-    if (_inferenceModel == null) {
-      return "모델이 초기화되지 않았습니다.";
-    }
+    if (_inferenceModel == null) return "모델이 초기화되지 않았습니다.";
     try {
-      // markdown 금지, 1분 제한, 자동차 전문가 페르소나와
-      // 자동차 관련이 아닌 질문은 상식적인 경우에만 답변하고, 그렇지 않으면 "다시 말씀해주시겠어요?"라고 응답하도록 지시
       String modifiedPrompt =
-          "응답은 순수 텍스트만 사용하고 markdown 형식은 사용하지 마세요. "
-              "대답은 최대 1분 이내로 작성해주세요. "
-              "당신은 30년 이상의 경력을 가진 자동차 전문가로, 모든 차량 문제, 부품, 유지보수 및 수리 관련 정보를 폭넓게 알고 있습니다. "
-              "전문적이고 신뢰할 수 있는 정보를 바탕으로 답변해주세요. "
-              "만약 질문이 자동차와 관련된 것이 아니라면, 상식적인 내용이면 답변해주시고, 그렇지 않은 경우에는 '다시 말씀해주시겠어요?'라고 응답해주세요. " +
+          "대답은 최대 1분 이내로 작성해주세요. " +
+          "출력은 반드시 순수 JSON 형식으로만 작성해 주세요. " +
+          "출력에는 markdown 태그나 기타 서식(예: ``` , **, ## 등)을 포함하지 말고, 오직 JSON 객체만 포함되어야 합니다. " +
+          "당신은 30년 이상의 경력을 가진 자동차 전문가로, 모든 차량 문제, 부품, 유지보수 및 수리 관련 정보를 폭넓게 알고 있습니다. " +
+          "전문적이고 신뢰할 수 있는 정보를 바탕으로 답변해주세요. " +
+          "만약 질문이 자동차와 관련된 것이 아니라면, 상식적인 내용이면 답변해주시고, 그렇지 않으면 '다시 말씀해주시겠어요?'라고 응답해주세요. " +
           prompt;
       final session = await _inferenceModel!.createSession(
         temperature: 1.0,
@@ -92,6 +96,7 @@ class _ChatbotState extends State<Chatbot> {
       await session.addQueryChunk(Message(text: modifiedPrompt));
       final response = await session.getResponse();
       await session.close();
+      debugPrint("Gemma 응답 (일반): $response");
       return response;
     } catch (e) {
       debugPrint("추론 오류: $e");
@@ -99,40 +104,120 @@ class _ChatbotState extends State<Chatbot> {
     }
   }
 
-  // 타자기 효과로 한 글자씩 텍스트 추가 (append)
-  Future<void> _appendTextWithTypewriterEffect(String newLine) async {
-    for (int i = 0; i < newLine.length; i++) {
-      await Future.delayed(const Duration(milliseconds: 50));
-      setState(() {
-        _recognizedText += newLine[i];
-      });
+  // 차계부 결제내역 등록 정보를 추출하는 Gemma 프롬프트 함수
+  Future<Map<String, dynamic>> _performCarPaymentEntryInference(
+    String userCommand,
+  ) async {
+    if (_inferenceModel == null) return {};
+    try {
+      String carPaymentPrompt =
+          "당신은 자동차 결제내역 등록 전문가입니다. 사용자 명령을 분석하여 아래 정보를 추출하세요.\n"
+              "1. 결제 유형: '주유', '정비', '세차' 중 하나.\n"
+              "2. 결제 금액: 원 단위의 정수로 출력하세요. 만약 한글로 표현되었다면 '십만원', '백만원' 등의 표현을 정수로 변환해야 합니다.\n"
+              "3. 날짜: 반드시 ISO8601 형식 (예: 2025-04-04T00:00:00.000)으로 출력하세요.\n"
+              "4. 장소: 결제가 이루어진 장소를 출력하세요. '주유'인 경우, 반드시 SK, GS, 현대오일뱅크, S-OIL 중 하나로 시작해야 합니다.\n"
+              "5. 타입: 만약 '주유'이면 반드시 '고급 휘발유', '일반 휘발유', '경유', 'LPG' 중 하나여야 하며, '정비'이면 부품, '세차'이면 null을 출력하세요.\n"
+              "6. 메모: 선택 사항입니다. 입력이 없으면 null로 출력하세요.\n"
+              "출력은 반드시 순수 JSON 형식으로만 작성해 주세요.\n"
+              "예시: { \"category\": \"주유\", \"amount\": 20000, \"date\": \"2025-04-04T00:00:00.000\", \"location\": \"GS칼텍스 강남점\", \"type\": \"일반 휘발유\", \"memo\": \"추가 메모\" }\n"
+              "만약 입력이 부족하면 해당 항목은 null로 표기하세요.\n"
+              "사용자 명령: " +
+          userCommand;
+      String response = await _performGemmaInference(carPaymentPrompt);
+      response = response.trim();
+
+      // markdown 태그 제거
+      if (response.startsWith("```")) {
+        response = response.replaceFirst(RegExp(r"^```[a-zA-Z]*"), "").trim();
+        if (response.endsWith("```")) {
+          response = response.substring(0, response.length - 3).trim();
+        }
+      }
+
+      // JSON 문자열의 첫 "{"와 마지막 "}" 사이의 부분만 추출
+      int firstIndex = response.indexOf("{");
+      int lastIndex = response.lastIndexOf("}");
+      if (firstIndex == -1 || lastIndex == -1 || lastIndex <= firstIndex) {
+        debugPrint("응답이 유효한 JSON 형식이 아닙니다: $response");
+        return {};
+      }
+      String jsonString = response.substring(firstIndex, lastIndex + 1);
+
+      // 쉼표 오류 제거: 예를 들어 ",}" -> "}"
+      jsonString = jsonString.replaceAll(RegExp(r',\s*}'), "}");
+
+      // JSON이 완전한지 확인
+      if (!jsonString.endsWith("}")) {
+        debugPrint("최종 JSON 문자열이 완전하지 않습니다: $jsonString");
+        return {};
+      }
+
+      debugPrint("Gemma 응답 (차계부 등록): $jsonString");
+      return jsonDecode(jsonString);
+    } catch (e) {
+      debugPrint("차계부 등록 JSON 파싱 오류: $e");
+      return {};
     }
-    setState(() {
-      _recognizedText += "\n";
-    });
   }
 
-  // 타자기 효과로 전체 텍스트를 업데이트 (덮어쓰기)
-  Future<void> _updateTypewriterText(String newText) async {
-    setState(() {
-      _recognizedText = "";
-    });
-    for (int i = 0; i < newText.length; i++) {
-      await Future.delayed(const Duration(milliseconds: 50));
-      setState(() {
-        _recognizedText += newText[i];
-      });
+  // 한글 금액을 정수로 변환하는 함수 (예: "십만원" -> 100000, "백만원" -> 1000000)
+  int convertHangulAmount(String amountStr) {
+    amountStr = amountStr.trim();
+    int? parsed = int.tryParse(amountStr);
+    if (parsed != null) return parsed;
+    if (amountStr.contains("만원")) {
+      String numPart = amountStr.replaceAll("만원", "").trim();
+      int factor = 10000;
+      Map<String, int> hangulMap = {
+        "일": 1,
+        "이": 2,
+        "삼": 3,
+        "사": 4,
+        "오": 5,
+        "육": 6,
+        "칠": 7,
+        "팔": 8,
+        "구": 9,
+        "십": 10,
+        "백": 100,
+        "천": 1000,
+      };
+      if (hangulMap.containsKey(numPart)) {
+        return hangulMap[numPart]! * factor;
+      }
     }
+    return 0;
+  }
+
+  // 중복 문장 제거 함수 (줄바꿈 기준)
+  String removeDuplicateSentences(String response) {
+    List<String> sentences = response.split(RegExp(r'\n+'));
+    Set<String> seen = {};
+    List<String> unique = [];
+    for (String sentence in sentences) {
+      String trimmed = sentence.trim();
+      if (trimmed.isNotEmpty && !seen.contains(trimmed)) {
+        seen.add(trimmed);
+        unique.add(trimmed);
+      }
+    }
+    return unique.join("\n");
+  }
+
+  // 최종 결과만 화면에 표시 (partial 결과는 무시)
+  Future<void> _updateFinalText(String newText) async {
+    setState(() {
+      _recognizedText = newText;
+    });
   }
 
   Future<void> _startListening() async {
-    // placeholder 텍스트가 그대로 있으면 새 대화를 위해 초기화
-    if (_recognizedText ==
-        "엔진 마모가 뭐야?\n마리모 요청: 차계부에 오늘 날짜로 GS칼텍스 방이점에 주유 2만원 기록해줘") {
+    if (_recognizedText == _placeholderText) {
       setState(() {
         _recognizedText = "";
       });
     }
+    _finalResultProcessed = false;
     bool available = await _speech.initialize(
       onStatus: (status) => debugPrint('STT Status: $status'),
       onError: (error) => debugPrint('STT Error: $error'),
@@ -144,34 +229,115 @@ class _ChatbotState extends State<Chatbot> {
       _startListeningAnimation();
       _speech.listen(
         onResult: (result) async {
-          // STT 중: partial 결과에도 타자기 효과 적용
-          if (!result.finalResult) {
-            await _updateTypewriterText(result.recognizedWords);
-          } else {
-            // 최종 결과 처리
-            String recognized = result.recognizedWords;
-            // 우선 사용자의 발화를 타자기 효과로 추가
-            await _appendTextWithTypewriterEffect(recognized);
-            await _stopListening();
-
-            // 만약 인식된 텍스트가 "마리모 요청"으로 시작하면 내장 기능 호출
-            if (recognized.trim().startsWith("마리모 요청")) {
-              // "마리모 요청:" 접두어를 제거하여 실제 명령을 추출
-              String command =
-                  recognized.replaceFirst(RegExp(r'^마리모 요청:?'), "").trim();
-              // 여기서 command를 파싱하여 내장 기능에 필요한 정보(예, selectedCategory, amount)를 추출할 수 있음.
-              // 예시로 '주유' 카테고리와 2만원(20000원)으로 처리한다고 가정합니다.
-              String selectedCategory = "주유";
-              int amount = 20000;
-
-              // 처리 시작: 내장 기능 호출 메시지 출력
+          if (!result.finalResult) return;
+          if (_finalResultProcessed) return;
+          _finalResultProcessed = true;
+          String recognized = result.recognizedWords;
+          debugPrint("최종 STT 결과: $recognized");
+          await _stopListening();
+          await _updateFinalText("");
+          if (recognized.trim().startsWith("마리모 요청")) {
+            if (recognized.contains("차계부") || recognized.contains("결제내역")) {
               _startProcessingAnimation();
               setState(() {
                 _isProcessing = true;
-                _recognizedText += "내장된 차계부 기능을 호출합니다.\n";
+                _recognizedText = "차계부 결제내역 등록 정보를 추출 중입니다...\n";
               });
-
-              // 내장 기능 호출: CarPaymentDetailForm 화면으로 전환
+              Map<String, dynamic> paymentData =
+                  await _performCarPaymentEntryInference(recognized);
+              _stopProcessingAnimation();
+              String category = paymentData["category"] ?? "주유";
+              int amount;
+              if (paymentData["amount"] is int) {
+                amount = paymentData["amount"];
+              } else {
+                String amountStr = paymentData["amount"]?.toString() ?? "";
+                amount = convertHangulAmount(amountStr);
+                if (amount == 0) {
+                  amount = int.tryParse(amountStr) ?? 0;
+                }
+              }
+              // 후처리: "만"이 포함되어 있고, 주유의 경우 값이 100,000 미만이면 10배 보정
+              if (recognized.contains("만") && amount <= 100000000) {
+                amount *= 10;
+              }
+              // Provider 업데이트
+              final carPaymentProvider = Provider.of<CarPaymentProvider>(
+                context,
+                listen: false,
+              );
+              carPaymentProvider.setSelectedCategory(category);
+              carPaymentProvider.setSelectedAmount(amount);
+              if (paymentData["date"] != null &&
+                  paymentData["date"].toString().isNotEmpty) {
+                try {
+                  carPaymentProvider.setSelectedDate(
+                    DateTime.parse(paymentData["date"]),
+                  );
+                } catch (_) {}
+              }
+              // 주유의 경우, location은 SK, GS, 현대오일뱅크, S-OIL로 시작해야 함
+              if (category == "주유") {
+                if (paymentData["location"] != null &&
+                    paymentData["location"].toString().isNotEmpty) {
+                  String location = paymentData["location"];
+                  if (location.startsWith("SK") ||
+                      location.startsWith("GS") ||
+                      location.startsWith("현대오일뱅크") ||
+                      location.startsWith("S-OIL")) {
+                    carPaymentProvider.setLocation(location);
+                  } else {
+                    carPaymentProvider.setLocation("");
+                  }
+                }
+              } else {
+                if (paymentData["location"] != null &&
+                    paymentData["location"].toString().isNotEmpty) {
+                  carPaymentProvider.setLocation(paymentData["location"]);
+                }
+              }
+              if (paymentData["memo"] != null &&
+                  paymentData["memo"].toString().isNotEmpty) {
+                carPaymentProvider.setMemo(paymentData["memo"]);
+              }
+              if (category == "주유" &&
+                  paymentData["type"] != null &&
+                  paymentData["type"].toString().isNotEmpty) {
+                String fuelType = paymentData["type"];
+                if (fuelType != "고급 휘발유" &&
+                    fuelType != "일반 휘발유" &&
+                    fuelType != "경유" &&
+                    fuelType != "LPG") {
+                  fuelType = "일반 휘발유";
+                }
+                carPaymentProvider.setFuelType(fuelType);
+              }
+              debugPrint(
+                "차계부 등록용 Provider 업데이트 완료: ${carPaymentProvider.toJsonForDB(carId: 'dummy', location: carPaymentProvider.location, memo: carPaymentProvider.memo, fuelType: carPaymentProvider.fuelType)}",
+              );
+              setState(() {
+                _isProcessing = false;
+              });
+              // 입력 처리 후 Provider 초기화
+              carPaymentProvider.resetInput();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (context) => CarPaymentDetailForm(
+                        selectedCategory: category,
+                        amount: amount,
+                      ),
+                ),
+              );
+            } else {
+              _startProcessingAnimation();
+              setState(() {
+                _isProcessing = true;
+                _recognizedText = "내장된 차계부 기능을 호출합니다.\n";
+              });
+              String selectedCategory = "주유";
+              int amount = 20000;
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -183,23 +349,22 @@ class _ChatbotState extends State<Chatbot> {
                 ),
               );
               _stopProcessingAnimation();
-            } else {
-              // 일반적인 경우: 자동차 전문가로서 Gemma 모델을 통한 추론 처리
-              _startProcessingAnimation();
-              setState(() {
-                _isProcessing = true;
-                _recognizedText += "AI 마리모가 대답을 준비하고 있어요.\n";
-              });
-              String generatedResponse = await _performGemmaInference(
-                recognized,
-              );
-              _stopProcessingAnimation();
-              setState(() {
-                _isProcessing = false;
-                _recognizedText += generatedResponse + "\n";
-              });
-              await _flutterTts.speak(generatedResponse);
             }
+          } else {
+            _startProcessingAnimation();
+            setState(() {
+              _isProcessing = true;
+              _recognizedText = "AI 마리모가 대답을 준비하고 있어요.\n";
+            });
+            String generatedResponse = await _performGemmaInference(recognized);
+            generatedResponse = removeDuplicateSentences(generatedResponse);
+            debugPrint("Gemma 일반 응답: $generatedResponse");
+            _stopProcessingAnimation();
+            setState(() {
+              _isProcessing = false;
+              _recognizedText = generatedResponse + "\n";
+            });
+            await _flutterTts.speak(generatedResponse);
           }
         },
         listenFor: const Duration(seconds: 10),
@@ -273,6 +438,13 @@ class _ChatbotState extends State<Chatbot> {
     final textBottom = containerHeight * 0.25;
     final micBottom = containerHeight * 0.1;
 
+    TextStyle textStyle = TextStyle(
+      color: Colors.black,
+      fontSize: size.width * 0.04,
+      fontFamily: 'FreesentationVF',
+      fontWeight: FontWeight.w400,
+    );
+
     return Align(
       alignment: Alignment.bottomCenter,
       child: Container(
@@ -315,7 +487,7 @@ class _ChatbotState extends State<Chatbot> {
                 },
               ),
             ),
-            // 인식된 텍스트 영역 (타자기 효과 또는 full text로 표시)
+            // 인식된 텍스트 영역 (최종 결과만 표시)
             Positioned(
               top: textTop,
               bottom: textBottom,
@@ -327,12 +499,7 @@ class _ChatbotState extends State<Chatbot> {
                     _recognizedText,
                     textAlign: TextAlign.center,
                     softWrap: true,
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: size.width * 0.04,
-                      fontFamily: 'FreesentationVF',
-                      fontWeight: FontWeight.w400,
-                    ),
+                    style: textStyle,
                   ),
                 ),
               ),
