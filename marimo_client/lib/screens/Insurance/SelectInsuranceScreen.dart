@@ -15,18 +15,66 @@ class _SelectInsuranceScreenState extends State<SelectInsuranceScreen> {
   int? selectedIndex;  // 선택된 보험사 인덱스
 
   final List<Map<String, dynamic>> insuranceCompanies = const [
-    {'name': 'AXA손해보험', 'logo': 'assets/images/insurance/image_axa.png'},
-    {'name': 'DB손해보험', 'logo': 'assets/images/insurance/image_db.png'},
-    {'name': 'KB손해보험', 'logo': 'assets/images/insurance/image_kb.png'},
-    {'name': 'MG손해보험', 'logo': 'assets/images/insurance/image_mg.png'},
-    {'name': '롯데손해보험', 'logo': 'assets/images/insurance/image_lotte.png'},
-    {'name': '메리츠화재', 'logo': 'assets/images/insurance/image_meritz.png'},
-    {'name': '삼성화재', 'logo': 'assets/images/insurance/image_samsung.png'},
-    {'name': '캐롯손해보험', 'logo': 'assets/images/insurance/image_carrot.png'},
-    {'name': '하나손해보험', 'logo': 'assets/images/insurance/image_hana.png'},
-    {'name': '한화손해보험', 'logo': 'assets/images/insurance/image_hanhwa.png'},
-    {'name': '현대해상', 'logo': 'assets/images/insurance/image_hyundai.png'},
-    {'name': '흥국화재', 'logo': 'assets/images/insurance/image_heungkuk.png'},
+    {
+      'name': 'AXA손해보험',
+      'logo': 'assets/images/insurance/image_axa.png',
+      'code': 'axa'
+    },
+    {
+      'name': 'DB손해보험',
+      'logo': 'assets/images/insurance/image_db.png',
+      'code': 'db'
+    },
+    {
+      'name': 'KB손해보험',
+      'logo': 'assets/images/insurance/image_kb.png',
+      'code': 'kb'
+    },
+    {
+      'name': 'MG손해보험',
+      'logo': 'assets/images/insurance/image_mg.png',
+      'code': 'mg'
+    },
+    {
+      'name': '롯데손해보험',
+      'logo': 'assets/images/insurance/image_lotte.png',
+      'code': 'lotte'
+    },
+    {
+      'name': '메리츠화재',
+      'logo': 'assets/images/insurance/image_meritz.png',
+      'code': 'meritz'
+    },
+    {
+      'name': '삼성화재',
+      'logo': 'assets/images/insurance/image_samsung.png',
+      'code': 'samsung'
+    },
+    {
+      'name': '캐롯손해보험',
+      'logo': 'assets/images/insurance/image_carrot.png',
+      'code': 'carrot'
+    },
+    {
+      'name': '하나손해보험',
+      'logo': 'assets/images/insurance/image_hana.png',
+      'code': 'hana'
+    },
+    {
+      'name': '한화손해보험',
+      'logo': 'assets/images/insurance/image_hanhwa.png',
+      'code': 'hanwha'
+    },
+    {
+      'name': '현대해상',
+      'logo': 'assets/images/insurance/image_hyundai.png',
+      'code': 'hyundai'
+    },
+    {
+      'name': '흥국화재',
+      'logo': 'assets/images/insurance/image_heungkuk.png',
+      'code': 'heungkuk'
+    },
   ];
 
   @override
@@ -156,6 +204,7 @@ class _SelectInsuranceScreenState extends State<SelectInsuranceScreen> {
                             MaterialPageRoute(
                               builder: (context) => InsuranceInfoScreen(
                                 insuranceName: selected['name']!,
+                                insuranceCode: selected['code']!,
                                 insuranceLogo: selected['logo']!,
                               ),
                             ),

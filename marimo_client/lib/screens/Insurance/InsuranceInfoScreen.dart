@@ -6,14 +6,20 @@ import 'package:flutter/services.dart';  // TextInputFormatter를 위한 import 
 import 'package:marimo_client/commons/CustomAppHeader.dart';  // CustomAppHeader 임포트 추가
 import 'package:flutter_svg/flutter_svg.dart';  // SVG 패키지 추가
 import 'package:flutter/services.dart';  // SystemChrome을 위한 import 추가
+import 'package:provider/provider.dart';
+import 'package:marimo_client/providers/car_provider.dart';
+import 'package:marimo_client/providers/member/auth_provider.dart';
+import 'package:marimo_client/services/insurance/Insurance_service.dart';
 
 class InsuranceInfoScreen extends StatefulWidget {
-  final String insuranceName;
+  final String insuranceName;    // 화면 표시용 한글 이름
+  final String insuranceCode;    // API 요청용 영문 코드
   final String insuranceLogo;
 
   const InsuranceInfoScreen({
     super.key, 
     required this.insuranceName,
+    required this.insuranceCode,  // 추가
     required this.insuranceLogo,
   });
 
@@ -66,6 +72,21 @@ class _InsuranceInfoScreenState extends State<InsuranceInfoScreen> {
         systemNavigationBarIconBrightness: Brightness.light,
       ),
     );
+    
+    // 차량 정보 로드
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        final accessToken = context.read<AuthProvider>().accessToken;
+        if (accessToken != null) {
+          await context.read<CarProvider>().fetchCars(accessToken);
+        }
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('차량 정보를 불러오는데 실패했습니다.')),
+        );
+      }
+    });
     
     // 포커스 리스너 추가
     _distanceFocusNode.addListener(() {
@@ -209,16 +230,57 @@ class _InsuranceInfoScreenState extends State<InsuranceInfoScreen> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: isAllFieldsFilled() 
-                          ? () {
-                              Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const InsuranceScreen(isInsuranceRegistered: true),
-                                ),
-                                (route) => false,
-                              );
+                          ? () async {
+                              try {
+                                // Provider에서 필요한 정보 가져오기
+                                final carId = context.read<CarProvider>().selectedCarId;
+                                final accessToken = context.read<AuthProvider>().accessToken;
+
+                                if (carId == null || accessToken == null) {
+                                  print('Debug - carId: $carId, accessToken: $accessToken'); // 디버깅용
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('차량 정보를 찾을 수 없습니다. 차량이 등록되어 있는지 확인해주세요.'),
+                                      duration: Duration(seconds: 3),
+                                    ),
+                                  );
+                                  return;
+                                }
+
+                                // 거리와 보험료에서 콤마 제거
+                                final cleanDistance = getCleanNumber(_distanceController.text);
+                                final cleanAmount = getCleanNumber(_insuranceAmountController.text);
+
+                                // 보험 등록 API 호출
+                                final carInsuranceId = await InsuranceService.registerInsurance(
+                                  carId: carId,
+                                  accessToken: accessToken,
+                                  insuranceCompanyName: widget.insuranceCode,
+                                  startDate: _formatToDateTime(_insuranceStartDate),
+                                  endDate: _formatToDateTime(_insuranceEndDate, isEndDate: true),
+                                  distanceRegistrationDate: _formatToDateTime(_registrationDate),
+                                  registeredDistance: int.parse(cleanDistance),
+                                  insurancePremium: int.parse(cleanAmount),
+                                );
+
+                                if (!mounted) return;
+
+                                // 성공 시 화면 이동
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const InsuranceScreen(isInsuranceRegistered: true),
+                                  ),
+                                  (route) => false,
+                                );
+                              } catch (e) {
+                                // 에러 처리
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(e.toString())),
+                                );
+                              }
                             }
-                          : null,  // null이면 버튼이 비활성화됨
+                          : null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF4888FF),
                           padding: EdgeInsets.symmetric(vertical: 16.h),
@@ -505,5 +567,12 @@ class _InsuranceInfoScreenState extends State<InsuranceInfoScreen> {
         _insuranceEndDate != 'YYYY.MM.DD' &&
         _distanceController.text.isNotEmpty &&
         _insuranceAmountController.text.isNotEmpty;  // 보험료 입력 확인 추가
+  }
+
+  // 날짜 형식 변환 메서드 추가
+  String _formatToDateTime(String date, {bool isEndDate = false}) {
+    final parts = date.split('.');
+    final time = isEndDate ? "23:59:59" : "00:00:00";
+    return "${parts[0]}-${parts[1].padLeft(2, '0')}-${parts[2].padLeft(2, '0')}T$time";
   }
 } 
