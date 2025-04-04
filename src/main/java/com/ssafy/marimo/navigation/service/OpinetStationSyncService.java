@@ -39,6 +39,7 @@ public class OpinetStationSyncService {
         for (String uniId : uniIds) {
             if (gasStationRepository.findByRoadAddress(uniId).isPresent()) continue;
 
+            // 주유소 하나씩 만들어서 저장
             GasStation station = fetchStationDetail(uniId);
             if (station != null) {
                 gasStationRepository.save(station);
@@ -85,7 +86,8 @@ public class OpinetStationSyncService {
             return List.of();
         }
     }
-    
+
+    // 개별 주유소의 gasStation 정보 생성
     @ExecutionTimeLog
     public GasStation fetchStationDetail(String uniId) {
         try {
@@ -119,7 +121,6 @@ public class OpinetStationSyncService {
             station.setLatitude(wgs84.y);  // 위도 (latitude)
             station.setLongitude(wgs84.x); // 경도 (longitude)
 
-
             station.setHasLpg("Y".equals(getTag(el, "LPG_YN")));
             station.setHasSelfService("Y".equals(getTag(el, "SELF_YN")));
             station.setHasMaintenance("Y".equals(getTag(el, "MAINT_YN")));
@@ -127,6 +128,12 @@ public class OpinetStationSyncService {
             station.setHasCvs("Y".equals(getTag(el, "CVS_YN")));
             station.setQualityCertified("Y".equals(getTag(el, "KPETRO_YN")));
 
+            /**
+             * TODO : 각각의 가격에 카드 혜택 적용하기
+             * - 전월실적 파악하기
+             * - 카드 혜택 적용하기 메서드 필요
+             * - 입력 : 주유소 상호명, 각각의 가격 (일반, 고급, 디젤, LPG) / 출력 :
+             */
             // 연료 종류 별 가격 받기
             NodeList oilPrices = el.getElementsByTagName("OIL_PRICE");
             for (int i = 0; i < oilPrices.getLength(); i++) {
@@ -142,9 +149,6 @@ public class OpinetStationSyncService {
                         station.setPremiumGasolinePrice(price);
                         break;
                     case "D047":  // 디젤 (경유)
-                        station.setDieselPrice(price);
-                        break;
-                    case "C004":  // 실내등유 (등유)
                         station.setDieselPrice(price);
                         break;
                     case "K015":  // 자동차부탄 (LPG)

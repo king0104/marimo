@@ -23,7 +23,7 @@ public class CarInsuranceController {
 
     private final CarInsuranceService carInsuranceService;
 
-    @PostMapping("/car/{carId}")
+    @PostMapping("/cars/{carId}")
     public ResponseEntity<PostCarInsuranceResponse> postCarInsurance(
             @PathVariable @DecryptedId Integer carId,
             @Valid @RequestBody PostCarInsuranceRequest postCarInsuranceRequest)
@@ -37,7 +37,7 @@ public class CarInsuranceController {
 
     }
 
-    @GetMapping("/car/{carId}")
+    @GetMapping("/cars/{carId}")
     public ResponseEntity<GetCarInsuranceResponse> getCarInsurance(
             @PathVariable @DecryptedId Integer carId
     ) {

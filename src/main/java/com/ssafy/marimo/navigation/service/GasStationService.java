@@ -1,10 +1,15 @@
 package com.ssafy.marimo.navigation.service;
 
+import com.ssafy.marimo.card.domain.Card;
+import com.ssafy.marimo.card.domain.MemberCard;
+import com.ssafy.marimo.card.repository.MemberCardRepository;
 import com.ssafy.marimo.common.annotation.ExecutionTimeLog;
+import com.ssafy.marimo.external.fintech.FintechApiClient;
 import com.ssafy.marimo.navigation.domain.GasStation;
 import com.ssafy.marimo.navigation.dto.request.PostGasStationRecommendRequest;
 import com.ssafy.marimo.navigation.dto.response.PostGasStationRecommendResponse;
 import com.ssafy.marimo.navigation.repository.GasStationRepository;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,13 +24,15 @@ import java.util.Objects;
 public class GasStationService {
 
     private final GasStationRepository gasStationRepository;
+    private final MemberCardRepository memberCardRepository;
+    private final FintechApiClient fintechApiClient;
 
     @ExecutionTimeLog
     public void clearAllStations() {
         gasStationRepository.deleteAll();
     }
 
-    public List<PostGasStationRecommendResponse> getRecommendedStations(PostGasStationRecommendRequest req) {
+    public List<PostGasStationRecommendResponse> getRecommendedStations(PostGasStationRecommendRequest req, Integer memberId) {
         return gasStationRepository.findAll().stream()
                 .filter(s -> req.hasSelfService() == null || s.getHasSelfService().equals(req.hasSelfService()))
                 .filter(s -> req.hasMaintenance() == null || s.getHasMaintenance().equals(req.hasMaintenance()))
@@ -35,7 +42,7 @@ public class GasStationService {
                         || req.brandList().contains(s.getBrand()))
                 .filter(s -> isValidOilType(req.oilType(), s))
 
-                .map(s -> toRecommendResponse(s, req))
+                .map(s -> toRecommendResponse(s, req, memberId))
                 .filter(Objects::nonNull)
                 .sorted(Comparator.comparing(PostGasStationRecommendResponse::distance))
                 .limit(3)
@@ -43,7 +50,7 @@ public class GasStationService {
     }
 
 
-    private PostGasStationRecommendResponse toRecommendResponse(GasStation s, PostGasStationRecommendRequest req) {
+    private PostGasStationRecommendResponse toRecommendResponse(GasStation s, PostGasStationRecommendRequest req, Integer memberId) {
         double userLat = req.latitude();
         double userLng = req.longitude();
         int distance = calcDistance(userLat, userLng, s.getLatitude(), s.getLongitude());
@@ -52,6 +59,21 @@ public class GasStationService {
         Float price = determinePriceByOilType(s, req.oilType());
 
         // 가격 할인 로직은 별도로 추가하세요.
+        /**
+         * TODO : 전월실적
+         */
+        boolean isOilCardRegistered = true;
+        Optional<MemberCard> memberCard = memberCardRepository.findByMemberId(memberId);
+        if (memberCard == null) {
+            isOilCardRegistered = false;
+        }
+
+        // 2. 외부 API 사용해서 전월실적 가져오기
+        Card card = memberCard.get().getCard();
+        card.getMonthlyRequirement();
+        fintechApiClient.getCardTransactions(card.getCardUniqueNo(), card.)
+
+
         Float discountedPrice = price; // 현재는 가격 그대로 사용
         int discountAmount = 0; // 현재 할인 없음
 
