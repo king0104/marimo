@@ -1,14 +1,17 @@
 package com.ssafy.marimo.member.controller;
 
 import com.ssafy.marimo.common.annotation.CurrentMemberId;
+import com.ssafy.marimo.common.annotation.DecryptedId;
 import com.ssafy.marimo.member.dto.request.PostMemberFormRequest;
 import com.ssafy.marimo.member.dto.request.PostMemberLoginRequest;
+import com.ssafy.marimo.member.dto.response.GetMemberNameResponse;
 import com.ssafy.marimo.member.dto.response.PostMemberFormResponse;
 import com.ssafy.marimo.member.dto.response.PostMemberLoginResponse;
 import com.ssafy.marimo.member.service.CustomUserDetails;
 import com.ssafy.marimo.member.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +44,16 @@ public class MemberController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(postMemberLoginResponsee);
+    }
+
+    @GetMapping("/name")
+    public ResponseEntity<GetMemberNameResponse> getName(
+            @CurrentMemberId Integer memberId
+    ) {
+        GetMemberNameResponse getMemberNameResponse = memberService.getName(memberId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(getMemberNameResponse);
     }
 
 }
