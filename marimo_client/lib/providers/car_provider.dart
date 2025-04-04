@@ -5,6 +5,14 @@ import '../models/car_model.dart';
 import 'package:marimo_client/services/car/car_service.dart';
 
 class CarProvider with ChangeNotifier {
+  static CarProvider? _instance;
+
+  CarProvider() {
+    _instance = this;
+  }
+
+  static CarProvider? get instance => _instance;
+
   final List<CarModel> _cars = [];
 
   List<CarModel> get cars => _cars;
@@ -34,7 +42,6 @@ class CarProvider with ChangeNotifier {
     }
   }
 
-  // ✅ [추가] 서버에서 차량 목록 불러오기
   Future<void> fetchCarsFromServer(String accessToken) async {
     try {
       final fetchedCars = await CarService.getCars(accessToken: accessToken);

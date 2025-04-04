@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/providers/member/signup_provider.dart';
 import 'package:marimo_client/screens/signin/SignInScreen.dart';
-import 'package:marimo_client/screens/signin/car/RegisterCarScreen.dart';
 import 'package:marimo_client/screens/signin/widgets/sign_up/SignUpInput.dart';
 import 'package:marimo_client/screens/signin/widgets/sign_up/SignUpInputWithButton.dart';
 import 'package:marimo_client/screens/signin/widgets/CustomTitleText.dart';
