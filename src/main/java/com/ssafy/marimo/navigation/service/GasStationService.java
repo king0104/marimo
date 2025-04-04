@@ -71,7 +71,8 @@ public class GasStationService {
         // 2. 외부 API 사용해서 전월실적 가져오기
         Card card = memberCard.get().getCard();
         card.getMonthlyRequirement();
-        fintechApiClient.getCardTransactions(card.getCardUniqueNo(), card.)
+        fintechApiClient.getCardTransactions(card.getCardUniqueNo(), card.getCvc().toString(), "2025-04-01", "2025-04-04");
+
 
 
         Float discountedPrice = price; // 현재는 가격 그대로 사용
