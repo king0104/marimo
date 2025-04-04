@@ -32,10 +32,6 @@ class _Obd2DetailScreenState extends State<Obd2DetailScreen> {
     final responses = provider.responses;
     final parsed = parseObdResponses(responses);
 
-    print('✅ parsed.rpm: ${parsed.rpm}');
-    print('✅ parsed.speed: ${parsed.speed}');
-    print('✅ parsed.raw: ${provider.responses['010C']}');
-
     final List<Map<String, dynamic>> obdItems = [
       {"title": "RPM", "value": parsed.rpm, "unit": "rpm"},
       {"title": "속도", "value": parsed.speed, "unit": "km/h"},
