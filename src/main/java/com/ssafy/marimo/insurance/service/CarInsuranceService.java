@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +31,7 @@ public class CarInsuranceService {
     private final IdEncryptionUtil idEncryptionUtil;
     private final InsuranceDiscountRuleRepository insuranceDiscountRuleRepository;
 
+    @Transactional
     public PostCarInsuranceResponse postCarInsurance(Integer carId, PostCarInsuranceRequest postCarInsuranceRequest) {
         Car car = carRepository.findById(carId)
                 .orElseThrow(() -> new NotFoundException(ErrorStatus.CAR_NOT_FOUND.getErrorCode()));
@@ -152,6 +154,14 @@ public class CarInsuranceService {
                 car.getTotalDistance()
         );
 
+
     }
 
+    @Transactional
+    public void deleteCarInsurance(Integer carId) {
+        CarInsurance carInsurance = carInsuranceRepository.findByCarId(carId)
+                .orElseThrow(() -> new NotFoundException(ErrorStatus.CARD_NOT_FOUND.getErrorCode()));
+
+        carInsuranceRepository.delete(carInsurance);
+    }
 }
