@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:marimo_client/screens/monitoring/widgets/Car3DModel.dart';
 import 'package:marimo_client/screens/signin/widgets/CustomTitleText.dart';
 import 'package:marimo_client/screens/signin/car/CarRegistrationStepperScreen.dart';
 
@@ -31,14 +32,19 @@ class _RegisterCarScreenState extends State<RegisterCarScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const SizedBox(height: 32),
                           CustomTitleText(
                             text: "좋아요!\n그럼 이제 내 차를 등록해볼까요?",
                             highlight: "내 차를 등록해볼까요?",
                           ),
-                          const SizedBox(height: 120),
+                          // 👇 3D 차량 모델 삽입
+                          SizedBox(
+                            height: 250,
+                            child:
+                                Car3DModel(), // 🔧 반드시 이 위젯은 Stateless로 만들어 두기!
+                          ),
+                          const SizedBox(height: 32),
 
-                          // 🚗 버튼 (차량 여부 선택)
+                          // 🚗 등록 버튼
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -63,32 +69,7 @@ class _RegisterCarScreenState extends State<RegisterCarScreen> {
                                       ),
                                     ),
                                     child: const Text(
-                                      "차 있어요 😆",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: SizedBox(
-                                  height: 50,
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      // TODO: "차 없어요" 클릭 시 다른 화면 이동 처리
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF4888FF),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                    ),
-                                    child: const Text(
-                                      "차 없어요 🥲",
+                                      "다음으로",
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 16,

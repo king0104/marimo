@@ -40,13 +40,28 @@ class _CarInputState extends State<CarInput> {
   }
 
   String? _validateInput(String input) {
+    input = input.trim();
+
     if (widget.labelText == "차량 번호") {
       final regex = RegExp(r'^\d{2,3}[가-힣]\d{4}$');
       if (!regex.hasMatch(input)) {
         return "유효하지 않은 차량 번호 형식입니다. 예) 123가1234";
       }
     }
-    // 다른 입력 유형에 대한 유효성 검사 추가 가능
+
+    if (widget.labelText == "차대 번호") {
+      final vinRegex = RegExp(r'^[A-HJ-NPR-Z0-9]{17}$');
+      if (!vinRegex.hasMatch(input)) {
+        return "차대번호는 영문 대문자와 숫자로만 된 17자리여야 합니다.";
+      }
+    }
+
+    if (widget.labelText == "닉네임") {
+      if (input.length < 2 || input.length > 10) {
+        return "닉네임은 2자 이상 10자 이하로 입력해주세요.";
+      }
+    }
+
     return null;
   }
 

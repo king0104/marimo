@@ -242,6 +242,7 @@ class _CarRegistrationStepperScreenState
                               "차량 등록이 완료되었습니다!",
                               icon: Icons.check_circle,
                               type: 'success',
+                              position: 'top-down',
                             );
                             await Future.delayed(
                               const Duration(milliseconds: 200),
@@ -258,6 +259,7 @@ class _CarRegistrationStepperScreenState
                               "차량 등록 실패: $e",
                               icon: Icons.error,
                               type: 'error',
+                              position: 'top-down',
                             );
                             print("❌ 차량 등록 실패: $e");
                           }

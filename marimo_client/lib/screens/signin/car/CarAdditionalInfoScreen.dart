@@ -127,51 +127,6 @@ class _CarAdditionalInfoScreenState extends State<CarAdditionalInfoScreen> {
                 ),
               ),
             ),
-
-            const SizedBox(height: 16),
-
-            /// 연료탱크 용량 입력
-            Text(
-              '연료탱크 용량',
-              style: TextStyle(
-                color: iconColor,
-                fontSize: 16,
-                fontWeight: FontWeight.w300,
-              ),
-            ),
-            const SizedBox(height: 8),
-            TextFormField(
-              keyboardType: TextInputType.number,
-              style: const TextStyle(
-                fontSize: 14,
-                color: black,
-                fontWeight: FontWeight.w400,
-              ),
-              decoration: InputDecoration(
-                border: baseBorder,
-                enabledBorder: baseBorder,
-                focusedBorder: baseBorder,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                suffixIcon: const Padding(
-                  padding: EdgeInsets.only(right: 16),
-                  child: Text(
-                    'L',
-                    style: TextStyle(
-                      color: black,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                suffixIconConstraints: const BoxConstraints(
-                  minWidth: 0,
-                  minHeight: 0,
-                ),
-              ),
-            ),
           ],
         ),
       ),
