@@ -117,10 +117,11 @@ public class CarInsuranceService {
         int discountDifferenceWithNextStage = nextRule != null ? currentDiscountAmount - nextDiscountAmount : currentDiscountAmount;
 
 
-        int drivingPercentage = (int) Math.round(
-                ((calculatedDistance - currentRule.getDiscountFromKm()) * 100.0) /
-                        (currentRule.getDiscountToKm() - currentRule.getDiscountFromKm())
-        );
+        double value = (calculatedDistance - currentRule.getDiscountFromKm()) /
+                (currentRule.getDiscountToKm() - currentRule.getDiscountFromKm());
+
+        String formatted = String.format("%.2f", value); // "0.75" 같은 문자열
+        float drivingPercentage = Float.parseFloat(formatted); // float으로 변환
 
         // 5. 응답 객체 생성
         return GetCarInsuranceResponse.of(
