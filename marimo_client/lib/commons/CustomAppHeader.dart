@@ -34,17 +34,22 @@ class CustomAppHeader extends StatelessWidget implements PreferredSizeWidget {
             children: [
               // 🔙 뒤로가기 버튼
               Positioned(
-                left: 20.w,
+                left: 12.w,
                 top: 0,
                 bottom: 0,
-                child: Center(
-                  child: GestureDetector(
-                    onTap: onBackPressed,
-                    child: SvgPicture.asset(
-                      'assets/images/icons/icon_back.svg',
-                      width: 18.sp,
-                      height: 18.sp,
-                      color: iconColor,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: onBackPressed,
+                  child: SizedBox(
+                    width: 44.w,
+                    height: 44.w,
+                    child: Center(
+                      child: SvgPicture.asset(
+                        'assets/images/icons/icon_back.svg',
+                        width: 18.sp,
+                        height: 18.sp,
+                        color: iconColor,
+                      ),
                     ),
                   ),
                 ),

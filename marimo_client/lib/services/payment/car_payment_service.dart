@@ -10,14 +10,13 @@ class CarPaymentService {
   static final String baseUrl =
       dotenv.env['API_BASE_URL'] ?? 'http://j12a605.p.ssafy.io:8080';
 
-  static Future<void> savePayment({
+  static Future<String> savePayment({
     required CarPaymentProvider provider,
     required String carId,
     required String accessToken,
   }) async {
     final category = provider.selectedCategory ?? '주유';
 
-    // ✅ 카테고리에 따라 URL 분기
     String endpoint;
     switch (category) {
       case '주유':
@@ -44,27 +43,19 @@ class CarPaymentService {
       repairParts: category == '정비' ? provider.selectedRepairItems : null,
     );
 
-    // 👇 디버깅 로그 추가
-    print('📦 [디버그] provider.location: ${provider.location}');
-    print('📦 [디버그] provider.memo: ${provider.memo}');
-    print('📦 [디버그] provider.fuelType: ${provider.fuelType}');
-    print('📦 [디버그] provider.repairParts: ${provider.selectedRepairItems}');
-    print('📦 BodyMap to encode: $bodyMap');
-
-    final body = jsonEncode(bodyMap);
-
-    print('📡 [REQUEST] POST $url');
-    print('🧾 Headers: $headers');
-    print('📦 Body JSON: $body');
-
-    final response = await http.post(url, headers: headers, body: body);
+    final response = await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode(bodyMap),
+    );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      final responseBody = utf8.decode(response.bodyBytes);
-      print("✅ 결제 내역 저장 성공: $responseBody");
+      final decoded = jsonDecode(utf8.decode(response.bodyBytes));
+      final paymentId = decoded['paymentId']; // 서버 응답에서 paymentId 추출
+      print("✅ 결제 내역 저장 성공: paymentId = $paymentId");
+      return paymentId; // ✅ 반환
     } else {
       final errorMessage = utf8.decode(response.bodyBytes);
-      print("❌ 결제 내역 저장 실패: $errorMessage");
       throw Exception("결제 저장 실패: $errorMessage");
     }
   }

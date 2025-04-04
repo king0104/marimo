@@ -12,7 +12,7 @@ class ScoreGauge extends StatefulWidget {
 class _ScoreGaugeState extends State<ScoreGauge> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _animation;
-  final double targetPercentage = 0.84; // 84점
+  final double targetPercentage = 0.78; // 84점
 
   @override
   void initState() {

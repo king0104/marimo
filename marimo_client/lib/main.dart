@@ -41,6 +41,7 @@ void main() async {
     onAuthFailed: (ex) => print("네이버 지도 인증 오류: $ex"),
   );
 
+  // 전역 시스템 UI 스타일 설정
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.black,
@@ -101,7 +102,6 @@ class MyApp extends StatelessWidget {
 
 class InitialRouter extends StatelessWidget {
   const InitialRouter({super.key});
-
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
