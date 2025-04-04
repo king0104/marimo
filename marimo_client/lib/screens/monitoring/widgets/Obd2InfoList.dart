@@ -21,14 +21,13 @@ class Obd2InfoList extends StatefulWidget {
 
 class _Obd2InfoListState extends State<Obd2InfoList> {
   bool showDtcInfo = true;
+  bool isExpanded = false;
   int? selectedIndex;
   List<String> dtcCodes = [];
 
   @override
   void initState() {
     super.initState();
-
-    // ✅ build 이후에 실행
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadDtcCodes();
     });
@@ -60,107 +59,121 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
 
     final isDtcEmpty = showDtcInfo && dtcCodes.isEmpty;
 
-    return Container(
-      padding: EdgeInsets.fromLTRB(12.w, 12.h, 12.w, 80.h),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(8.r),
-          topRight: Radius.circular(8.r),
-        ),
-        border: Border.all(color: const Color(0xFFD7D7D7), width: 0.2),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0x1A000000),
-            blurRadius: 3.r,
-            offset: Offset(0, 2.h),
+    return Listener(
+      behavior: HitTestBehavior.translucent,
+      onPointerMove: (event) {
+        if (event.delta.dy < -5 && !isExpanded) {
+          setState(() => isExpanded = true);
+          widget.onToggleWidgets?.call();
+        } else if (event.delta.dy > 5 && isExpanded) {
+          setState(() => isExpanded = false);
+          widget.onToggleWidgets?.call();
+        }
+      },
+      child: Container(
+        padding: EdgeInsets.fromLTRB(12.w, 12.h, 12.w, 80.h),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(8.r),
+            topRight: Radius.circular(8.r),
           ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.only(bottom: 12.h),
-            child: GestureDetector(
+          border: Border.all(color: const Color(0xFFD7D7D7), width: 0.2),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0x1A000000),
+              blurRadius: 3.r,
+              offset: Offset(0, 2.h),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            GestureDetector(
               behavior: HitTestBehavior.translucent,
-              onTap: widget.onToggleWidgets,
-              child: Column(
-                children: [
-                  Center(
-                    child: Container(
-                      width: 80.w,
-                      height: 5.h,
-                      decoration: BoxDecoration(
-                        color: lightgrayColor,
-                        borderRadius: BorderRadius.circular(4.r),
+              onTap: () {
+                setState(() => isExpanded = !isExpanded);
+                widget.onToggleWidgets?.call();
+              },
+              child: Container(
+                color: Colors.transparent,
+                padding: EdgeInsets.symmetric(vertical: 12.h),
+                child: Center(
+                  child: Container(
+                    width: 80.w,
+                    height: 5.h,
+                    decoration: BoxDecoration(
+                      color: lightgrayColor,
+                      borderRadius: BorderRadius.circular(4.r),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SizedBox(
+                  width: 180.w,
+                  child: ListToggle(
+                    isLeftSelected: showDtcInfo,
+                    onLeftTap: () => setState(() => showDtcInfo = true),
+                    onRightTap: () => setState(() => showDtcInfo = false),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const Obd2DetailScreen(),
+                      ),
+                    );
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      vertical: 4.h,
+                      horizontal: 8.w,
+                    ),
+                    child: Text(
+                      "OBD2 상세",
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                        color: const Color(0xFF747474),
                       ),
                     ),
                   ),
-                  SizedBox(height: 12.h),
-                ],
-              ),
+                ),
+              ],
             ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SizedBox(
-                width: 180.w,
-                child: ListToggle(
-                  isLeftSelected: showDtcInfo,
-                  onLeftTap: () => setState(() => showDtcInfo = true),
-                  onRightTap: () => setState(() => showDtcInfo = false),
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const Obd2DetailScreen(),
-                    ),
-                  );
-                },
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 8.w),
-                  child: Text(
-                    "OBD2 상세",
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w500,
-                      color: const Color(0xFF747474),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 12.h),
-          Expanded(
-            child:
-                isDtcEmpty
-                    ? _buildNoDtcWidget()
-                    : ListView.builder(
-                      padding: EdgeInsets.only(bottom: 32.h),
-                      itemCount:
-                          showDtcInfo ? dtcCodes.length : statusItems.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: EdgeInsets.symmetric(vertical: 4.h),
-                          child:
-                              showDtcInfo
-                                  ? _buildDtcCard(index)
-                                  : StatusInfoCard(
-                                    icon: statusItems[index].icon,
-                                    title: statusItems[index].title,
-                                    description: statusItems[index].description,
-                                    status: statusItems[index].status,
-                                  ),
-                        );
-                      },
-                    ),
-          ),
-        ],
+            SizedBox(height: 12.h),
+            Expanded(
+              child:
+                  isDtcEmpty
+                      ? _buildNoDtcWidget()
+                      : ListView.builder(
+                        padding: EdgeInsets.only(bottom: 32.h),
+                        itemCount:
+                            showDtcInfo ? dtcCodes.length : statusItems.length,
+                        itemBuilder:
+                            (context, index) => Padding(
+                              padding: EdgeInsets.symmetric(vertical: 4.h),
+                              child:
+                                  showDtcInfo
+                                      ? _buildDtcCard(index)
+                                      : StatusInfoCard(
+                                        icon: statusItems[index].icon,
+                                        title: statusItems[index].title,
+                                        description:
+                                            statusItems[index].description,
+                                        status: statusItems[index].status,
+                                      ),
+                            ),
+                      ),
+            ),
+          ],
+        ),
       ),
     );
   }
