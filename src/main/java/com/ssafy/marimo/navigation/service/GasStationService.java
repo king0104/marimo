@@ -1,5 +1,6 @@
 package com.ssafy.marimo.navigation.service;
 
+import com.ssafy.marimo.common.annotation.ExecutionTimeLog;
 import com.ssafy.marimo.navigation.domain.GasStation;
 import com.ssafy.marimo.navigation.dto.request.PostGasStationRecommendRequest;
 import com.ssafy.marimo.navigation.dto.response.PostGasStationRecommendResponse;
@@ -19,6 +20,7 @@ public class GasStationService {
 
     private final GasStationRepository gasStationRepository;
 
+    @ExecutionTimeLog
     public void clearAllStations() {
         gasStationRepository.deleteAll();
     }

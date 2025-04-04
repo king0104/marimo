@@ -1,5 +1,6 @@
 package com.ssafy.marimo.navigation.controller;
 
+import com.ssafy.marimo.common.annotation.ExecutionTimeLog;
 import com.ssafy.marimo.navigation.dto.request.PostGasStationRecommendRequest;
 import com.ssafy.marimo.navigation.dto.response.PostGasStationRecommendResponse;
 import com.ssafy.marimo.navigation.service.GasStationService;
@@ -19,6 +20,7 @@ public class GasStationController {
     private final GasStationService gasStationService;
     private final OpinetStationSyncService opinetStationSyncService;
 
+    @ExecutionTimeLog
     @PostMapping("/recommend")
     public ResponseEntity<List<PostGasStationRecommendResponse>> getRecommendedStations(
             @Validated @RequestBody PostGasStationRecommendRequest request

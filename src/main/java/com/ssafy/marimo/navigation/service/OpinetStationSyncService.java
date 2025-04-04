@@ -1,5 +1,6 @@
 package com.ssafy.marimo.navigation.service;
 
+import com.ssafy.marimo.common.annotation.ExecutionTimeLog;
 import com.ssafy.marimo.navigation.domain.GasStation;
 import com.ssafy.marimo.navigation.repository.GasStationRepository;
 import com.ssafy.marimo.navigation.util.CoordinateConverter;
@@ -30,6 +31,7 @@ public class OpinetStationSyncService {
     @Value("${OPINET_KEY}")
     private String apiKey;
 
+    @ExecutionTimeLog
     public void syncNearbyStations(Double lat, Double lng, Integer radius) {
         ProjCoordinate tm128 = CoordinateConverter.convertWGS84ToTM128(lat, lng);
         List<String> uniIds = fetchAroundUniIds(tm128.x, tm128.y, radius);
@@ -48,7 +50,8 @@ public class OpinetStationSyncService {
     }
 
     // 1. 주변 주유소의 고유 ID(uni_id)를 받기 위한 메서드
-    private List<String> fetchAroundUniIds(double x, double y, Integer radius) {
+    @ExecutionTimeLog
+    public List<String> fetchAroundUniIds(double x, double y, Integer radius) {
         try {
             String url = String.format(
                     "http://www.opinet.co.kr/api/aroundAll.do?code=%s&x=%f&y=%f&radius=%d&out=xml",
@@ -82,8 +85,9 @@ public class OpinetStationSyncService {
             return List.of();
         }
     }
-
-    private GasStation fetchStationDetail(String uniId) {
+    
+    @ExecutionTimeLog
+    public GasStation fetchStationDetail(String uniId) {
         try {
             String url = String.format(
                     "http://www.opinet.co.kr/api/detailById.do?code=%s&id=%s",
