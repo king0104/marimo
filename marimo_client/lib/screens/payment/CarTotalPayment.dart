@@ -47,9 +47,6 @@ class _CarTotalPaymentState extends State<CarTotalPayment>
   Widget build(BuildContext context) {
     super.build(context); // AutomaticKeepAliveClientMixin 필수 호출
 
-    // Provider에서 현재 선택된 월을 가져옵니다
-    final provider = context.watch<CarPaymentProvider>();
-
     return Scaffold(
       appBar: const CommonAppBar(),
       backgroundColor: Colors.white,
@@ -72,7 +69,7 @@ class _CarTotalPaymentState extends State<CarTotalPayment>
             left: 20.w,
             child: Consumer<CarPaymentProvider>(
               builder: (context, provider, _) {
-                return const CarMonthlyPayment();
+                return CarMonthlyPayment();
               },
             ),
           ),
@@ -80,10 +77,24 @@ class _CarTotalPaymentState extends State<CarTotalPayment>
             top: 90.h,
             right: 20.w,
             child: HistoryViewButton(
-              onTap: () {
+              onTap: () async {
+                // 상태 반영을 기다릴 수 있도록 약간의 딜레이를 줌
+                await Future.delayed(const Duration(milliseconds: 50));
+
+                // 현재 Provider 인스턴스를 가져옴
+                final provider = Provider.of<CarPaymentProvider>(
+                  context,
+                  listen: false,
+                );
+
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => CarPaymentDetailList(),
+                    builder:
+                        (context) => ChangeNotifierProvider.value(
+                          // 기존 provider 인스턴스를 value로 전달
+                          value: provider,
+                          child: const CarPaymentDetailList(),
+                        ),
                   ),
                 );
               },

@@ -48,8 +48,10 @@ class CarPaymentProvider with ChangeNotifier {
   int get selectedMonth => _selectedMonth;
 
   void setSelectedMonth(int month) {
+    // print('Provider - 월 변경: 이전 값 $selectedMonth, 새 값 $month');
     _selectedMonth = month;
     notifyListeners();
+    // print('Provider - 월 변경 완료: 현재 값 $selectedMonth');
   }
 
   // ✅ 선택된 연도와 월의 항목만 필터링

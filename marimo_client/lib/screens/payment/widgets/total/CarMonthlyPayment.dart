@@ -8,10 +8,13 @@ import 'package:marimo_client/theme.dart';
 import 'package:intl/intl.dart';
 
 class CarMonthlyPayment extends StatelessWidget {
-  const CarMonthlyPayment({super.key});
+  CarMonthlyPayment({Key? key}) : super(key: key);
 
   void _showMonthSelector(BuildContext context) async {
     final provider = context.read<CarPaymentProvider>();
+
+    // 선택 전 상태 출력
+    // print('선택 전 월: ${provider.selectedMonth}');
 
     final selected = await showModalBottomSheet<int>(
       context: context,
@@ -28,6 +31,9 @@ class CarMonthlyPayment extends StatelessWidget {
 
     if (selected != null) {
       provider.setSelectedMonth(selected);
+      // 선택 후 상태 출력
+      // print('선택 후 월: ${provider.selectedMonth}, 선택한 값: $selected');
+      // print('CarMonthlyPayment hash: ${provider.hashCode}');
     }
   }
 
