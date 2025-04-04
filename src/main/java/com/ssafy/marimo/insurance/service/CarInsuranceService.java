@@ -148,7 +148,8 @@ public class CarInsuranceService {
                 drivingPercentage,
 
                 currentRule.getDiscountFromKm(),
-                currentRule.getDiscountToKm()
+                currentRule.getDiscountToKm(),
+                car.getTotalDistance()
         );
 
     }
