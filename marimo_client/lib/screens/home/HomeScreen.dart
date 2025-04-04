@@ -33,14 +33,6 @@ class _HomeScreenState extends State<HomeScreen>
   void initState() {
     super.initState();
 
-    Future.microtask(() async {
-      final provider = context.read<ObdPollingProvider>();
-      await provider.loadResponsesFromLocal(); // 이전 값 먼저 불러오고
-      if (provider.isConnected) {
-        provider.startPolling(); // 연결돼 있으면 실시간 시작
-      }
-    });
-
     final shouldAnimate =
         Provider.of<HomeAnimationProvider>(
           context,

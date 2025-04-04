@@ -6,23 +6,27 @@ void showToast(
   String message, {
   IconData icon = Icons.info,
   String type = 'info',
-  String position = 'bottom-up', // 추가된 인자
+  String position = 'bottom-up',
 }) {
   final overlay = Overlay.of(context);
   late OverlayEntry overlayEntry;
   final animationController = AnimationController(
     vsync: Navigator.of(context),
     duration: const Duration(milliseconds: 300),
+    reverseDuration: const Duration(milliseconds: 150),
   );
 
   final bool isTopDown = position == 'top-down';
 
-  final animation = Tween<Offset>(
-    begin: Offset(0, isTopDown ? -0.2 : 0.2),
-    end: const Offset(0, 0),
-  ).animate(
-    CurvedAnimation(parent: animationController, curve: Curves.easeOut),
+  final fadeInAnimation = CurvedAnimation(
+    parent: animationController,
+    curve: Curves.easeOut,
   );
+
+  final scaleAnimation = TweenSequence<double>([
+    TweenSequenceItem(tween: Tween(begin: 0.8, end: 1.05), weight: 70),
+    TweenSequenceItem(tween: Tween(begin: 1.05, end: 1.0), weight: 30),
+  ]).animate(fadeInAnimation);
 
   Color backgroundColor;
   switch (type) {
@@ -39,14 +43,14 @@ void showToast(
   overlayEntry = OverlayEntry(
     builder: (context) {
       return Positioned(
-        top: isTopDown ? 110 : null,
+        top: isTopDown ? 40 : null,
         bottom: isTopDown ? null : 110,
         left: MediaQuery.of(context).size.width * 0.075,
         right: MediaQuery.of(context).size.width * 0.075,
-        child: SlideTransition(
-          position: animation,
-          child: FadeTransition(
-            opacity: animationController,
+        child: FadeTransition(
+          opacity: fadeInAnimation,
+          child: ScaleTransition(
+            scale: scaleAnimation,
             child: Material(
               color: Colors.transparent,
               child: Container(
