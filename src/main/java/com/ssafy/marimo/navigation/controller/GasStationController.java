@@ -38,6 +38,6 @@ public class GasStationController {
         );
 
         // 3. 필터링된 추천 주유소 3개 반환
-        return ResponseEntity.ok(gasStationService.getRecommendedStations(request));
+        return ResponseEntity.ok(gasStationService.getRecommendedStations(request, memberId));
     }
 }
