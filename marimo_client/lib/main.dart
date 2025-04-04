@@ -42,6 +42,7 @@ void main() async {
     onAuthFailed: (ex) => print("네이버 지도 인증 오류: $ex"),
   );
 
+  // 전역 시스템 UI 스타일 설정
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.black,
@@ -122,7 +123,7 @@ PID 010B: 7E803410B24
 PID 010C: 7E804410C0B86
 7EE04410C0B86
 7E904410C0B86
-PID 010D: 7E803410D00
+PID 010D : 7E803410D00
 7E903410D00
 PID 010E: 7E803410E7B
 PID 010F: 7E803410F3E
@@ -407,13 +408,13 @@ PID 01FF: NO DATA
           );
         }
 
-        if (!authProvider.isLoggedIn) {
-          return const SignInScreen();
-        } else if (!carProvider.hasAnyCar) {
-          return const RegisterCarScreen();
-        } else {
+        // if (!authProvider.isLoggedIn) {
+        //   return const SignInScreen();
+        // } else if (!carProvider.hasAnyCar) {
+        //   return const RegisterCarScreen();
+        // } else {
           return const MainScreen();
-        }
+        // }
       },
     );
   }

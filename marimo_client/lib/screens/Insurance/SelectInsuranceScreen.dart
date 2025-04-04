@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/screens/Insurance/InsuranceInfoScreen.dart';
+import 'package:flutter_svg/flutter_svg.dart';  // SVG 패키지 추가
+import 'package:flutter/services.dart';  // SystemChrome을 위한 import 추가
 
 class SelectInsuranceScreen extends StatefulWidget {
   const SelectInsuranceScreen({super.key});
@@ -28,20 +30,48 @@ class _SelectInsuranceScreenState extends State<SelectInsuranceScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.black,
+        statusBarIconBrightness: Brightness.light,
+        systemNavigationBarColor: Colors.black,
+        systemNavigationBarIconBrightness: Brightness.light,
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios,
-            size: 24.w,
-            color: Colors.black,
-          ),
-          onPressed: () => Navigator.pop(context),
+        centerTitle: true,
+        systemOverlayStyle: const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.dark,
+          systemNavigationBarColor: Colors.white,
+          systemNavigationBarIconBrightness: Brightness.dark,
         ),
+        leading: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () => Navigator.pop(context),
+          child: Padding(
+            padding: EdgeInsets.only(left: 20.w),
+            child: Center(
+              child: SvgPicture.asset(
+                'assets/images/icons/icon_back.svg',
+                width: 18.sp,
+                height: 18.sp,
+                color: Colors.black,
+              ),
+            ),
+          ),
+        ),
+        leadingWidth: 44.w,
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.w),
