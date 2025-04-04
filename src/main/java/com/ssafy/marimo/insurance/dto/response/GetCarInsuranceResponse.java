@@ -29,7 +29,9 @@ public record GetCarInsuranceResponse(
         Float drivingPercentage,
 
         Integer discountFromKm,
-        Integer discountToKm
+        Integer discountToKm,
+
+        Integer totalDistance
 ) {
     public static GetCarInsuranceResponse of(
             String insuranceCompanyName,
@@ -51,7 +53,8 @@ public record GetCarInsuranceResponse(
             Boolean canSubmitDistanceNow,
             Float drivingPercentage,
             Integer discountFromKm,
-            Integer discountToKm
+            Integer discountToKm,
+            Integer totalDistance
     ) {
         return GetCarInsuranceResponse.builder()
                 .insuranceCompanyName(insuranceCompanyName)
@@ -77,6 +80,7 @@ public record GetCarInsuranceResponse(
                 .drivingPercentage(drivingPercentage)
                 .discountFromKm(discountFromKm)
                 .discountToKm(discountToKm)
+                .totalDistance(totalDistance)
                 .build();
     }
 
