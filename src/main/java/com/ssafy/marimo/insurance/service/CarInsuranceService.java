@@ -149,7 +149,6 @@ public class CarInsuranceService {
 
                 currentRule.getDiscountFromKm(),
                 currentRule.getDiscountToKm()
-
         );
 
     }
