@@ -167,8 +167,7 @@ class ObdAnalysisProvider with ChangeNotifier {
           fuelUsed > 0 &&
           d.distanceSinceCodesCleared! > 0) {
         double avgFuelEff = d.distanceSinceCodesCleared! / fuelUsed;
-        description =
-            "최근 ${d.distanceSinceCodesCleared}km 주행 중 약 ${fuelUsed.toStringAsFixed(1)}%의 연료를 사용해 평균 ${avgFuelEff.toStringAsFixed(1)}km/L입니다.";
+        description = "최근 주행에서 연료 효율이 안정적이었어요.";
 
         if (avgFuelEff < 10) {
           status = "주의";

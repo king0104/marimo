@@ -4,65 +4,51 @@ import 'package:marimo_client/models/obd_data_model.dart';
 ObdDataModel parseObdResponses(Map<String, String> responses) {
   double? parseHexToDouble(String pid, double Function(List<int>) parser) {
     final raw = responses['01$pid'];
-    print('🛠 [$pid] raw = $raw');
     if (raw == null || raw.contains('NO DATA')) return null;
 
     try {
       final hex = raw.toUpperCase().replaceAll(RegExp(r'[^A-F0-9]'), '');
-      print('🔍 [$pid] hex = $hex');
-
       final regex = RegExp('41$pid([A-F0-9]{2,8})');
       final match = regex.firstMatch(hex);
       if (match == null) {
-        print('❌ [$pid] no matching 41$pid found');
         return null;
       }
 
       final dataHex = match.group(1)!;
-      print('🔍 [$pid] matched dataHex = $dataHex');
 
       final intValues = [
         for (var i = 0; i < dataHex.length; i += 2)
           int.parse(dataHex.substring(i, i + 2), radix: 16),
       ];
 
-      print('✅ [$pid] intValues = $intValues');
-
       return parser(intValues);
     } catch (e) {
-      print('❌ [$pid] parse error: $e');
       return null;
     }
   }
 
   int? parseHexToInt(String pid, int Function(List<int>) parser) {
     final raw = responses['01$pid'];
-    print('🛠 [$pid] raw = $raw');
     if (raw == null || raw.contains('NO DATA')) return null;
 
     try {
       final hex = raw.toUpperCase().replaceAll(RegExp(r'[^A-F0-9]'), '');
-      print('🔍 [$pid] hex = $hex');
 
       final regex = RegExp('41$pid([A-F0-9]{2,4})');
       final match = regex.firstMatch(hex);
       if (match == null) {
-        print('❌ [$pid] no matching 41$pid found');
         return null;
       }
 
       final dataHex = match.group(1)!;
-      print('🔍 [$pid] matched dataHex = $dataHex');
 
       final intValues = [
         for (var i = 0; i < dataHex.length; i += 2)
           int.parse(dataHex.substring(i, i + 2), radix: 16),
       ];
-      print('✅ [$pid] intValues = $intValues');
 
       return parser(intValues);
     } catch (e) {
-      print('❌ [$pid] parse error: $e');
       return null;
     }
   }
