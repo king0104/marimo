@@ -22,6 +22,7 @@ class Obd2InfoList extends StatefulWidget {
 class _Obd2InfoListState extends State<Obd2InfoList> {
   bool showDtcInfo = true;
   bool isExpanded = false;
+  bool isListScrolling = false;
   int? selectedIndex;
   List<String> dtcCodes = [];
 
@@ -59,9 +60,13 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
 
     final isDtcEmpty = showDtcInfo && dtcCodes.isEmpty;
 
-    return Listener(
+    return // 추가할 상태 변수
+    Listener(
       behavior: HitTestBehavior.translucent,
       onPointerMove: (event) {
+        // 리스트 스크롤 중에는 이벤트 무시
+        if (isListScrolling) return;
+
         if (event.delta.dy < -5 && !isExpanded) {
           setState(() => isExpanded = true);
           widget.onToggleWidgets?.call();
@@ -149,28 +154,40 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
             ),
             SizedBox(height: 12.h),
             Expanded(
-              child:
-                  isDtcEmpty
-                      ? _buildNoDtcWidget()
-                      : ListView.builder(
-                        padding: EdgeInsets.only(bottom: 32.h),
-                        itemCount:
-                            showDtcInfo ? dtcCodes.length : statusItems.length,
-                        itemBuilder:
-                            (context, index) => Padding(
-                              padding: EdgeInsets.symmetric(vertical: 4.h),
-                              child:
-                                  showDtcInfo
-                                      ? _buildDtcCard(index)
-                                      : StatusInfoCard(
-                                        icon: statusItems[index].icon,
-                                        title: statusItems[index].title,
-                                        description:
-                                            statusItems[index].description,
-                                        status: statusItems[index].status,
-                                      ),
-                            ),
-                      ),
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (notification) {
+                  if (notification is ScrollStartNotification) {
+                    setState(() => isListScrolling = true);
+                  } else if (notification is ScrollEndNotification) {
+                    setState(() => isListScrolling = false);
+                  }
+                  return false;
+                },
+                child:
+                    isDtcEmpty
+                        ? _buildNoDtcWidget()
+                        : ListView.builder(
+                          padding: EdgeInsets.only(bottom: 32.h),
+                          itemCount:
+                              showDtcInfo
+                                  ? dtcCodes.length
+                                  : statusItems.length,
+                          itemBuilder:
+                              (context, index) => Padding(
+                                padding: EdgeInsets.symmetric(vertical: 4.h),
+                                child:
+                                    showDtcInfo
+                                        ? _buildDtcCard(index)
+                                        : StatusInfoCard(
+                                          icon: statusItems[index].icon,
+                                          title: statusItems[index].title,
+                                          description:
+                                              statusItems[index].description,
+                                          status: statusItems[index].status,
+                                        ),
+                              ),
+                        ),
+              ),
             ),
           ],
         ),
