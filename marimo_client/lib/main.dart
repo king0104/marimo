@@ -437,7 +437,7 @@ class _MainScreenState extends State<MainScreen>
 
     Future.microtask(() async {
       final provider = context.read<ObdPollingProvider>();
-      await provider.loadResponsesFromLocal(); // 이전 값 먼저 불러오고
+      await provider.loadResponsesFromLocal(context); // 이전 값 먼저 불러오고
     });
 
     _controller = AnimationController(
