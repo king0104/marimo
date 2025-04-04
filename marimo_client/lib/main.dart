@@ -1,35 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:marimo_client/providers/car_registration_provider.dart';
-import 'package:marimo_client/providers/home_animation_provider.dart';
-import 'package:marimo_client/providers/member/auth_provider.dart';
-import 'package:marimo_client/providers/map_provider.dart';
-import 'package:marimo_client/providers/obd_data_provider.dart';
-import 'package:marimo_client/providers/obd_analysis_provider.dart';
-import 'package:marimo_client/providers/obd_polling_provider.dart';
-import 'package:marimo_client/screens/monitoring/ObdFullScanScreen.dart';
-import 'package:marimo_client/screens/signin/car/RegisterCarScreen.dart';
-import 'package:marimo_client/utils/obd_tester.dart'; // 경로는 네 파일 위치에 맞게 수정
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:marimo_client/theme.dart';
 import 'package:marimo_client/utils/permission_util.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter_naver_map/flutter_naver_map.dart';
 
+import 'package:marimo_client/providers/car_provider.dart';
+import 'package:marimo_client/providers/map_provider.dart';
+import 'package:marimo_client/providers/navigation_provider.dart';
+import 'package:marimo_client/providers/member/auth_provider.dart';
+import 'package:marimo_client/providers/car_payment_provider.dart';
+import 'package:marimo_client/providers/obd_polling_provider.dart';
+import 'package:marimo_client/providers/obd_analysis_provider.dart';
+import 'package:marimo_client/providers/home_animation_provider.dart';
+import 'package:marimo_client/providers/car_registration_provider.dart';
+
+import 'package:marimo_client/screens/my/MyScreen.dart';
+import 'package:marimo_client/screens/map/MapScreen.dart';
 import 'package:marimo_client/screens/home/HomeScreen.dart';
 import 'package:marimo_client/screens/signin/SignInScreen.dart';
 import 'package:marimo_client/screens/monitoring/MonitoringScreen.dart';
-import 'package:marimo_client/screens/map/MapScreen.dart';
-import 'package:marimo_client/screens/my/MyScreen.dart';
+import 'package:marimo_client/screens/signin/car/RegisterCarScreen.dart';
 
 import 'commons/AppBar.dart';
 import 'commons/BottomNavigationBar.dart';
-
-import 'providers/car_provider.dart';
-import 'providers/car_payment_provider.dart';
-import 'providers/navigation_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
