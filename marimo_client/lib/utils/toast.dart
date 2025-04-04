@@ -6,6 +6,7 @@ void showToast(
   String message, {
   IconData icon = Icons.info,
   String type = 'info',
+  String position = 'bottom-up', // 추가된 인자
 }) {
   final overlay = Overlay.of(context);
   late OverlayEntry overlayEntry;
@@ -13,14 +14,16 @@ void showToast(
     vsync: Navigator.of(context),
     duration: const Duration(milliseconds: 300),
   );
+
+  final bool isTopDown = position == 'top-down';
+
   final animation = Tween<Offset>(
-    begin: const Offset(0, 0.2), // 시작은 아래에서
-    end: const Offset(0, 0), // 끝은 제자리
+    begin: Offset(0, isTopDown ? -0.2 : 0.2),
+    end: const Offset(0, 0),
   ).animate(
     CurvedAnimation(parent: animationController, curve: Curves.easeOut),
   );
 
-  // 색상 설정
   Color backgroundColor;
   switch (type) {
     case 'success':
@@ -36,7 +39,8 @@ void showToast(
   overlayEntry = OverlayEntry(
     builder: (context) {
       return Positioned(
-        bottom: 110,
+        top: isTopDown ? 110 : null,
+        bottom: isTopDown ? null : 110,
         left: MediaQuery.of(context).size.width * 0.075,
         right: MediaQuery.of(context).size.width * 0.075,
         child: SlideTransition(
@@ -89,7 +93,7 @@ void showToast(
   animationController.forward();
 
   Future.delayed(const Duration(seconds: 2)).then((_) async {
-    await animationController.reverse(); // 내려감 애니메이션
+    await animationController.reverse();
     overlayEntry.remove();
     animationController.dispose();
   });

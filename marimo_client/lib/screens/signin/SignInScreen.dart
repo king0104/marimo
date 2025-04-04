@@ -106,9 +106,19 @@ class _SignInScreenState extends State<SignInScreen>
           '차량 목록 불러오기 실패 (나중에 다시 시도해주세요)',
           icon: Icons.warning,
           type: 'error',
+          position: 'top-down',
         );
         print('🚨 차량 목록 조회 실패 (무시됨): $e');
       }
+
+      // 로그인 성공 - 사용자에게 환영 메시지를 상단에서 아래로 표시
+      showToast(
+        context,
+        "마리모에 오신 것을 환영합니다!",
+        icon: Icons.check_circle_outline,
+        type: 'success',
+        position: 'top-down',
+      );
 
       // 4. 라우팅
       Navigator.pushAndRemoveUntil(
@@ -118,7 +128,13 @@ class _SignInScreenState extends State<SignInScreen>
       );
     } catch (error) {
       // ❌ 로그인 자체 실패
-      showToast(context, "로그인 실패: $error", icon: Icons.error, type: 'error');
+      showToast(
+        context,
+        "로그인 실패: $error",
+        icon: Icons.error,
+        type: 'error',
+        position: 'top-down',
+      );
     }
   }
 

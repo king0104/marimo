@@ -27,15 +27,26 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
   @override
   void initState() {
     super.initState();
-    _loadDtcCodes();
+
+    // ✅ build 이후에 실행
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadDtcCodes();
+    });
   }
 
   Future<void> _loadDtcCodes() async {
     final provider = context.read<ObdPollingProvider>();
-    final fetchedCodes = await provider.fetchStoredDtcCodes();
-    setState(() {
-      dtcCodes = fetchedCodes;
-    });
+    try {
+      await Future.delayed(const Duration(seconds: 2));
+      final fetchedCodes = await provider.fetchStoredDtcCodes();
+      debugPrint('📥 Obd2InfoList에서 받아온 DTC 목록: $fetchedCodes');
+
+      setState(() {
+        dtcCodes = fetchedCodes;
+      });
+    } catch (e) {
+      debugPrint('❌ Obd2InfoList에서 DTC 조회 실패: $e');
+    }
   }
 
   @override
@@ -71,7 +82,7 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
           Padding(
             padding: EdgeInsets.only(bottom: 12.h),
             child: GestureDetector(
-              behavior: HitTestBehavior.translucent, // ✅ 빈 공간도 클릭되게
+              behavior: HitTestBehavior.translucent,
               onTap: widget.onToggleWidgets,
               child: Column(
                 children: [
@@ -85,12 +96,11 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 12.h), // ✅ 아래 여백도 클릭 영역에 포함
+                  SizedBox(height: 12.h),
                 ],
               ),
             ),
           ),
-
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -126,97 +136,10 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
             ],
           ),
           SizedBox(height: 12.h),
-
-          // 리스트 영역
           Expanded(
             child:
                 isDtcEmpty
-                    ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(
-                            top: 8.h,
-                            left: 6.w,
-                            right: 6.w,
-                          ),
-                          child: Text.rich(
-                            TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: "차량에 고장코드가 없어요.\n",
-                                  style: TextStyle(
-                                    fontSize: 16.sp,
-                                    color: backgroundBlackColor,
-                                    fontWeight: FontWeight.w500,
-                                    height: 1.5,
-                                  ),
-                                ),
-                                TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: "자동차가 매우 ",
-                                      style: TextStyle(
-                                        fontSize: 16.sp,
-                                        color: backgroundBlackColor,
-                                        fontWeight: FontWeight.w500,
-                                        height: 1.5,
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text: "건강한 상태",
-                                      style: TextStyle(
-                                        fontSize: 16.sp,
-                                        color: brandColor,
-                                        fontWeight: FontWeight.w700,
-                                        height: 1.5,
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text: "입니다! 🤗",
-                                      style: TextStyle(
-                                        fontSize: 16.sp,
-                                        color: backgroundBlackColor,
-                                        fontWeight: FontWeight.w500,
-                                        height: 1.5,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 28.h),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 6.w),
-                          child: Text(
-                            "그렇지만 만약 고장코드가 발생한다면,\n👇 고장코드를 다음과 같이 확인할 수 있어요. ",
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              color: iconColor,
-                              fontWeight: FontWeight.w300,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 16.h),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 4.w),
-                          child: DtcInfoCard(
-                            code: "P0219",
-                            description:
-                                dtcDescriptions["P0219"] ?? "엔진 속도 초과 상태",
-                            isSelected: selectedIndex == 999,
-                            onTap: () {
-                              setState(() {
-                                selectedIndex =
-                                    selectedIndex == 999 ? null : 999;
-                              });
-                            },
-                          ),
-                        ),
-                      ],
-                    )
+                    ? _buildNoDtcWidget()
                     : ListView.builder(
                       padding: EdgeInsets.only(bottom: 32.h),
                       itemCount:
@@ -226,24 +149,7 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
                           padding: EdgeInsets.symmetric(vertical: 4.h),
                           child:
                               showDtcInfo
-                                  ? (() {
-                                    final code = dtcCodes[index];
-                                    final desc =
-                                        dtcDescriptions[code] ?? "알 수 없는 고장 코드";
-                                    return DtcInfoCard(
-                                      code: code,
-                                      description: desc,
-                                      isSelected: selectedIndex == index,
-                                      onTap: () {
-                                        setState(() {
-                                          selectedIndex =
-                                              selectedIndex == index
-                                                  ? null
-                                                  : index;
-                                        });
-                                      },
-                                    );
-                                  })()
+                                  ? _buildDtcCard(index)
                                   : StatusInfoCard(
                                     icon: statusItems[index].icon,
                                     title: statusItems[index].title,
@@ -256,6 +162,104 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildNoDtcWidget() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.only(top: 8.h, left: 6.w, right: 6.w),
+          child: Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(
+                  text: "차량에 고장코드가 없어요.\n",
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    color: backgroundBlackColor,
+                    fontWeight: FontWeight.w500,
+                    height: 1.5,
+                  ),
+                ),
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: "자동차가 매우 ",
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        color: backgroundBlackColor,
+                        fontWeight: FontWeight.w500,
+                        height: 1.5,
+                      ),
+                    ),
+                    TextSpan(
+                      text: "건강한 상태",
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        color: brandColor,
+                        fontWeight: FontWeight.w700,
+                        height: 1.5,
+                      ),
+                    ),
+                    TextSpan(
+                      text: "입니다! 🤗",
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        color: backgroundBlackColor,
+                        fontWeight: FontWeight.w500,
+                        height: 1.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        SizedBox(height: 28.h),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 6.w),
+          child: Text(
+            "그렇지만 만약 고장코드가 발생한다면,\n👇 고장코드를 다음과 같이 확인할 수 있어요.",
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: iconColor,
+              fontWeight: FontWeight.w300,
+            ),
+          ),
+        ),
+        SizedBox(height: 16.h),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 4.w),
+          child: DtcInfoCard(
+            code: "P0219",
+            description: dtcDescriptions["P0219"] ?? "엔진 속도 초과 상태",
+            isSelected: selectedIndex == 999,
+            onTap: () {
+              setState(() {
+                selectedIndex = selectedIndex == 999 ? null : 999;
+              });
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDtcCard(int index) {
+    final code = dtcCodes[index];
+    final desc = dtcDescriptions[code] ?? "알 수 없는 고장 코드";
+    return DtcInfoCard(
+      code: code,
+      description: desc,
+      isSelected: selectedIndex == index,
+      onTap: () {
+        setState(() {
+          selectedIndex = selectedIndex == index ? null : index;
+        });
+      },
     );
   }
 }

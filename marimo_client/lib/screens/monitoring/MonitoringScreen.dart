@@ -53,11 +53,11 @@ class _MonitoringScreenState extends State<MonitoringScreen>
               height: showUpperWidgets ? upperHeight : 0,
               child: Column(
                 children: [
-                  SizedBox(
-                    width: double.infinity,
-                    height: 200.h,
-                    child: Car3DModel(),
-                  ),
+                  // SizedBox(
+                  //   width: double.infinity,
+                  //   height: 200.h,
+                  //   child: Car3DModel(),
+                  // ),
                   SizedBox(height: 16.h),
                   SizedBox(
                     height: 48.h,
