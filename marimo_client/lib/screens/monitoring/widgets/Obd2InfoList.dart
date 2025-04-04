@@ -102,7 +102,7 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
               },
               child: Container(
                 color: Colors.transparent,
-                padding: EdgeInsets.symmetric(vertical: 12.h),
+                padding: EdgeInsets.only(bottom: 12.h),
                 child: Center(
                   child: Container(
                     width: 80.w,

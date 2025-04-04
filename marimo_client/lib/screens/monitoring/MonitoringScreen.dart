@@ -54,7 +54,7 @@ class _MonitoringScreenState extends State<MonitoringScreen>
                     height: 200.h,
                     child: Image.asset(
                       'assets/images/cars/sonata_top.png',
-                      fit: BoxFit.contain,
+                      fit: BoxFit.cover,
                     ),
                   ),
                   SizedBox(height: 16.h),
