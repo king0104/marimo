@@ -10,4 +10,5 @@ import org.springframework.web.bind.annotation.RestController;
 @Repository
 public interface CarInsuranceRepository extends CrudRepository<CarInsurance, Integer> {
     Optional<CarInsurance> findByCar(Car car);
+    Optional<CarInsurance> findByCarId(Integer carId);
 }
