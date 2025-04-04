@@ -1,5 +1,6 @@
 package com.ssafy.marimo.navigation.controller;
 
+import com.ssafy.marimo.common.annotation.CurrentMemberId;
 import com.ssafy.marimo.common.annotation.ExecutionTimeLog;
 import com.ssafy.marimo.navigation.dto.request.PostGasStationRecommendRequest;
 import com.ssafy.marimo.navigation.dto.response.PostGasStationRecommendResponse;
@@ -23,7 +24,8 @@ public class StationController {
     @ExecutionTimeLog
     @PostMapping("/recommend/gas")
     public ResponseEntity<List<PostGasStationRecommendResponse>> getRecommendedStations(
-            @Validated @RequestBody PostGasStationRecommendRequest request
+            @Validated @RequestBody PostGasStationRecommendRequest request,
+            @CurrentMemberId Integer memberId
     ) {
 
         // 필터링된 추천 주유소 3개 반환

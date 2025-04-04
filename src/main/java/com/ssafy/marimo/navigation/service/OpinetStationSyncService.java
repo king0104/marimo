@@ -35,7 +35,6 @@ public class OpinetStationSyncService {
 
     public void syncByStationName(String keyword) {
         List<GasStation> basics = fetchBasicStationsByName(keyword);
-
         for (GasStation basic : basics) {
             gasStationRepository.findByUniId(basic.getUniId()).ifPresentOrElse(
                     existing -> log.debug("이미 존재하는 주유소: {}", existing.getUniId()),
@@ -54,6 +53,7 @@ public class OpinetStationSyncService {
             GasStation detail = fetchStationDetail(station.getUniId());
             if (detail != null) {
                 updateFrom(station, detail);
+
                 gasStationRepository.save(station);
                 log.info("✅ 서울 상세정보 동기화 완료: {}", station.getName());
             }
@@ -102,7 +102,8 @@ public class OpinetStationSyncService {
         }
         return stations;
     }
-    
+
+    // 개별 주유소의 gasStation 정보 생성
     @ExecutionTimeLog
     public GasStation fetchStationDetail(String uniId) {
         try {
@@ -130,6 +131,7 @@ public class OpinetStationSyncService {
             ProjCoordinate wgs84 = CoordinateConverter.convertTM128ToWGS84(x, y);
             station.setLongitude(wgs84.x);
             station.setLatitude(wgs84.y);
+
 
             station.setHasLpg("Y".equals(getTag(el, "LPG_YN")));
             station.setHasSelfService("Y".equals(getTag(el, "SELF_YN")));
