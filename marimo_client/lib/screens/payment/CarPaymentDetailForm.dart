@@ -102,12 +102,7 @@ class _CarPaymentDetailFormState extends State<CarPaymentDetailForm> {
             );
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(
-                builder:
-                    (_) => CarPaymentDetailList(
-                      initialMonth: provider.selectedMonth,
-                    ),
-              ),
+              MaterialPageRoute(builder: (_) => CarPaymentDetailList()),
             );
           }
         },
