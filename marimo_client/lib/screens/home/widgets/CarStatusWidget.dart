@@ -26,17 +26,15 @@ class CarStatusWidget extends StatelessWidget {
         'unit': 'km',
       },
       {
-        'icon': 'icon_gas.png',
-        'label': '연비',
+        'icon': 'icon_car.png',
+        'label': '마력',
         'value':
-            (data.distanceSinceCodesCleared != null &&
-                    data.fuelLevel != null &&
-                    data.fuelLevel! > 0)
-                ? (data.distanceSinceCodesCleared! / (100 - data.fuelLevel!))
-                    .toStringAsFixed(1)
+            (data.rpm != null && data.maf != null)
+                ? ((data.maf! * data.rpm!) / 5652).toStringAsFixed(1)
                 : '--',
-        'unit': 'km/L',
+        'unit': 'HP',
       },
+
       {
         'icon': 'icon_gas.png',
         'label': '연료',
