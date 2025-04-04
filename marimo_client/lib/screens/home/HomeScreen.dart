@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/providers/home_animation_provider.dart';
+import 'package:marimo_client/providers/obd_polling_provider.dart';
 import 'package:provider/provider.dart';
 import 'widgets/WeatherWidget.dart';
 import 'widgets/NotificationBadges.dart';

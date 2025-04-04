@@ -27,10 +27,10 @@ class CarDetailFormItemList extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<CarDetailFormItemList> createState() => _CarDetailFormItemListState();
+  State<CarDetailFormItemList> createState() => CarDetailFormItemListState();
 }
 
-class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
+class CarDetailFormItemListState extends State<CarDetailFormItemList> {
   final _formKey = GlobalKey<FormState>();
   final _dateController = TextEditingController();
   final _placeController = TextEditingController(); // 주유소/정비소/세차장
@@ -152,31 +152,6 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
     });
   }
 
-  void _saveAndNavigate() {
-    if (_formKey.currentState!.validate()) {
-      final provider = Provider.of<CarPaymentProvider>(context, listen: false);
-
-      // 새 데이터 생성
-      final entry = CarPaymentEntry(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        category: widget.category,
-        amount: widget.amount,
-        date: _selectedDate,
-        details: {
-          'place': _placeController.text,
-          'type': _typeController.text,
-          'memo': _memoController.text,
-        },
-      );
-
-      // 데이터 저장
-      provider.addEntry(entry);
-
-      // ✅ 저장 완료 후 콜백 호출
-      widget.onSaveComplete?.call();
-    }
-  }
-
   // 카테고리별 장소 필드명 반환
   String _getPlaceFieldName() {
     switch (widget.category) {
@@ -277,6 +252,24 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
     );
 
     return items;
+  }
+
+  // 저장 전에 호출: 입력값들을 Provider에 반영
+  void saveInputsToProvider() {
+    _provider.setSelectedAmount(widget.amount);
+    _provider.setSelectedDate(_selectedDate);
+    _provider.setLocation(_placeController.text);
+    _provider.setMemo(_memoController.text);
+    if (widget.category == '주유') {
+      _provider.setFuelType(_typeController.text);
+    }
+
+    print('📝 saveInputsToProvider 호출됨');
+    print('📌 장소: ${_placeController.text}');
+    print('📌 메모: ${_memoController.text}');
+    if (widget.category == '주유') {
+      print('📌 유종: ${_typeController.text}');
+    }
   }
 
   @override

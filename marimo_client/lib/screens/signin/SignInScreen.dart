@@ -20,53 +20,119 @@ class SignInScreen extends StatefulWidget {
   State<SignInScreen> createState() => _SignInScreenState();
 }
 
-class _SignInScreenState extends State<SignInScreen> {
-  // TextEditingControllers를 추가하여 입력값을 관리합니다.
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+class _SignInScreenState extends State<SignInScreen>
+    with TickerProviderStateMixin {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  late final List<AnimationController> _controllers;
+  late final List<Animation<double>> _fadeAnimations;
+  late final List<Animation<Offset>> _slideAnimations;
+  @override
+  void initState() {
+    super.initState();
+
+    _controllers = List.generate(6, (index) {
+      return AnimationController(
+        vsync: this,
+        duration: const Duration(milliseconds: 600),
+      );
+    });
+
+    _fadeAnimations =
+        _controllers.map((c) {
+          return Tween<double>(
+            begin: 0,
+            end: 1,
+          ).animate(CurvedAnimation(parent: c, curve: Curves.easeIn));
+        }).toList();
+
+    _slideAnimations =
+        _controllers.map((c) {
+          return Tween<Offset>(
+            begin: const Offset(-0.3, 0), // 왼쪽에서 시작
+            end: Offset.zero,
+          ).animate(
+            CurvedAnimation(parent: c, curve: Curves.easeOutBack), // 바운스 느낌
+          );
+        }).toList();
+
+    _playAnimations();
+  }
+
+  Future<void> _playAnimations() async {
+    for (int i = 0; i < _controllers.length; i++) {
+      await Future.delayed(const Duration(milliseconds: 100));
+      _controllers[i].forward();
+    }
+  }
 
   @override
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
+    for (final c in _controllers) {
+      c.dispose();
+    }
     super.dispose();
+  }
+
+  Widget animated(int index, Widget child) {
+    return FadeTransition(
+      opacity: _fadeAnimations[index],
+      child: SlideTransition(position: _slideAnimations[index], child: child),
+    );
   }
 
   Future<void> _login() async {
     try {
-      // 1. 로그인 요청 → accessToken 반환
       final token = await AuthService.login(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
 
-      // 2. 토큰 저장
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final carProvider = Provider.of<CarProvider>(context, listen: false);
       authProvider.setAccessToken(token);
 
-      // 3. 차량 목록 받아오되, 실패해도 무시
-      try {
-        await carProvider.fetchCarsFromServer(token);
-      } catch (e) {
-        showToast(
-          context,
-          '차량 목록 불러오기 실패 (나중에 다시 시도해주세요)',
-          icon: Icons.warning,
-          type: 'error',
-        );
-        print('🚨 차량 목록 조회 실패 (무시됨): $e');
-      }
+      // 토스트 먼저 표시
+      showToast(
+        context,
+        "마리모에 오신 것을 환영합니다!",
+        icon: Icons.check_circle_outline,
+        type: 'success',
+        position: 'top-down',
+      );
 
-      // 4. 라우팅
+      // 토스트가 보이는 동안 미리 데이터를 로딩
+      await Future.wait([
+        Future.delayed(const Duration(seconds: 2)), // 토스트 지속 시간
+        carProvider.fetchCarsFromServer(token).catchError((e) {
+          showToast(
+            context,
+            '차량 목록 불러오기 실패 (나중에 다시 시도해주세요)',
+            icon: Icons.warning,
+            type: 'error',
+            position: 'top-down',
+          );
+          print('🚨 차량 목록 조회 실패 (무시됨): $e');
+        }),
+      ]);
+
+      // 이후 화면 이동
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => const InitialRouter()),
         (Route<dynamic> route) => false,
       );
     } catch (error) {
-      // ❌ 로그인 자체 실패
-      showToast(context, "로그인 실패: $error", icon: Icons.error, type: 'error');
+      showToast(
+        context,
+        "로그인 실패: $error",
+        icon: Icons.error,
+        type: 'error',
+        position: 'top-down',
+      );
     }
   }
 
@@ -82,26 +148,39 @@ class _SignInScreenState extends State<SignInScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               SizedBox(height: 104.h),
-              const LoginSlogan(),
+              animated(0, const LoginSlogan()),
               SizedBox(height: 18.h),
-              const LoginHero(), // 로고 & 텍스트
+              animated(1, const LoginHero()),
               SizedBox(height: 36.h),
-              // 이메일 입력 (LoginInput 위젯에 controller 파라미터 추가)
-              LoginInput(hintText: "이메일을 입력해주세요.", controller: emailController),
-              SizedBox(height: 30.h),
-              // 비밀번호 입력
-              LoginInput(
-                hintText: "비밀번호를 입력해주세요.",
-                isPassword: true,
-                controller: passwordController,
+              animated(
+                2,
+                LoginInput(
+                  hintText: "이메일을 입력해주세요.",
+                  controller: emailController,
+                ),
               ),
               SizedBox(height: 30.h),
-              // 로그인 버튼
-              LoginButton(text: "마리모 로그인", onPressed: _login),
+              animated(
+                3,
+                LoginInput(
+                  hintText: "비밀번호를 입력해주세요.",
+                  isPassword: true,
+                  controller: passwordController,
+                ),
+              ),
               SizedBox(height: 30.h),
-              const LoginLinkRow(), // 비밀번호 찾기, 회원가입 링크
-              SizedBox(height: 26.h),
-              const OauthButtons(), // SNS 계정으로 로그인
+              animated(4, LoginButton(text: "마리모 로그인", onPressed: _login)),
+              SizedBox(height: 30.h),
+              animated(
+                5,
+                Column(
+                  children: const [
+                    LoginLinkRow(),
+                    SizedBox(height: 26),
+                    OauthButtons(),
+                  ],
+                ),
+              ),
             ],
           ),
         ),

@@ -5,7 +5,7 @@ import 'package:flutter_gemma/pigeon.g.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:flutter_gemma/flutter_gemma.dart'; // flutter_gemma 플러그인 import
+import 'package:flutter_gemma/flutter_gemma.dart';
 
 class Chatbot extends StatefulWidget {
   const Chatbot({super.key});
@@ -19,8 +19,8 @@ class _ChatbotState extends State<Chatbot> {
   late FlutterTts _flutterTts;
   bool _isListening = false;
   bool _isProcessing = false;
-  // 기본 안내 문구를 변경
-  String _recognizedText = "AI '마리모'에게 궁금한 것을 물어봐주세요.";
+  // 누적 텍스트 (타자기 효과 적용)
+  String _recognizedText = "";
 
   // Gemma 모델 추론 인스턴스
   InferenceModel? _inferenceModel;
@@ -43,7 +43,7 @@ class _ChatbotState extends State<Chatbot> {
       _stopProcessingAnimation();
       setState(() {
         _isProcessing = false;
-        // 기본 안내 문구 업데이트
+        // 기본 안내 문구로 초기화
         _recognizedText = "AI '마리모'에게 궁금한 것을 물어봐주세요.";
       });
     });
@@ -52,17 +52,15 @@ class _ChatbotState extends State<Chatbot> {
     _initializeGemmaModel();
   }
 
-  /// flutter_gemma 플러그인을 사용하여 assets에 포함된 Gemma 모델 파일을 설치하고 InferenceModel 생성
+  // flutter_gemma 플러그인을 사용하여 모델 파일 설치 및 InferenceModel 생성
   Future<void> _initializeGemmaModel() async {
     try {
       final modelManager = FlutterGemmaPlugin.instance.modelManager;
-      // 모델 설치: assets에 있는 .task 파일을 디바이스 내부에 저장 (디버그 모드에서 사용)
       await modelManager.installModelFromAsset('ai/gemma3-1B-it-int4.task');
-      // 모델 추론 인스턴스 생성
       _inferenceModel = await FlutterGemmaPlugin.instance.createModel(
-        modelType: ModelType.gemmaIt, // Gemma instruction-tuned 모델
-        preferredBackend: PreferredBackend.cpu, // 또는 PreferredBackend.gpu
-        maxTokens: 512, // 최대 토큰 수 (필요에 따라 조정)
+        modelType: ModelType.gemmaIt,
+        preferredBackend: PreferredBackend.cpu,
+        maxTokens: 512,
       );
       debugPrint('Gemma 모델 초기화 완료');
     } catch (e) {
@@ -70,20 +68,23 @@ class _ChatbotState extends State<Chatbot> {
     }
   }
 
-  /// Gemma 모델을 통해 추론 수행: STT로 얻은 [prompt]를 기반으로 생성된 응답 반환
+  // Gemma 모델을 통한 추론 수행
   Future<String> _performGemmaInference(String prompt) async {
     if (_inferenceModel == null) {
       return "모델이 초기화되지 않았습니다.";
     }
     try {
+      // markdown 금지 및 1분 제한 프롬프트 추가
+      String modifiedPrompt =
+          "응답은 순수 텍스트만 사용하고 markdown 형식은 사용하지 마세요. "
+              "대답은 최대 1분 이내로 작성해주세요. " +
+          prompt;
       final session = await _inferenceModel!.createSession(
-        temperature: 1.0, // 생성 시 무작위성 (기본 1.0)
-        randomSeed: 1, // 재현성을 위한 랜덤 시드
-        topK: 1, // 매 스텝에서 후보 토큰 수
+        temperature: 1.0,
+        randomSeed: 1,
+        topK: 1,
       );
-      // 입력 프롬프트 추가
-      await session.addQueryChunk(Message(text: prompt));
-      // 동기식 응답 생성 (완료될 때까지 대기)
+      await session.addQueryChunk(Message(text: modifiedPrompt));
       final response = await session.getResponse();
       await session.close();
       return response;
@@ -91,6 +92,19 @@ class _ChatbotState extends State<Chatbot> {
       debugPrint("추론 오류: $e");
       return "오류 발생";
     }
+  }
+
+  // 타자기 효과로 한 줄씩 텍스트 추가
+  Future<void> _appendTextWithTypewriterEffect(String newLine) async {
+    for (int i = 0; i < newLine.length; i++) {
+      await Future.delayed(const Duration(milliseconds: 50));
+      setState(() {
+        _recognizedText += newLine[i];
+      });
+    }
+    setState(() {
+      _recognizedText += "\n";
+    });
   }
 
   Future<void> _startListening() async {
@@ -103,20 +117,23 @@ class _ChatbotState extends State<Chatbot> {
         _isListening = true;
         _recognizedText = "";
       });
+      // 초기 인사말과 안내문을 타자기 효과로 표시
+      await _appendTextWithTypewriterEffect("안녕하세요? AI 마리모입니다.");
+      await _appendTextWithTypewriterEffect("원하시는 내용을 말씀해주세요.");
       _startListeningAnimation();
       _speech.listen(
         onResult: (result) async {
-          setState(() {
-            _recognizedText = result.recognizedWords;
-          });
           if (result.finalResult) {
+            // 최종 결과를 타자기 효과로 추가
+            await _appendTextWithTypewriterEffect(result.recognizedWords);
             await _stopListening();
             _startProcessingAnimation();
-            // STT 결과를 기반으로 Gemma 모델 추론 수행
+            // Gemma 모델 추론 및 결과 타자기 효과
             String generatedResponse = await _performGemmaInference(
               _recognizedText,
             );
-            // 추론 결과를 TTS로 읽어줌
+            await _appendTextWithTypewriterEffect(generatedResponse);
+            // TTS로 음성 출력
             await _flutterTts.speak(generatedResponse);
           }
         },
@@ -177,6 +194,7 @@ class _ChatbotState extends State<Chatbot> {
   void dispose() {
     _listeningTimer?.cancel();
     _processingTimer?.cancel();
+    _flutterTts.stop();
     super.dispose();
   }
 
@@ -232,7 +250,7 @@ class _ChatbotState extends State<Chatbot> {
                 },
               ),
             ),
-            // 인식된 텍스트 영역
+            // 인식된 텍스트 영역 (타자기 효과로 표시)
             Positioned(
               top: textTop,
               bottom: textBottom,

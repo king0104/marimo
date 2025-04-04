@@ -24,11 +24,6 @@ class _Obd2DetailScreenState extends State<Obd2DetailScreen> {
   @override
   void initState() {
     super.initState();
-
-    Future.microtask(() {
-      final provider = context.read<ObdPollingProvider>();
-      provider.loadResponsesFromLocal();
-    });
   }
 
   @override

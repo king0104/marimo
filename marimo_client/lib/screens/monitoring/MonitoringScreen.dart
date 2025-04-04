@@ -1,32 +1,73 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/screens/monitoring/widgets/TireDiagnosisButton.dart';
-import 'package:marimo_client/screens/monitoring/widgets/Obd2InfoList.dart'; // ✅ OBD2 리스트 추가
-import 'package:marimo_client/screens/monitoring/widgets/Car3DModel.dart'; // ✅ 3D 자동차 모델 추가
+import 'package:marimo_client/screens/monitoring/widgets/Obd2InfoList.dart';
+import 'package:marimo_client/providers/obd_polling_provider.dart';
 
-class MonitoringScreen extends StatelessWidget {
+class MonitoringScreen extends StatefulWidget {
+  const MonitoringScreen({super.key});
+
+  @override
+  State<MonitoringScreen> createState() => _MonitoringScreenState();
+}
+
+class _MonitoringScreenState extends State<MonitoringScreen>
+    with TickerProviderStateMixin {
+  bool showUpperWidgets = true;
+
+  void toggleUpperWidgets() {
+    setState(() {
+      showUpperWidgets = !showUpperWidgets;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() async {
+      final provider = context.read<ObdPollingProvider>();
+      await provider.loadResponsesFromLocal(); // 이전 값 먼저 불러오고
+      if (provider.isConnected) {
+        provider.startPolling(); // 연결돼 있으면 실시간 시작
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final upperHeight = 200.h + 16.h + 48.h + 16.h;
+
     return Scaffold(
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20.w), // ✅ 좌우 패딩 20.w 적용
+        padding: EdgeInsets.symmetric(horizontal: 20.w),
         child: Column(
           children: [
-            // SizedBox(
-            //   width: double.infinity, // ✅ 3D 모델 전체 너비 확장
-            //   height: 200.h, // ✅ 적절한 높이 설정
-            //   child: Car3DModel(), // ✅ 새로 추가된 위젯 (예: 3D 자동차 모델)
-            // ),
-            SizedBox(height: 16.sp), // ✅ 요소 간의 간격 조정
-            SizedBox(
-              width: double.infinity, // ✅ 버튼 가로 크기 확장
-              child: TireDiagnosisButton(),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.easeInOut,
+              height: showUpperWidgets ? upperHeight : 0,
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    height: 200.h,
+                    child: Image.asset(
+                      'assets/images/cars/sonata_top.png',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  SizedBox(height: 16.h),
+                  SizedBox(
+                    height: 48.h,
+                    width: double.infinity,
+                    child: const TireDiagnosisButton(),
+                  ),
+                  SizedBox(height: 16.h),
+                ],
+              ),
             ),
-            SizedBox(height: 16.sp), // ✅ 두 요소 사이의 gap (16.sp)
-            Expanded(
-              flex: 3, // ✅ OBD2 리스트가 더 많은 공간을 차지하도록 설정
-              child: Obd2InfoList(),
-            ),
+            Expanded(child: Obd2InfoList(onToggleWidgets: toggleUpperWidgets)),
           ],
         ),
       ),
