@@ -1,7 +1,9 @@
 package com.ssafy.marimo.navigation.service;
 
 import com.ssafy.marimo.card.domain.Card;
+import com.ssafy.marimo.card.domain.CardBenefit;
 import com.ssafy.marimo.card.domain.MemberCard;
+import com.ssafy.marimo.card.repository.CardBenefitRepository;
 import com.ssafy.marimo.card.repository.MemberCardRepository;
 import com.ssafy.marimo.common.annotation.ExecutionTimeLog;
 import com.ssafy.marimo.external.fintech.FintechApiClient;
@@ -27,6 +29,9 @@ public class GasStationService {
     private final GasStationRepository gasStationRepository;
     private final MemberCardRepository memberCardRepository;
     private final FintechApiClient fintechApiClient;
+    private final CardBenefitRepository cardBenefitRepository;
+
+
 
     @ExecutionTimeLog
     public void clearAllStations() {
@@ -101,8 +106,9 @@ public class GasStationService {
                 isOilCardMonthlyRequirementSatisfied = true;
             }
 
+            // 전월 실적 넘었으면, 카드 혜택 제공하기
             if (isOilCardRegistered && isOilCardMonthlyRequirementSatisfied) {
-
+                List<CardBenefit> cardBenefits = cardBenefitRepository.findByCardIdAndCategory(card.getId(), CATEGORY_GAS);
             }
 
         }
