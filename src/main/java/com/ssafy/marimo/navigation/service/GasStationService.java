@@ -9,6 +9,7 @@ import com.ssafy.marimo.navigation.domain.GasStation;
 import com.ssafy.marimo.navigation.dto.request.PostGasStationRecommendRequest;
 import com.ssafy.marimo.navigation.dto.response.PostGasStationRecommendResponse;
 import com.ssafy.marimo.navigation.repository.GasStationRepository;
+import jakarta.persistence.criteria.CriteriaBuilder.In;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -82,17 +83,29 @@ public class GasStationService {
          * TODO : 전월실적
          */
         boolean isOilCardRegistered = true;
+        boolean isOilCardMonthlyRequirementSatisfied = false;
         Optional<MemberCard> memberCard = memberCardRepository.findByMemberId(memberId);
         if (memberCard == null) {
             isOilCardRegistered = false;
         }
 
         // 2. 외부 API 사용해서 전월실적 가져오기
-        Card card = memberCard.get().getCard();
-        card.getMonthlyRequirement();
-        fintechApiClient.getCardTransactions(card.getCardUniqueNo(), card.getCvc().toString(), "2025-04-01", "2025-04-04");
+        else {
+            Card card = memberCard.get().getCard();
+            Integer monthlyRequirement = card.getMonthlyRequirement();
+            Integer estimatedBalance = Integer.parseInt(
+                    fintechApiClient.getCardTransactions(card.getCardUniqueNo(), card.getCvc().toString(),
+                            "2025-04-01", "2025-04-04").getRec().getEstimatedBalance());
+            // 전월 실적 기준 <= 실제 전월 실적
+            if (monthlyRequirement <= estimatedBalance) {
+                isOilCardMonthlyRequirementSatisfied = true;
+            }
 
+            if (isOilCardRegistered && isOilCardMonthlyRequirementSatisfied) {
 
+            }
+
+        }
 
         // DTO 생성
         return PostGasStationRecommendResponse.of(
