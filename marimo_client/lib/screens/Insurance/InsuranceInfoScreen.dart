@@ -6,14 +6,20 @@ import 'package:flutter/services.dart';  // TextInputFormatter를 위한 import 
 import 'package:marimo_client/commons/CustomAppHeader.dart';  // CustomAppHeader 임포트 추가
 import 'package:flutter_svg/flutter_svg.dart';  // SVG 패키지 추가
 import 'package:flutter/services.dart';  // SystemChrome을 위한 import 추가
+import 'package:provider/provider.dart';
+import 'package:marimo_client/providers/car_provider.dart';
+import 'package:marimo_client/providers/member/auth_provider.dart';
+import 'package:marimo_client/services/insurance/Insurance_service.dart';
 
 class InsuranceInfoScreen extends StatefulWidget {
-  final String insuranceName;
+  final String insuranceName;    // 화면 표시용 한글 이름
+  final String insuranceCode;    // API 요청용 영문 코드
   final String insuranceLogo;
 
   const InsuranceInfoScreen({
     super.key, 
     required this.insuranceName,
+    required this.insuranceCode,  // 추가
     required this.insuranceLogo,
   });
 
@@ -37,6 +43,12 @@ class _InsuranceInfoScreenState extends State<InsuranceInfoScreen> {
   final TextEditingController _insuranceAmountController = TextEditingController();
   final FocusNode _insuranceAmountFocusNode = FocusNode();
   
+  // 로딩 상태 추가
+  bool _isLoading = false;
+
+  // totalDistance 저장 변수 추가
+  int? _maxDistance;
+
   // 콤마가 포함된 문자열을 숫자로 변환
   String getCleanNumber(String text) {
     return text.replaceAll(',', '');
@@ -66,6 +78,41 @@ class _InsuranceInfoScreenState extends State<InsuranceInfoScreen> {
         systemNavigationBarIconBrightness: Brightness.light,
       ),
     );
+    
+    // 차량 정보 로드
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        final accessToken = context.read<AuthProvider>().accessToken;
+        if (accessToken != null) {
+          await context.read<CarProvider>().fetchCarsFromServer(accessToken);
+          
+          // 디버깅을 위한 로그 추가
+          final carProvider = context.read<CarProvider>();
+          final cars = carProvider.cars;
+          final firstCarId = carProvider.firstCarId;  // firstCarId 사용
+          
+          print('📱 Fetched cars length: ${cars.length}');
+          print('📱 First car ID: $firstCarId');
+
+          // totalDistance 가져오기
+          final firstCar = carProvider.cars.firstOrNull;
+          if (firstCar != null) {
+            setState(() {
+              _maxDistance = firstCar.totalDistance;
+            });
+          }
+        }
+      } catch (e) {
+        print('🚨 Error fetching cars: $e');
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('차량 정보를 불러오는데 실패했습니다: $e'),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    });
     
     // 포커스 리스너 추가
     _distanceFocusNode.addListener(() {
@@ -189,15 +236,15 @@ class _InsuranceInfoScreenState extends State<InsuranceInfoScreen> {
                         ],
                       ),
                       SizedBox(height: 24.h),
-                      _buildDateInput('최초 주행거리 등록일'),
-                      SizedBox(height: 16.h),
-                      _buildDistanceInput('최초 등록 주행거리'),
-                      SizedBox(height: 16.h),
                       _buildDateInput('보험 개시일'),
                       SizedBox(height: 16.h),
                       _buildDateInput('보험 만기일'),
                       SizedBox(height: 16.h),
-                      _buildInsuranceAmountInput('자동차 보험료'),  // 보험료 입력 필드 추가
+                      _buildDateInput('최초 주행거리 등록일'),
+                      SizedBox(height: 16.h),
+                      _buildDistanceInput('최초 등록 주행거리'),
+                      SizedBox(height: 16.h),
+                      _buildInsuranceAmountInput('자동차 보험료'),
                     ],
                   ),
                 ),
@@ -208,34 +255,104 @@ class _InsuranceInfoScreenState extends State<InsuranceInfoScreen> {
                     child: SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: isAllFieldsFilled() 
-                          ? () {
-                              Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const InsuranceScreen(isInsuranceRegistered: true),
-                                ),
-                                (route) => false,
-                              );
+                        // isAllFieldsFilled()가 true이고 로딩 중이 아닐 때만 활성화
+                        onPressed: (isAllFieldsFilled() && !_isLoading) 
+                          ? () async {
+                              setState(() {
+                                _isLoading = true;  // 로딩 시작
+                              });
+                              
+                              try {
+                                // Provider에서 필요한 정보 가져오기
+                                final carId = context.read<CarProvider>().firstCarId;  // firstCarId 사용
+                                final accessToken = context.read<AuthProvider>().accessToken;
+
+                                print('Debug - carId: $carId, accessToken: $accessToken');
+                                print('Debug - Cars list: ${context.read<CarProvider>().cars}');
+
+                                if (carId == null || accessToken == null) {
+                                  print('Debug - Car or token is null');
+                                  throw Exception("차량 정보를 찾을 수 없습니다");
+                                }
+
+                                // 거리와 보험료에서 콤마 제거
+                                final cleanDistance = getCleanNumber(_distanceController.text);
+                                final cleanAmount = getCleanNumber(_insuranceAmountController.text);
+
+                                print('🚨 Debug - API Request Data:');
+                                final requestData = {
+                                  'carId': carId,
+                                  'insuranceCompanyName': widget.insuranceCode,
+                                  'startDate': _formatToDateTime(_insuranceStartDate),
+                                  'endDate': _formatToDateTime(_insuranceEndDate, isEndDate: true),
+                                  'distanceRegistrationDate': _formatToDateTime(_registrationDate),
+                                  'registeredDistance': int.parse(cleanDistance),
+                                  'insurancePremium': int.parse(cleanAmount),
+                                };
+                                print(requestData);
+
+                                // 보험 등록 API 호출
+                                await InsuranceService.registerInsurance(
+                                  carId: carId,
+                                  accessToken: accessToken,
+                                  insuranceCompanyName: widget.insuranceCode,
+                                  startDate: _formatToDateTime(_insuranceStartDate),
+                                  endDate: _formatToDateTime(_insuranceEndDate, isEndDate: true),
+                                  distanceRegistrationDate: _formatToDateTime(_registrationDate),
+                                  registeredDistance: int.parse(cleanDistance),
+                                  insurancePremium: int.parse(cleanAmount),
+                                );
+
+                                if (!mounted) return;
+
+                                // 성공 시 화면 이동
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const InsuranceScreen(),
+                                  ),
+                                  (route) => false,
+                                );
+                              } catch (e) {
+                                print('🚨 Error in insurance registration: $e'); // 에러 로그 추가
+                                if (!mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('보험 등록 중 오류가 발생했습니다: $e')),
+                                );
+                              } finally {
+                                if (mounted) {
+                                  setState(() {
+                                    _isLoading = false;  // 로딩 종료
+                                  });
+                                }
+                              }
                             }
-                          : null,  // null이면 버튼이 비활성화됨
+                          : null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF4888FF),
                           padding: EdgeInsets.symmetric(vertical: 16.h),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8.r),
                           ),
-                          // 비활성화 상태의 스타일 추가
                           disabledBackgroundColor: Colors.grey[300],
                         ),
-                        child: Text(
-                          '완료',
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
+                        child: _isLoading
+                          ? SizedBox(
+                              height: 20.h,
+                              width: 20.h,
+                              child: const CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : Text(
+                              '완료',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
                       ),
                     ),
                   ),
@@ -252,7 +369,7 @@ class _InsuranceInfoScreenState extends State<InsuranceInfoScreen> {
     String getDateValue() {
       switch (label) {
         case '최초 주행거리 등록일':
-          return _registrationDate;
+          return _registrationDate;  // 기본값 자동 설정 제거
         case '보험 개시일':
           return _insuranceStartDate;
         case '보험 만기일':
@@ -295,18 +412,33 @@ class _InsuranceInfoScreenState extends State<InsuranceInfoScreen> {
             
             if (label == '보험 만기일' && _insuranceStartDate == 'YYYY.MM.DD') {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
+                const SnackBar(
                   content: Text('보험 개시일을 먼저 선택해주세요.'),
-                  duration: const Duration(seconds: 2),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+              return;
+            }
+
+            if (label == '최초 주행거리 등록일' && _insuranceStartDate == 'YYYY.MM.DD') {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('보험 개시일을 먼저 선택해주세요.'),
+                  duration: Duration(seconds: 2),
                 ),
               );
               return;
             }
 
             DateTime? initialDate;
+
             if (label == '보험 만기일' && _insuranceStartDate != 'YYYY.MM.DD') {
               initialDate = DateTime.parse(_insuranceStartDate.replaceAll('.', '-'))
                   .add(const Duration(days: 365));
+            } else if (label == '최초 주행거리 등록일' && _insuranceStartDate != 'YYYY.MM.DD') {
+              // 캘린더의 초기값으로만 보험 개시일 + 15일 설정
+              final startDate = DateTime.parse(_insuranceStartDate.replaceAll('.', '-'));
+              initialDate = startDate.add(const Duration(days: 15));
             } else {
               initialDate = DateTime.now();
             }
@@ -314,9 +446,6 @@ class _InsuranceInfoScreenState extends State<InsuranceInfoScreen> {
             showCustomCalendarPopup(
               context: context,
               initialDate: initialDate ?? DateTime.now(),
-              minDate: label == '보험 만기일' && _insuranceStartDate != 'YYYY.MM.DD'
-                  ? DateTime.parse(_insuranceStartDate.replaceAll('.', '-')).add(const Duration(days: 1))
-                  : null,
               onDateSelected: (DateTime selectedDate) {
                 final formattedDate = 
                     '${selectedDate.year}.${selectedDate.month.toString().padLeft(2, '0')}.${selectedDate.day.toString().padLeft(2, '0')}';
@@ -362,15 +491,23 @@ class _InsuranceInfoScreenState extends State<InsuranceInfoScreen> {
             color: Colors.grey[600],
           ),
         ),
+        if (_maxDistance != null) ...[
+          SizedBox(height: 4.h),
+          Text(
+            '현재 총 주행거리: ${addCommas(_maxDistance.toString())}km',
+            style: TextStyle(
+              fontSize: 12.sp,
+              color: Colors.grey[600],
+            ),
+          ),
+        ],
         SizedBox(height: 8.h),
         TextField(
           controller: _distanceController,
           focusNode: _distanceFocusNode,
-          autofocus: false,
-          enableInteractiveSelection: true,
           keyboardType: TextInputType.number,
           textInputAction: TextInputAction.done,
-          maxLength: 9,  // 콤마를 포함한 최대 길이 (예: 999,999)
+          maxLength: 9,
           style: TextStyle(
             fontSize: 16.sp,
             color: Colors.black,
@@ -381,13 +518,25 @@ class _InsuranceInfoScreenState extends State<InsuranceInfoScreen> {
               // 숫자만 추출
               final cleanText = newValue.text.replaceAll(',', '');
               
-              // 7자리 초과 검사
-              if (cleanText.length > 7) {
+              // 빈 문자열 체크
+              if (cleanText.isEmpty) {
+                return newValue;
+              }
+              
+              // 숫자로 변환
+              final number = int.tryParse(cleanText);
+              if (number == null) {
                 return oldValue;
               }
               
-              // 9,999,999 초과 검사
-              if (cleanText.isNotEmpty && int.parse(cleanText) > 9999999) {
+              // totalDistance 체크
+              if (_maxDistance != null && number > _maxDistance!) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('현재 총 주행거리(${addCommas(_maxDistance.toString())}km)보다 큰 값은 입력할 수 없습니다.'),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
                 return oldValue;
               }
               
@@ -505,5 +654,12 @@ class _InsuranceInfoScreenState extends State<InsuranceInfoScreen> {
         _insuranceEndDate != 'YYYY.MM.DD' &&
         _distanceController.text.isNotEmpty &&
         _insuranceAmountController.text.isNotEmpty;  // 보험료 입력 확인 추가
+  }
+
+  // 날짜 형식 변환 메서드 추가
+  String _formatToDateTime(String date, {bool isEndDate = false}) {
+    final parts = date.split('.');
+    final time = isEndDate ? "23:59:59" : "00:00:00";
+    return "${parts[0]}-${parts[1].padLeft(2, '0')}-${parts[2].padLeft(2, '0')}T$time";
   }
 } 
