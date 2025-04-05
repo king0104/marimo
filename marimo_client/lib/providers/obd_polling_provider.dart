@@ -2,14 +2,20 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:marimo_client/providers/car_provider.dart';
+import 'package:marimo_client/services/car/obd_service.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
-
+import 'package:marimo_client/providers/member/auth_provider.dart';
 import 'package:marimo_client/constants/obd_pids.dart';
 
 class ObdPollingProvider with ChangeNotifier {
   BluetoothConnection? _connection;
   StreamSubscription<Uint8List>? _inputSubscription;
+  DateTime? lastSuccessfulPollingTime;
+
   final Map<String, String> _pidResponses = {};
   final List<String> _pollingPids = pollingPids;
 
@@ -19,7 +25,7 @@ class ObdPollingProvider with ChangeNotifier {
   Completer<String>? _commandCompleter;
   StringBuffer? _responseBuffer;
 
-  Future<void> connectAndStartPolling() async {
+  Future<void> connectAndStartPolling(BuildContext context) async {
     final bondedDevices =
         await FlutterBluetoothSerial.instance.getBondedDevices();
     final obdDevices =
@@ -37,7 +43,7 @@ class ObdPollingProvider with ChangeNotifier {
     final target = obdDevices.first;
     await connect(target);
     await _initializeObd();
-    startPolling();
+    startPolling(context);
   }
 
   Future<void> connect(BluetoothDevice device) async {
@@ -75,15 +81,15 @@ class ObdPollingProvider with ChangeNotifier {
     _connection = null;
   }
 
-  void startPolling() {
+  void startPolling(BuildContext context) {
     if (!isConnected || isRunning) return;
 
     isRunning = true;
     notifyListeners();
-    _pollPids();
+    _pollPids(context); // ⬅️ context 넘김
   }
 
-  void _pollPids() async {
+  void _pollPids(BuildContext context) async {
     while (isRunning && isConnected) {
       for (final pid in _pollingPids) {
         if (!isRunning || !isConnected) break;
@@ -98,6 +104,10 @@ class ObdPollingProvider with ChangeNotifier {
         notifyListeners();
         await Future.delayed(const Duration(milliseconds: 120));
       }
+
+      // ✅ 모든 PID 순회 후 서버 전송
+      await sendObdDataToServer(context); // ⬅️ context 사용
+      lastSuccessfulPollingTime = DateTime.now();
     }
   }
 
@@ -180,9 +190,18 @@ class ObdPollingProvider with ChangeNotifier {
 
     final jsonString = jsonEncode(cleanedMap);
     await prefs.setString('last_obd_data', jsonString);
+
+    // ✅ 순회 완료 시간 저장
+    if (lastSuccessfulPollingTime != null) {
+      await prefs.setString(
+        'last_polling_time',
+        lastSuccessfulPollingTime!.toIso8601String(),
+      );
+      debugPrint('⏱️ 마지막 순회 시각 저장됨: $lastSuccessfulPollingTime');
+    }
   }
 
-  Future<void> loadResponsesFromLocal() async {
+  Future<void> loadResponsesFromLocal(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     final jsonString = prefs.getString('last_obd_data');
     print('✅ 로컬에 저장된 OBD 데이터: $jsonString');
@@ -194,6 +213,25 @@ class ObdPollingProvider with ChangeNotifier {
         _pidResponses[key] = value.toString();
       });
       notifyListeners();
+    }
+
+    // // ######################################################################
+    // // 지울 것
+    // lastSuccessfulPollingTime = DateTime.now();
+    // if (lastSuccessfulPollingTime != null) {
+    //   await prefs.setString(
+    //     'last_polling_time',
+    //     lastSuccessfulPollingTime!.toIso8601String(),
+    //   );
+    //   debugPrint('⏱️ 마지막 순회 시각 저장됨: $lastSuccessfulPollingTime');
+    // }
+    // // ######################################################################
+
+    // ✅ 마지막 순회 시각 불러오기
+    final savedTime = prefs.getString('last_polling_time');
+    if (savedTime != null) {
+      lastSuccessfulPollingTime = DateTime.tryParse(savedTime);
+      debugPrint('⏱️ 저장된 마지막 순회 시각 불러옴: $lastSuccessfulPollingTime');
     }
   }
 
@@ -272,5 +310,37 @@ class ObdPollingProvider with ChangeNotifier {
     debugPrint("✅ DTC 코드 섹션 추출됨: $codeSection");
 
     return codeSection;
+  }
+
+  Future<void> sendObdDataToServer(BuildContext context) async {
+    try {
+      final carProvider = Provider.of<CarProvider>(context, listen: false);
+      final authProvider = Provider.of<AuthProvider>(
+        context,
+        listen: false,
+      ); // ✅ 추가
+      final carId = carProvider.firstCarId;
+      final accessToken = authProvider.accessToken; // ✅ 토큰 가져오기
+
+      if (carId == null || accessToken == null) {
+        debugPrint('🚫 전송 실패: 차량 ID 또는 토큰이 없습니다');
+        return;
+      }
+
+      await ObdService.sendObdData(
+        carId: carId,
+        accessToken: accessToken,
+        provider: this, // ObdPollingProvider 자체 전달
+      );
+
+      debugPrint('✅ OBD 데이터 서버 전송 완료');
+    } catch (e) {
+      debugPrint('❌ OBD 데이터 전송 실패: $e');
+    }
+  }
+
+  String get formattedLastPollingTime {
+    if (lastSuccessfulPollingTime == null) return '없음';
+    return '${lastSuccessfulPollingTime!.toLocal()}';
   }
 }

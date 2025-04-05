@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:marimo_client/theme.dart';
 
 class CustomAppHeader extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -27,14 +28,7 @@ class CustomAppHeader extends StatelessWidget implements PreferredSizeWidget {
         Container(
           height: 60.h, // 📌 헤더 높이 고정
           decoration: BoxDecoration(
-            color: Color(0xFFFBFBFB), // 📌 Figma 배경색 (#FBFBFB) 적용
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                offset: Offset(0, 1),
-                blurRadius: 1,
-              ),
-            ],
+            color: white, // 📌 Figma 배경색 (#FBFBFB) 적용
           ),
           child: Stack(
             children: [
@@ -54,7 +48,7 @@ class CustomAppHeader extends StatelessWidget implements PreferredSizeWidget {
                         'assets/images/icons/icon_back.svg',
                         width: 18.sp,
                         height: 18.sp,
-                        color: Colors.black,
+                        color: iconColor,
                       ),
                     ),
                   ),
@@ -69,7 +63,7 @@ class CustomAppHeader extends StatelessWidget implements PreferredSizeWidget {
                   style: TextStyle(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w500, // 📌 Figma font-weight: 500 적용
-                    color: Colors.black,
+                    color: black,
                   ),
                 ),
               ),

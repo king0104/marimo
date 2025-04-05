@@ -1,6 +1,8 @@
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:marimo_client/commons/AppBar.dart';
+import 'package:marimo_client/commons/CustomAppHeader.dart';
 import 'package:marimo_client/screens/monitoring/widgets/ObdSearchBar.dart';
 import 'package:marimo_client/utils/obd_response_parser.dart';
 import 'package:provider/provider.dart';
@@ -99,50 +101,9 @@ class _Obd2DetailScreenState extends State<Obd2DetailScreen> {
         }).toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("OBD2 상세"),
-        titleTextStyle: TextStyle(
-          fontSize: 20.sp,
-          fontWeight: FontWeight.w500,
-          color: black,
-        ),
-        centerTitle: true,
-        leading: IconButton(
-          icon: SvgPicture.asset(
-            'assets/images/icons/icon_back_grey_22.svg',
-            width: 22.w,
-            height: 22.h,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
-          Padding(
-            padding: EdgeInsets.only(right: 16.w),
-            child: Row(
-              children: [
-                _iconButton(
-                  'assets/images/icons/icon_chatbot_grey_22.svg',
-                  () {},
-                ),
-                SizedBox(width: 8.w),
-                _iconButton(
-                  'assets/images/icons/icon_alarm_grey_22.svg',
-                  () {},
-                ),
-              ],
-            ),
-          ),
-        ],
-        elevation: 0,
-        backgroundColor: white,
-        foregroundColor: black,
-        toolbarHeight: 60.h,
-        systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarColor: white,
-          statusBarIconBrightness: Brightness.dark,
-          statusBarBrightness: Brightness.light,
-        ),
-        scrolledUnderElevation: 0,
+      appBar: CustomAppHeader(
+        title: 'OBD2 상세 데이터',
+        onBackPressed: () => Navigator.of(context).pop(),
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.w),
