@@ -5,16 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';  // SVG 패키지 추가
 import 'package:flutter/services.dart';  // SystemChrome을 위한 import 추가
 
 class SelectInsuranceScreen extends StatefulWidget {
-  const SelectInsuranceScreen({super.key});
-
-  @override
-  State<SelectInsuranceScreen> createState() => _SelectInsuranceScreenState();
-}
-
-class _SelectInsuranceScreenState extends State<SelectInsuranceScreen> {
-  int? selectedIndex;  // 선택된 보험사 인덱스
-
-  final List<Map<String, dynamic>> insuranceCompanies = const [
+  static const List<Map<String, dynamic>> insuranceCompanies = [
     {
       'name': 'AXA손해보험',
       'logo': 'assets/images/insurance/image_axa.png',
@@ -76,6 +67,15 @@ class _SelectInsuranceScreenState extends State<SelectInsuranceScreen> {
       'code': 'heungkuk'
     },
   ];
+
+  const SelectInsuranceScreen({super.key});
+
+  @override
+  State<SelectInsuranceScreen> createState() => _SelectInsuranceScreenState();
+}
+
+class _SelectInsuranceScreenState extends State<SelectInsuranceScreen> {
+  int? selectedIndex;  // 선택된 보험사 인덱스
 
   @override
   void initState() {
@@ -150,7 +150,7 @@ class _SelectInsuranceScreenState extends State<SelectInsuranceScreen> {
             SizedBox(height: 32.h),
             Expanded(
               child: ListView.separated(
-                itemCount: insuranceCompanies.length,
+                itemCount: SelectInsuranceScreen.insuranceCompanies.length,
                 separatorBuilder: (context, index) => SizedBox(height: 16.h),
                 itemBuilder: (context, index) {
                   final isSelected = selectedIndex == index;
@@ -170,13 +170,13 @@ class _SelectInsuranceScreenState extends State<SelectInsuranceScreen> {
                       child: Row(
                         children: [
                           Image.asset(
-                            insuranceCompanies[index]['logo']!,
+                            SelectInsuranceScreen.insuranceCompanies[index]['logo']!,
                             width: 32.w,
                             height: 32.w,
                           ),
                           SizedBox(width: 16.w),
                           Text(
-                            insuranceCompanies[index]['name']!,
+                            SelectInsuranceScreen.insuranceCompanies[index]['name']!,
                             style: TextStyle(
                               fontSize: 16.sp,
                               fontWeight: FontWeight.w500,
@@ -198,7 +198,7 @@ class _SelectInsuranceScreenState extends State<SelectInsuranceScreen> {
                   child: ElevatedButton(
                     onPressed: selectedIndex != null 
                       ? () {
-                          final selected = insuranceCompanies[selectedIndex!];
+                          final selected = SelectInsuranceScreen.insuranceCompanies[selectedIndex!];
                           Navigator.push(
                             context,
                             MaterialPageRoute(
