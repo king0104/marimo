@@ -2,10 +2,15 @@ package com.ssafy.marimo.navigation.service;
 
 import com.ssafy.marimo.card.domain.Card;
 import com.ssafy.marimo.card.domain.CardBenefit;
+import com.ssafy.marimo.card.domain.CardBenefitDetail;
 import com.ssafy.marimo.card.domain.MemberCard;
+import com.ssafy.marimo.card.repository.CardBenefitDetailRepository;
 import com.ssafy.marimo.card.repository.CardBenefitRepository;
 import com.ssafy.marimo.card.repository.MemberCardRepository;
 import com.ssafy.marimo.common.annotation.ExecutionTimeLog;
+import com.ssafy.marimo.exception.BadRequestException;
+import com.ssafy.marimo.exception.ErrorStatus;
+import com.ssafy.marimo.exception.ServerException;
 import com.ssafy.marimo.external.fintech.FintechApiClient;
 import com.ssafy.marimo.navigation.domain.GasStation;
 import com.ssafy.marimo.navigation.dto.request.PostGasStationRecommendRequest;
@@ -30,7 +35,9 @@ public class GasStationService {
     private final MemberCardRepository memberCardRepository;
     private final FintechApiClient fintechApiClient;
     private final CardBenefitRepository cardBenefitRepository;
+    private final CardBenefitDetailRepository cardBenefitDetailRepository;
 
+    private static final String CATEGORY_GAS = "GAS";
 
 
     @ExecutionTimeLog
@@ -64,6 +71,9 @@ public class GasStationService {
 
         Float price = determinePriceByOilType(s, req.oilType());
 
+        float discountedPrice = price;
+        float discountAmount = 0; // 현재 할인 없음
+
         // 가격 할인 로직은 별도로 추가하세요.
         /**
          * TODO : 전월실적
@@ -76,7 +86,10 @@ public class GasStationService {
         }
 
         // 2. 외부 API 사용해서 전월실적 가져오기
+
+
         else {
+
             Card card = memberCard.get().getCard();
             Integer monthlyRequirement = card.getMonthlyRequirement();
             Integer estimatedBalance = Integer.parseInt(
@@ -90,12 +103,32 @@ public class GasStationService {
             // 전월 실적 넘었으면, 카드 혜택 제공하기
             if (isOilCardRegistered && isOilCardMonthlyRequirementSatisfied) {
                 List<CardBenefit> cardBenefits = cardBenefitRepository.findByCardIdAndCategory(card.getId(), CATEGORY_GAS);
+                for (CardBenefit benefit : cardBenefits) {
+                    List<CardBenefitDetail> cardBenefitDetails =
+                            cardBenefitDetailRepository.findByCardBenefitId(benefit.getId());
+
+                    for (CardBenefitDetail cardBenefitDetail : cardBenefitDetails) {
+                        // 카드 혜택 적용하기
+                        if (cardBenefitDetail.getAppliesToAllBrands()) {
+                            discountedPrice = applyCardBenefit(price, cardBenefitDetail.getDiscountValue(),
+                                    cardBenefitDetail.getDiscountUnit());
+                            discountAmount = price - discountedPrice;
+                            break;
+                        }
+
+                        if (cardBenefitDetail.getGasStationBrand().equals(s.getBrand())) {
+                            discountedPrice = applyCardBenefit(price, cardBenefitDetail.getDiscountValue(),
+                                    cardBenefitDetail.getDiscountUnit());
+                            discountAmount = price - discountedPrice;
+
+                        }
+
+                   }
+                }
             }
 
         }
 
-        Float discountedPrice = price; // 현재는 가격 그대로 사용
-        int discountAmount = 0; // 현재 할인 없음
 
         // DTO 생성
         return PostGasStationRecommendResponse.of(
@@ -166,4 +199,16 @@ public class GasStationService {
     }
 
     private static final double EARTH_RADIUS = 6371e3; // 지구 반경(m 단위)
+
+    private float applyCardBenefit(float originalPrice, int discountValue, String discountUnit) {
+        if ("L/원".equals(discountUnit)) {
+            return originalPrice - discountValue;
+        }
+        else if ("%".equals(discountUnit)) {
+            return (float) (originalPrice * ((100 - discountValue) / 100.0));
+        }
+        else {
+            throw new ServerException(ErrorStatus.INTERNAL_SERVER_ERROR.getErrorCode());
+        }
+    }
 }
