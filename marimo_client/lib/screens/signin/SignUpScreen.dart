@@ -395,6 +395,8 @@ class _SignUpScreenBodyState extends State<SignUpScreenBody> {
                   password: passwordController.text.trim(),
                 );
                 if (success) {
+                  // 백엔드에서 새 회원 정보가 완전히 반영될 수 있도록 2초 정도 대기
+                  await Future.delayed(const Duration(seconds: 2));
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (_) => const SignInScreen()),
