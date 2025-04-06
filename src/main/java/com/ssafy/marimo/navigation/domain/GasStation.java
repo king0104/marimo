@@ -18,6 +18,9 @@ public class GasStation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(nullable = false, unique = true, length = 50)
+    private String uniId;
+
     @Column(nullable = true)
     private String name;
 

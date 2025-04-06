@@ -24,16 +24,24 @@ public class GasStationService {
     }
 
     public List<PostGasStationRecommendResponse> getRecommendedStations(PostGasStationRecommendRequest req) {
-        return gasStationRepository.findAll().stream()
-                .filter(s -> req.hasSelfService() == null || s.getHasSelfService().equals(req.hasSelfService()))
-                .filter(s -> req.hasMaintenance() == null || s.getHasMaintenance().equals(req.hasMaintenance()))
-                .filter(s -> req.hasCarWash() == null || s.getHasCarWash().equals(req.hasCarWash()))
-                .filter(s -> req.hasCvs() == null || s.getHasCvs().equals(req.hasCvs()))
-                .filter(s -> req.brandList() == null || req.brandList().isEmpty()
-                        || req.brandList().contains(s.getBrand()))
-                .filter(s -> isValidOilType(req.oilType(), s))
 
-                .map(s -> toRecommendResponse(s, req))
+        // ✅ 검색 반경 처리: null → 5km, 0 → 전국
+        Integer radiusKm = req.radius();
+        boolean isNationwide = radiusKm != null && radiusKm == 0;
+        int radiusMeter = isNationwide ? Integer.MAX_VALUE : (radiusKm != null ? radiusKm * 1000 : 5000);
+
+        // ✅ JPA로 필터링 먼저 적용
+        List<GasStation> filteredStations = gasStationRepository.findFilteredStations(
+                req.hasSelfService(),
+                req.hasMaintenance(),
+                req.hasCarWash(),
+                req.hasCvs(),
+                (req.brandList() == null || req.brandList().isEmpty()) ? null : req.brandList()
+        );
+
+        return filteredStations.stream()
+                .filter(s -> isValidOilType(req.oilType(), s))
+                .map(s -> toRecommendResponse(s, req, radiusMeter))
                 .filter(Objects::nonNull)
                 .sorted(Comparator.comparing(PostGasStationRecommendResponse::distance))
                 .limit(3)
@@ -41,17 +49,23 @@ public class GasStationService {
     }
 
 
-    private PostGasStationRecommendResponse toRecommendResponse(GasStation s, PostGasStationRecommendRequest req) {
+    private PostGasStationRecommendResponse toRecommendResponse(GasStation s, PostGasStationRecommendRequest req, int radiusMeter) {
         double userLat = req.latitude();
         double userLng = req.longitude();
         int distance = calcDistance(userLat, userLng, s.getLatitude(), s.getLongitude());
-        if (distance > (req.radius() != null ? req.radius() : 3000)) return null;
+
+        // ✅ 반경 기준 필터링
+        if (distance > radiusMeter) return null;
 
         Float price = determinePriceByOilType(s, req.oilType());
 
-        // 가격 할인 로직은 별도로 추가하세요.
-        Float discountedPrice = price; // 현재는 가격 그대로 사용
-        int discountAmount = 0; // 현재 할인 없음
+        Float discountedPrice = price; // 가격 할인 로직 placeholder
+        int discountAmount = 0; //
+        /**
+         * // ✅ 할인 정보 적용
+         *         int discountAmount = cardDiscountService.getDiscountAmount(req.userId(), s.getBrand(), req.oilType());
+         *         Float discountedPrice = (originalPrice != null) ? originalPrice - discountAmount : null;
+         */
 
         // DTO 생성
         return PostGasStationRecommendResponse.of(
@@ -66,12 +80,11 @@ public class GasStationService {
                 s.getHasMaintenance(),
                 s.getHasCarWash(),
                 s.getHasCvs(),
-                // false, // is24Hours 정보를 업데이트해야 할 수 있습니다.
                 price,
                 discountedPrice,
                 discountAmount,
                 distance,
-                req.oilType() != null ? req.oilType() : "일반 휘발유" // ✅ 이거 추가
+                req.oilType() != null ? req.oilType() : "일반 휘발유"
         );
     }
 

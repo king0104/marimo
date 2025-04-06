@@ -12,28 +12,26 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/gas-stations")
+@RequestMapping("/api/v1/maps")
 @RequiredArgsConstructor
-public class GasStationController {
+public class StationController {
 
     private final GasStationService gasStationService;
     private final OpinetStationSyncService opinetStationSyncService;
 
-    @PostMapping("/recommend")
+    @PostMapping("/recommend/gas")
     public ResponseEntity<List<PostGasStationRecommendResponse>> getRecommendedStations(
             @Validated @RequestBody PostGasStationRecommendRequest request
     ) {
-        // 1. 기존 GasStation 데이터 전체 삭제
-        gasStationService.clearAllStations();
 
-        // 2. Opinet API 호출해서 DB에 주유소 동기화
-        opinetStationSyncService.syncNearbyStations(
-                request.latitude(),
-                request.longitude(),
-                request.radius() != null ? request.radius() : 3000
-        );
-
-        // 3. 필터링된 추천 주유소 3개 반환
+        // 필터링된 추천 주유소 3개 반환
         return ResponseEntity.ok(gasStationService.getRecommendedStations(request));
     }
+
+    @PostMapping("/internal/sync-gas-stations")
+    public ResponseEntity<Void> syncGasStations() {
+        opinetStationSyncService.syncByStationName("주유소");
+        return ResponseEntity.ok().build();
+    }
+
 }
