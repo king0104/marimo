@@ -45,7 +45,6 @@ public class GasStationService {
         gasStationRepository.deleteAll();
     }
 
-<<<<<<< HEAD
     public List<PostGasStationRecommendResponse> getRecommendedStations(PostGasStationRecommendRequest req, Integer memberId) {
 
         // ✅ 검색 반경 처리: null → 5km, 0 → 전국
@@ -70,8 +69,6 @@ public class GasStationService {
                 .limit(3)
                 .toList();
     }
-
-
 
     private PostGasStationRecommendResponse toRecommendResponse(GasStation s, PostGasStationRecommendRequest req, int radiusMeter, Integer memberId) {
         double userLat = req.latitude();
@@ -98,7 +95,6 @@ public class GasStationService {
         }
 
         // 2. 외부 API 사용해서 전월실적 가져오기
-
 
         else {
 

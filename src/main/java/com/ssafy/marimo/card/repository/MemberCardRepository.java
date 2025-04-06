@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MemberCardRepository extends CrudRepository<MemberCard, Integer> {
     Optional<MemberCard> findByMemberId(Integer memberId);
+    boolean existsByMemberIdAndCardId(Integer memberId, Integer cardId);
+
 }
