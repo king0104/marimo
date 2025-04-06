@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/models/map/Place.dart';
+import 'package:marimo_client/providers/navigation_provider.dart';
 import 'package:marimo_client/screens/map/data/MockData.dart';
 import 'package:marimo_client/screens/map/utils/map_utils.dart';
 import 'package:marimo_client/screens/map/widgets/PlaceCard.dart';
@@ -24,21 +25,20 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   final MapService _mapService = MapService();
-  NaverMapController? _mapController; // 네이버 지도 컨트롤러 (nullable)
-  NMarker? _userLocationMarker; // 사용자 위치 마커
+  NaverMapController? _mapController;
+  NMarker? _userLocationMarker;
 
-  // 필터 버튼 상태 관리
   bool _gasStationFilter = false;
   bool _repairFilter = false;
   bool _carWashFilter = false;
 
-  List<Place> _currentPlaces = []; // 현재 표시 중인 장소 리스트
-  List<String> _previousMarkerIds = []; // 이전 마커 ID 저장 (지우기용)
-  String? _highlightedPlaceId; // 선택된 장소 ID
+  List<Place> _currentPlaces = [];
+  List<String> _previousMarkerIds = [];
+  String? _highlightedPlaceId;
 
   @override
   void dispose() {
-    _mapController?.dispose(); // 지도 컨트롤러 정리 (Surface 해제)
+    _mapController?.dispose();
     super.dispose();
   }
 
@@ -47,17 +47,13 @@ class _MapScreenState extends State<MapScreen> {
     final cachedPosition = context.read<MapStateProvider>().lastKnownPosition;
 
     return Scaffold(
-      // 전체 화면 Stack 구성
       body: Stack(
         children: [
-          // 지도 뷰
           Positioned.fill(
             child: NaverMap(
               options: NaverMapViewOptions(
                 initialCameraPosition: NCameraPosition(
-                  target:
-                      cachedPosition ??
-                      NLatLng(37.5665, 126.9780), // ✅ 캐시된 위치 or 기본 서울
+                  target: cachedPosition ?? NLatLng(37.5665, 126.9780),
                   zoom: 15,
                 ),
                 minZoom: 7.0,
@@ -70,7 +66,6 @@ class _MapScreenState extends State<MapScreen> {
               onMapReady: (controller) async {
                 _mapController = controller;
 
-                /// 🔄 위치 권한 요청 및 사용자 위치 표시
                 final permissionGranted = await Permission.location.request();
                 if (permissionGranted.isGranted) {
                   final currentLatLng = await _mapService.fetchCurrentLatLng();
@@ -79,19 +74,16 @@ class _MapScreenState extends State<MapScreen> {
                     currentLatLng,
                   );
 
-                  // 카메라 이동
                   await _mapService.moveCamera(
                     controller: _mapController!,
                     target: currentLatLng,
                   );
 
-                  // 내장된 현재 위치 오버레이 (파란 점)
                   _mapService.setCurrentLocationOverlay(
                     controller: _mapController!,
                     position: currentLatLng,
                   );
 
-                  // 사용자 마커 직접 추가
                   await _mapService.addCurrentLocationMarker(
                     controller: _mapController!,
                     id: 'user_location',
@@ -102,6 +94,12 @@ class _MapScreenState extends State<MapScreen> {
                     id: 'user_location',
                     position: currentLatLng,
                   );
+                }
+
+                final navProvider = context.read<NavigationProvider>();
+                if (navProvider.shouldApplyRepairFilter) {
+                  await _onCategoryTap('repair');
+                  navProvider.consumeRepairFilter();
                 }
               },
               onCameraIdle: () async {
@@ -119,16 +117,12 @@ class _MapScreenState extends State<MapScreen> {
               },
             ),
           ),
-
-          // 하단 장소 카드 영역
           Positioned(
             bottom: 110,
             left: 0,
             right: 0,
             child: _buildStationCard(),
           ),
-
-          // 우측 상단 버튼들 (현위치, 필터)
           Positioned(
             top: 16,
             right: 16,
@@ -152,8 +146,6 @@ class _MapScreenState extends State<MapScreen> {
               ],
             ),
           ),
-
-          // 좌측 상단 카테고리 아이콘들
           Positioned(
             top: 16,
             left: 16,
@@ -181,7 +173,6 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  /// 현위치 이동 처리 함수
   Future<void> _moveToCurrentLocation() async {
     final permissionGranted = await Permission.location.request();
     if (!permissionGranted.isGranted) {
@@ -192,7 +183,6 @@ class _MapScreenState extends State<MapScreen> {
     }
 
     final currentLatLng = await _mapService.fetchCurrentLatLng();
-
     context.read<MapStateProvider>().updatePosition(currentLatLng);
 
     await _mapService.removeMarkersByIds(
@@ -228,7 +218,6 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  /// 필터 바텀시트 호출
   void _onFilterPressed() {
     showModalBottomSheet(
       context: context,
@@ -240,7 +229,6 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  /// 카테고리 선택 시 마커 생성
   Future<void> _onCategoryTap(String type) async {
     await _mapService.removeMarkersByIds(
       controller: _mapController!,
@@ -272,7 +260,6 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  /// 마커 탭 시 강조 처리
   void _onMarkerTapped(String markerId) async {
     final tappedPlace = _currentPlaces.firstWhere((p) => p.id == markerId);
 
@@ -298,7 +285,6 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  /// 하단 장소 카드 렌더링
   Widget _buildStationCard() {
     return Visibility(
       visible: _currentPlaces.isNotEmpty,
