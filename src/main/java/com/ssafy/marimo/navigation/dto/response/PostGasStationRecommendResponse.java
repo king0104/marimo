@@ -18,7 +18,7 @@ public record PostGasStationRecommendResponse(
         // Boolean is24Hours,
         Float price,
         Float discountedPrice,
-        Integer discountAmount,
+        Float discountAmount,
         Integer distance,
         String oilType
 ) {
@@ -37,7 +37,7 @@ public record PostGasStationRecommendResponse(
             // Boolean is24Hours,
             Float price,
             Float discountedPrice,
-            Integer discountAmount,
+            Float discountAmount,
             Integer distance,
             String oilType
     ) {
