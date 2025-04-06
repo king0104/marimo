@@ -1,11 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
+import 'package:marimo_client/providers/car_provider.dart';
+import 'package:marimo_client/providers/member/auth_provider.dart';
 
 class MyPageHeader extends StatelessWidget {
   const MyPageHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final carProvider = context.watch<CarProvider>();
+    final authProvider = context.watch<AuthProvider>();
+    
+    final carNickname = carProvider.cars.isNotEmpty 
+        ? carProvider.cars.first.nickname ?? '차량 없음'
+        : '차량 없음';
+    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -18,12 +29,12 @@ class MyPageHeader extends StatelessWidget {
         ),
         SizedBox(height: 8.h),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,  // 텍스트와 버튼을 양 끝으로 배치
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Row(
               children: [
                 Text(
-                  '붕붕이',
+                  carNickname,
                   style: TextStyle(
                     fontSize: 24.sp,
                     fontWeight: FontWeight.bold,
@@ -45,21 +56,21 @@ class MyPageHeader extends StatelessWidget {
                 ),
               ],
             ),
-            Padding( // Padding을 추가하여 위치를 아래로 조정
-              padding: EdgeInsets.only(top: 4.h), // 버튼을 아래로 밀기
+            Padding(
+              padding: EdgeInsets.only(top: 4.h),
               child: TextButton(
                 onPressed: () {},
                 style: TextButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 20.w),
-                  minimumSize: Size(50.w, 20.h), // 최소 높이 설정
+                  minimumSize: Size(50.w, 20.h),
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   backgroundColor: Colors.white,
                   side: BorderSide(
-                    color: Colors.black.withOpacity(0.2), // 아웃라인 설정
+                    color: Colors.black.withOpacity(0.2),
                     width: 1,
                   ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.r), // 모서리 둥글게
+                    borderRadius: BorderRadius.circular(8.r),
                   ),
                 ),
                 child: Text(

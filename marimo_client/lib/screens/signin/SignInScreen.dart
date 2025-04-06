@@ -86,40 +86,48 @@ class _SignInScreenState extends State<SignInScreen>
 
   Future<void> _login() async {
     try {
-      // 1. 로그인 요청 → accessToken 반환
       final token = await AuthService.login(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
 
-      // 2. 토큰 저장
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final carProvider = Provider.of<CarProvider>(context, listen: false);
       authProvider.setAccessToken(token);
 
-      // 3. 차량 목록 받아오되, 실패해도 무시
-      try {
-        await carProvider.fetchCarsFromServer(token);
-      } catch (e) {
-        showToast(
-          context,
-          '차량 목록 불러오기 실패 (나중에 다시 시도해주세요)',
-          icon: Icons.warning,
-          type: 'error',
-        );
-        print('🚨 차량 목록 조회 실패 (무시됨): $e');
-      }
+      // 토스트 먼저 표시
+      showToast(
+        context,
+        "마리모에 오신 것을 환영합니다!",
+        icon: Icons.check_circle_outline,
+        type: 'success',
+        position: 'top-down',
+      );
 
-      // 4. 라우팅
+      // 토스트가 보이는 동안 미리 데이터를 로딩
+      await Future.wait([
+        Future.delayed(const Duration(seconds: 2)), // 토스트 지속 시간
+        carProvider.fetchCarsFromServer(token).catchError((e) {
+          showToast(
+            context,
+            '차량 목록 불러오기 실패 (나중에 다시 시도해주세요)',
+            icon: Icons.warning,
+            type: 'error',
+            position: 'top-down',
+          );
+          print('🚨 차량 목록 조회 실패 (무시됨): $e');
+        }),
+      ]);
+
+      // 이후 화면 이동
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => const InitialRouter()),
         (Route<dynamic> route) => false,
       );
     } catch (error) {
-      // 내부 에러 로그는 콘솔에 출력하고, 사용자에게는 간단한 메시지 표시
       print("로그인 오류: $error");
-      showToast(context, "로그인을 다시 해주세요.", icon: Icons.error, type: 'error');
+      showToast(context, "로그인을 다시 해주세요.", icon: Icons.error, type: 'error', position: 'top-down',);
     }
   }
 

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:marimo_client/providers/car_payment_provider.dart';
-import 'package:marimo_client/screens/payment/widgets/total/CarMonthlyPayment.dart';
+import 'package:marimo_client/screens/payment/widgets/detail_list/CarMonthlyPaymentReadOnly.dart';
 import 'package:marimo_client/screens/payment/widgets/detail_list/CarDayPaymentDetail.dart';
 import 'package:marimo_client/commons/CustomAppHeader.dart';
 import 'CarTotalPayment.dart';
@@ -45,19 +45,14 @@ class _CarDetailPaymentState extends State<CarPaymentDetailList>
   Widget build(BuildContext context) {
     super.build(context); // AutomaticKeepAlive 필수 호출
 
-    // Provider에서 선택된 월 가져오기
-    final provider = context.watch<CarPaymentProvider>();
-    final selectedMonth = provider.selectedMonth;
+    // final selectedMonth = provider.selectedMonth;
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppHeader(
         title: '내역 보기',
         onBackPressed: () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const CarTotalPayment()),
-          );
+          Navigator.pop(context); // ✅ 최상위 Provider context 유지
         },
       ),
       body: Padding(
@@ -66,7 +61,7 @@ class _CarDetailPaymentState extends State<CarPaymentDetailList>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 16.h),
-            const CarMonthlyPayment(), // const로 선언하여 리빌드 최적화
+            CarMonthlyPaymentReadOnly(),
             SizedBox(height: 18.h),
             // Consumer로 감싸서 Provider 변경 시 이 부분만 다시 그리도록 최적화
             Expanded(

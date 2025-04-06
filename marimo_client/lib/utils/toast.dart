@@ -6,21 +6,28 @@ void showToast(
   String message, {
   IconData icon = Icons.info,
   String type = 'info',
+  String position = 'bottom-up',
 }) {
   final overlay = Overlay.of(context);
   late OverlayEntry overlayEntry;
   final animationController = AnimationController(
     vsync: Navigator.of(context),
     duration: const Duration(milliseconds: 300),
-  );
-  final animation = Tween<Offset>(
-    begin: const Offset(0, 0.2), // 시작은 아래에서
-    end: const Offset(0, 0), // 끝은 제자리
-  ).animate(
-    CurvedAnimation(parent: animationController, curve: Curves.easeOut),
+    reverseDuration: const Duration(milliseconds: 150),
   );
 
-  // 색상 설정
+  final bool isTopDown = position == 'top-down';
+
+  final fadeInAnimation = CurvedAnimation(
+    parent: animationController,
+    curve: Curves.easeOut,
+  );
+
+  final scaleAnimation = TweenSequence<double>([
+    TweenSequenceItem(tween: Tween(begin: 0.8, end: 1.05), weight: 70),
+    TweenSequenceItem(tween: Tween(begin: 1.05, end: 1.0), weight: 30),
+  ]).animate(fadeInAnimation);
+
   Color backgroundColor;
   switch (type) {
     case 'success':
@@ -36,13 +43,14 @@ void showToast(
   overlayEntry = OverlayEntry(
     builder: (context) {
       return Positioned(
-        bottom: 110,
+        top: isTopDown ? 40 : null,
+        bottom: isTopDown ? null : 110,
         left: MediaQuery.of(context).size.width * 0.075,
         right: MediaQuery.of(context).size.width * 0.075,
-        child: SlideTransition(
-          position: animation,
-          child: FadeTransition(
-            opacity: animationController,
+        child: FadeTransition(
+          opacity: fadeInAnimation,
+          child: ScaleTransition(
+            scale: scaleAnimation,
             child: Material(
               color: Colors.transparent,
               child: Container(
@@ -89,7 +97,7 @@ void showToast(
   animationController.forward();
 
   Future.delayed(const Duration(seconds: 2)).then((_) async {
-    await animationController.reverse(); // 내려감 애니메이션
+    await animationController.reverse();
     overlayEntry.remove();
     animationController.dispose();
   });

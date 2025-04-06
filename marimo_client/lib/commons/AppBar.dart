@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/commons/chatbot.dart';
 import 'package:marimo_client/screens/Insurance/InsuranceScreen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:marimo_client/theme.dart';
 
 class CommonAppBar extends StatefulWidget implements PreferredSizeWidget {
   const CommonAppBar({super.key});
@@ -109,7 +110,7 @@ class _CommonAppBarState extends State<CommonAppBar> {
                                           ),
                                       background: Container(
                                         decoration: BoxDecoration(
-                                          color: Colors.red.withOpacity(0.2),
+                                          color: pointRedColor.withAlpha(36),
                                           borderRadius: BorderRadius.circular(
                                             12.r,
                                           ),
@@ -120,12 +121,12 @@ class _CommonAppBarState extends State<CommonAppBar> {
                                         ),
                                         child: const Icon(
                                           Icons.delete,
-                                          color: Colors.white,
+                                          color: white,
                                         ),
                                       ),
                                       secondaryBackground: Container(
                                         decoration: BoxDecoration(
-                                          color: Colors.red.withOpacity(0.2),
+                                          color: pointRedColor.withAlpha(36),
                                           borderRadius: BorderRadius.circular(
                                             12.r,
                                           ),
@@ -136,7 +137,7 @@ class _CommonAppBarState extends State<CommonAppBar> {
                                         ),
                                         child: const Icon(
                                           Icons.delete,
-                                          color: Colors.white,
+                                          color: white,
                                         ),
                                       ),
                                       child: Container(
@@ -167,7 +168,7 @@ class _CommonAppBarState extends State<CommonAppBar> {
                                                   ),
                                                   child: Icon(
                                                     notification['icon'],
-                                                    color: Colors.white,
+                                                    color: white,
                                                     size: 20.w,
                                                   ),
                                                 ),
@@ -184,7 +185,7 @@ class _CommonAppBarState extends State<CommonAppBar> {
                                                           fontSize: 14.sp,
                                                           fontWeight:
                                                               FontWeight.w500,
-                                                          color: Colors.white,
+                                                          color: white,
                                                         ),
                                                       ),
                                                       SizedBox(height: 4.h),
@@ -194,7 +195,7 @@ class _CommonAppBarState extends State<CommonAppBar> {
                                                           fontSize: 14.sp,
                                                           fontWeight:
                                                               FontWeight.w500,
-                                                          color: Colors.white,
+                                                          color: white,
                                                         ),
                                                       ),
                                                     ],
@@ -216,14 +217,14 @@ class _CommonAppBarState extends State<CommonAppBar> {
                                                   Text(
                                                     notification['actionText'],
                                                     style: TextStyle(
-                                                      color: Colors.white,
+                                                      color: white,
                                                       fontSize: 14.sp,
                                                     ),
                                                   ),
                                                   Icon(
                                                     Icons.chevron_right,
                                                     size: 20.w,
-                                                    color: Colors.white,
+                                                    color: white,
                                                   ),
                                                 ],
                                               ),
@@ -262,13 +263,25 @@ class _CommonAppBarState extends State<CommonAppBar> {
       elevation: 0,
       leadingWidth: 70.w,
       leading: Padding(
-        padding: EdgeInsets.only(left: 0.w),
-        child: Image.asset('assets/images/logo/marimo_logo.png', width: 30.w),
+        padding: EdgeInsets.only(left: 0.w, top: 19.h, bottom: 19.h),
+        child: SizedBox(
+          width: 36.w,
+          height: 22.h,
+          child: SvgPicture.asset(
+            'assets/images/icons/logo_app_bar.svg',
+            width: 36.w,
+            height: 22.h,
+            fit: BoxFit.contain,
+          ),
+        ),
       ),
       actions: [
-        // 마이크 아이콘 클릭 시 Chatbot UI를 모달로 띄움
         IconButton(
-          icon: Icon(Icons.mic, size: 24.w),
+          icon: SvgPicture.asset(
+            'assets/images/icons/icon_chatbot_grey_22.svg',
+            width: 22.w,
+            height: 22.w,
+          ),
           onPressed: () {
             showModalBottomSheet(
               context: context,
@@ -280,7 +293,11 @@ class _CommonAppBarState extends State<CommonAppBar> {
         Stack(
           children: [
             IconButton(
-              icon: Icon(Icons.notifications, size: 24.w),
+              icon: SvgPicture.asset(
+                'assets/images/icons/icon_alarm_grey_22.svg',
+                width: 18.w,
+                height: 18.w,
+              ),
               onPressed: () => _showNotifications(context),
             ),
             if (notifications.isNotEmpty)
@@ -291,7 +308,7 @@ class _CommonAppBarState extends State<CommonAppBar> {
                   width: 8.w,
                   height: 8.w,
                   decoration: const BoxDecoration(
-                    color: Colors.red,
+                    color: pointRedColor,
                     shape: BoxShape.circle,
                   ),
                 ),
