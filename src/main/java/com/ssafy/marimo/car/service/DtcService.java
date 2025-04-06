@@ -7,6 +7,9 @@ import com.ssafy.marimo.car.repository.CarRepository;
 import com.ssafy.marimo.car.repository.DtcRepository;
 import com.ssafy.marimo.exception.ErrorStatus;
 import com.ssafy.marimo.exception.NotFoundException;
+import com.ssafy.marimo.member.domain.Notification;
+import com.ssafy.marimo.member.domain.NotificationType;
+import com.ssafy.marimo.member.repository.NotificationRepository;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +22,7 @@ public class DtcService {
 
     private final DtcRepository dtcRepository;
     private final CarRepository carRepository;
+    private final NotificationRepository notificationRepository;
 
     @Transactional
     public void postDtc(PostDtcRequest postDtcRequest, Integer carId) {
@@ -34,6 +38,9 @@ public class DtcService {
         }
 
         dtcRepository.saveAll(savedDtcs);
-
+//
+//        Notification.createDtcNotification(
+//            car, NotificationType.FAULT,
+//        )
     }
 }
