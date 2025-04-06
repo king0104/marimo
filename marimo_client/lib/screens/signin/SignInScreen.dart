@@ -117,8 +117,9 @@ class _SignInScreenState extends State<SignInScreen>
         (Route<dynamic> route) => false,
       );
     } catch (error) {
-      // ❌ 로그인 자체 실패
-      showToast(context, "로그인 실패: $error", icon: Icons.error, type: 'error');
+      // 내부 에러 로그는 콘솔에 출력하고, 사용자에게는 간단한 메시지 표시
+      print("로그인 오류: $error");
+      showToast(context, "로그인을 다시 해주세요.", icon: Icons.error, type: 'error');
     }
   }
 

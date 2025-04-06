@@ -82,8 +82,7 @@ class _ChatbotState extends State<Chatbot> {
     try {
       String modifiedPrompt =
           "대답은 최대 1분 이내로 작성해주세요. " +
-          "출력은 반드시 순수 JSON 형식으로만 작성해 주세요. " +
-          "출력에는 markdown 태그나 기타 서식(예: ``` , **, ## 등)을 포함하지 말고, 오직 JSON 객체만 포함되어야 합니다. " +
+          "출력에는 markdown 태그나 기타 서식(예: ``` , **, ## 등)을 포함하지 마세요." +
           "당신은 30년 이상의 경력을 가진 자동차 전문가로, 모든 차량 문제, 부품, 유지보수 및 수리 관련 정보를 폭넓게 알고 있습니다. " +
           "전문적이고 신뢰할 수 있는 정보를 바탕으로 답변해주세요. " +
           "만약 질문이 자동차와 관련된 것이 아니라면, 상식적인 내용이면 답변해주시고, 그렇지 않으면 '다시 말씀해주시겠어요?'라고 응답해주세요. " +
@@ -112,17 +111,17 @@ class _ChatbotState extends State<Chatbot> {
     try {
       String carPaymentPrompt =
           "당신은 자동차 결제내역 등록 전문가입니다. 사용자 명령을 분석하여 아래 정보를 추출하세요.\n"
+              "출력은 반드시 순수 JSON 형식으로만 작성해 주세요. 어떠한 markdown 태그나 추가 서식(예: ``` , **, ## 등)도 포함하지 않아야 합니다.\n"
               "1. 결제 유형: '주유', '정비', '세차' 중 하나.\n"
               "2. 결제 금액: 원 단위의 정수로 출력하세요. 만약 한글로 표현되었다면 '십만원', '백만원' 등의 표현을 정수로 변환해야 합니다.\n"
               "3. 날짜: 반드시 ISO8601 형식 (예: 2025-04-04T00:00:00.000)으로 출력하세요.\n"
               "4. 장소: 결제가 이루어진 장소를 출력하세요. '주유'인 경우, 반드시 SK, GS, 현대오일뱅크, S-OIL 중 하나로 시작해야 합니다.\n"
               "5. 타입: 만약 '주유'이면 반드시 '고급 휘발유', '일반 휘발유', '경유', 'LPG' 중 하나여야 하며, '정비'이면 부품, '세차'이면 null을 출력하세요.\n"
               "6. 메모: 선택 사항입니다. 입력이 없으면 null로 출력하세요.\n"
-              "출력은 반드시 순수 JSON 형식으로만 작성해 주세요.\n"
               "예시: { \"category\": \"주유\", \"amount\": 20000, \"date\": \"2025-04-04T00:00:00.000\", \"location\": \"GS칼텍스 강남점\", \"type\": \"일반 휘발유\", \"memo\": \"추가 메모\" }\n"
-              "만약 입력이 부족하면 해당 항목은 null로 표기하세요.\n"
               "사용자 명령: " +
           userCommand;
+
       String response = await _performGemmaInference(carPaymentPrompt);
       response = response.trim();
 
@@ -258,9 +257,9 @@ class _ChatbotState extends State<Chatbot> {
                 }
               }
               // 후처리: "만"이 포함되어 있고, 주유의 경우 값이 100,000 미만이면 10배 보정
-              if (recognized.contains("만") && amount <= 100000000) {
-                amount *= 10;
-              }
+              // if (recognized.contains("만") && amount <= 100000000) {
+              //   amount *= 10;
+              // }
               // Provider 업데이트
               final carPaymentProvider = Provider.of<CarPaymentProvider>(
                 context,
