@@ -1,23 +1,22 @@
-// CarDetailPayment.dart
+// CarPaymentDetailList.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:marimo_client/screens/payment/widgets/total/CarMonthlyPayment.dart';
-import 'package:marimo_client/screens/payment/widgets/detail_list/CarDayDetailPayment.dart';
+import 'package:provider/provider.dart';
+import 'package:marimo_client/providers/car_payment_provider.dart';
+import 'package:marimo_client/screens/payment/widgets/detail_list/CarMonthlyPaymentReadOnly.dart';
+import 'package:marimo_client/screens/payment/widgets/detail_list/CarDayPaymentDetail.dart';
 import 'package:marimo_client/commons/CustomAppHeader.dart';
+import 'CarTotalPayment.dart';
 
-class CarDetailPayment extends StatefulWidget {
-  final int initialMonth;
-
-  const CarDetailPayment({super.key, required this.initialMonth});
+class CarPaymentDetailList extends StatefulWidget {
+  const CarPaymentDetailList({super.key});
 
   @override
-  State<CarDetailPayment> createState() => _CarDetailPaymentState();
+  State<CarPaymentDetailList> createState() => _CarDetailPaymentState();
 }
 
-class _CarDetailPaymentState extends State<CarDetailPayment>
+class _CarDetailPaymentState extends State<CarPaymentDetailList>
     with WidgetsBindingObserver, AutomaticKeepAliveClientMixin {
-  late int selectedMonth;
-
   @override
   bool get wantKeepAlive => true;
 
@@ -25,7 +24,6 @@ class _CarDetailPaymentState extends State<CarDetailPayment>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    selectedMonth = widget.initialMonth;
   }
 
   @override
@@ -43,21 +41,19 @@ class _CarDetailPaymentState extends State<CarDetailPayment>
     }
   }
 
-  void _updateMonth(int month) {
-    setState(() {
-      selectedMonth = month;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     super.build(context); // AutomaticKeepAlive 필수 호출
+
+    // final selectedMonth = provider.selectedMonth;
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppHeader(
         title: '내역 보기',
-        onBackPressed: () => Navigator.of(context).pop(),
+        onBackPressed: () {
+          Navigator.pop(context); // ✅ 최상위 Provider context 유지
+        },
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.w),
@@ -65,9 +61,18 @@ class _CarDetailPaymentState extends State<CarDetailPayment>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 16.h),
-            CarMonthlyPayment(),
+            CarMonthlyPaymentReadOnly(),
             SizedBox(height: 18.h),
-            Expanded(child: CarDayDetailPayment(selectedMonth: selectedMonth)),
+            // Consumer로 감싸서 Provider 변경 시 이 부분만 다시 그리도록 최적화
+            Expanded(
+              child: Consumer<CarPaymentProvider>(
+                builder: (context, provider, _) {
+                  return CarDayDetailPayment(
+                    selectedMonth: provider.selectedMonth,
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),

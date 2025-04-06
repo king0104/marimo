@@ -4,27 +4,25 @@ import 'package:marimo_client/models/obd_data_model.dart';
 ObdDataModel parseObdResponses(Map<String, String> responses) {
   double? parseHexToDouble(String pid, double Function(List<int>) parser) {
     final raw = responses['01$pid'];
-    print('🛠 [$pid] raw = $raw');
     if (raw == null || raw.contains('NO DATA')) return null;
 
     try {
-      final hex = raw.replaceAll(RegExp(r'[^A-Fa-f0-9]'), '');
-      final startIndex = hex.indexOf('41$pid');
+      final hex = raw.toUpperCase().replaceAll(RegExp(r'[^A-F0-9]'), '');
+      final regex = RegExp('41$pid([A-F0-9]{2,8})');
+      final match = regex.firstMatch(hex);
+      if (match == null) {
+        return null;
+      }
 
-      if (startIndex == -1 || startIndex + 4 >= hex.length) return null;
-
-      final dataHex = hex.substring(startIndex + 4); // '41' + '0C' 이후 데이터
+      final dataHex = match.group(1)!;
 
       final intValues = [
         for (var i = 0; i < dataHex.length; i += 2)
           int.parse(dataHex.substring(i, i + 2), radix: 16),
       ];
 
-      print('✅ [$pid] intValues = $intValues');
-
       return parser(intValues);
     } catch (e) {
-      print('❌ [$pid] parse error: $e');
       return null;
     }
   }
@@ -34,21 +32,25 @@ ObdDataModel parseObdResponses(Map<String, String> responses) {
     if (raw == null || raw.contains('NO DATA')) return null;
 
     try {
-      final bytes = raw.replaceAll(' ', '').substring(4);
+      final hex = raw.toUpperCase().replaceAll(RegExp(r'[^A-F0-9]'), '');
+
+      final regex = RegExp('41$pid([A-F0-9]{2,4})');
+      final match = regex.firstMatch(hex);
+      if (match == null) {
+        return null;
+      }
+
+      final dataHex = match.group(1)!;
+
       final intValues = [
-        for (var i = 0; i < bytes.length; i += 2)
-          int.parse(bytes.substring(i, i + 2), radix: 16),
+        for (var i = 0; i < dataHex.length; i += 2)
+          int.parse(dataHex.substring(i, i + 2), radix: 16),
       ];
+
       return parser(intValues);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
-  }
-
-  String? parseString(String pid) {
-    final raw = responses['01$pid'];
-    if (raw == null || raw.contains('NO DATA')) return null;
-    return raw.replaceAll(' ', '');
   }
 
   String? parseFuelType(String pid) {
@@ -56,12 +58,12 @@ ObdDataModel parseObdResponses(Map<String, String> responses) {
     if (raw == null || raw.contains('NO DATA')) return null;
 
     try {
-      final hex = raw.replaceAll(RegExp(r'[^A-Fa-f0-9]'), '');
-      final startIndex = hex.indexOf('41$pid');
-      if (startIndex == -1 || startIndex + 4 >= hex.length) return null;
+      final hex = raw.toUpperCase().replaceAll(RegExp(r'[^A-F0-9]'), '');
+      final regex = RegExp('41$pid([A-F0-9]{2})');
+      final match = regex.firstMatch(hex);
+      if (match == null) return null;
 
-      final dataHex = hex.substring(startIndex + 4);
-      final value = int.parse(dataHex.substring(0, 2), radix: 16);
+      final value = int.parse(match.group(1)!, radix: 16);
 
       const fuelTypes = {
         0x01: '가솔린',
@@ -90,13 +92,12 @@ ObdDataModel parseObdResponses(Map<String, String> responses) {
     if (raw == null || raw.contains('NO DATA')) return null;
 
     try {
-      final hex = raw.replaceAll(RegExp(r'[^A-Fa-f0-9]'), '');
-      final startIndex = hex.indexOf('41$pid');
-      if (startIndex == -1 || startIndex + 4 >= hex.length) return null;
+      final hex = raw.toUpperCase().replaceAll(RegExp(r'[^A-F0-9]'), '');
+      final regex = RegExp('41$pid([A-F0-9]{2})');
+      final match = regex.firstMatch(hex);
+      if (match == null) return null;
 
-      final dataHex = hex.substring(startIndex + 4);
-      final statusCode = dataHex.substring(0, 2); // 예: '00' 또는 '40'
-
+      final statusCode = match.group(1)!;
       switch (statusCode) {
         case '00':
           return 'SCR 비활성화';
@@ -124,37 +125,16 @@ ObdDataModel parseObdResponses(Map<String, String> responses) {
     intakeTemp: parseHexToDouble('0F', (v) => v[0] - 40),
     maf: parseHexToDouble('10', (v) => (v[0] * 256 + v[1]) / 100),
     throttlePosition: parseHexToDouble('11', (v) => v[0] * 100 / 255),
-    fuelLevel: parseHexToDouble('21', (v) => v[0] * 100 / 255),
+    fuelLevel: parseHexToDouble('2F', (v) => v[0] * 100 / 255),
     fuelRailPressure: parseHexToDouble(
       '2C',
       (v) => ((v[0] * 256 + v[1]) * 0.079),
     ),
     fuelTemp: parseHexToDouble('2D', (v) => v[0] - 40),
     vaporPressure: parseHexToDouble('2E', (v) => v[0].toDouble()),
-    barometricPressure: parseHexToDouble('2F', (v) => v[0].toDouble()),
+    barometricPressure: parseHexToDouble('33', (v) => v[0].toDouble()),
     ecmTemp: parseHexToDouble('30', (v) => v[0] - 40),
-    distanceSinceCodesCleared:
-        (() {
-          final raw = responses['0131'];
-          if (raw == null || raw.contains('NO DATA')) return null;
-
-          try {
-            final hex = raw.replaceAll(RegExp(r'[^A-Fa-f0-9]'), '');
-            final startIndex = hex.indexOf('4131'); // '41' + '31'
-            if (startIndex == -1 || startIndex + 8 > hex.length) return null;
-
-            final dataHex = hex.substring(startIndex + 4); // 실제 데이터 부분
-            final bytes = [
-              for (var i = 0; i < dataHex.length; i += 2)
-                int.parse(dataHex.substring(i, i + 2), radix: 16),
-            ];
-
-            return bytes.length >= 2 ? bytes[0] * 256 + bytes[1] : null;
-          } catch (_) {
-            return null;
-          }
-        })(),
-
+    distanceSinceCodesCleared: parseHexToInt('31', (v) => v[0] * 256 + v[1]),
     o2SensorVoltage: parseHexToDouble('33', (v) => v[0] / 200),
     noxSensor: parseHexToDouble('34', (v) => v[0].toDouble()),
     batteryVoltage: parseHexToDouble('3C', (v) => (v[0] * 256 + v[1]) / 1000),
@@ -173,7 +153,7 @@ ObdDataModel parseObdResponses(Map<String, String> responses) {
     fuelInjectionQuantity: parseHexToDouble('49', (v) => v[0].toDouble()),
     fuelInjectorPressure: parseHexToDouble('4A', (v) => v[0].toDouble()),
     fuelType: parseFuelType('4C'),
-    engineOilTemp: parseHexToDouble('30', (v) => v[0] - 40),
+    engineOilTemp: parseHexToDouble('5C', (v) => v[0] - 40),
     fuelFilterPressure: parseHexToDouble('62', (v) => v[0].toDouble()),
     turboPressure: parseHexToDouble('63', (v) => v[0].toDouble()),
     brakePressure: parseHexToDouble('67', (v) => v[0].toDouble()),

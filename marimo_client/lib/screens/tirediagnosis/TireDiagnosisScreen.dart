@@ -102,6 +102,8 @@ class _TireDiagnosisScreenState extends State<TireDiagnosisScreen>
                     onAnalysisPressed: () async {
                       if (_selectedImages.isEmpty) return;
 
+                      await loadModel(); // ✅ 버튼 누르기 직전, 안전하게 모델 로드
+
                       final file = File(_selectedImages[0].path);
                       final result = await analyzeTireImage(file);
                       Navigator.of(context).push(

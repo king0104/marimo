@@ -6,6 +6,7 @@ import 'package:marimo_client/providers/car_provider.dart';
 import 'package:marimo_client/providers/member/auth_provider.dart';
 import 'package:marimo_client/screens/signin/car/CarNicknameScreen.dart';
 import 'package:marimo_client/services/car/car_registration_service.dart';
+import 'package:marimo_client/services/user/user_service.dart';
 import 'package:marimo_client/utils/toast.dart';
 import 'package:provider/provider.dart';
 import 'package:marimo_client/providers/car_registration_provider.dart';
@@ -30,6 +31,7 @@ class CarRegistrationStepperScreen extends StatefulWidget {
 class _CarRegistrationStepperScreenState
     extends State<CarRegistrationStepperScreen> {
   int _currentStep = 0;
+  String? userName;
   bool isCarConfirmed = false;
   late PageController _pageController;
 
@@ -49,6 +51,16 @@ class _CarRegistrationStepperScreenState
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: _currentStep);
+    _loadUserName();
+  }
+
+  Future<void> _loadUserName() async {
+    final token = context.read<AuthProvider>().accessToken;
+    if (token == null) return;
+    final name = await UserService.getUserName(accessToken: token);
+    setState(() {
+      userName = name;
+    });
   }
 
   @override
@@ -76,6 +88,7 @@ class _CarRegistrationStepperScreenState
       builder: (context) {
         return CarConfirmationSheet(
           carNumber: carNumber,
+          userName: userName ?? '회원',
           onConfirmed: () {
             setState(() {
               isCarConfirmed = true;
@@ -185,6 +198,11 @@ class _CarRegistrationStepperScreenState
                       onPressed: () async {
                         final isLastStep = _currentStep == _screens.length - 1;
 
+                        if (_currentStep == 0 && !isCarConfirmed) {
+                          _showCarConfirmationSheet(); // ✅ 명의 확인 시트 띄우기
+                          return; // ❗시트를 띄우고 여기서 중단
+                        }
+
                         if (isLastStep) {
                           try {
                             final provider =
@@ -224,6 +242,7 @@ class _CarRegistrationStepperScreenState
                               "차량 등록이 완료되었습니다!",
                               icon: Icons.check_circle,
                               type: 'success',
+                              position: 'top-down',
                             );
                             await Future.delayed(
                               const Duration(milliseconds: 200),
@@ -240,6 +259,7 @@ class _CarRegistrationStepperScreenState
                               "차량 등록 실패: $e",
                               icon: Icons.error,
                               type: 'error',
+                              position: 'top-down',
                             );
                             print("❌ 차량 등록 실패: $e");
                           }

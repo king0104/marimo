@@ -1,8 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 
 class InsuranceDetails extends StatelessWidget {
-  const InsuranceDetails({super.key});
+  final Map<String, dynamic> insuranceInfo;
+
+  const InsuranceDetails({
+    super.key,
+    required this.insuranceInfo,
+  });
+
+  String _formatDate(String? dateString) {
+    if (dateString == null) return '-';
+    final date = DateTime.parse(dateString);
+    return DateFormat('yyyy.MM.dd').format(date);
+  }
+
+  String _formatNumber(num? number) {
+    if (number == null) return '-';
+    return NumberFormat('#,###').format(number);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,17 +38,35 @@ class InsuranceDetails extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _buildDetailRow('최초 주행거리 등록일', '2024.01.01'),
+          _buildDetailRow(
+            '최초 주행거리 등록일', 
+            _formatDate(insuranceInfo['distanceRegistrationDate'])
+          ),
           SizedBox(height: 16.h),
-          _buildDetailRow('등록 최초 주행거리', '21,000km'),
+          _buildDetailRow(
+            '보험 만기일', 
+            _formatDate(insuranceInfo['endDate'])
+          ),
           SizedBox(height: 16.h),
-          _buildDetailRow('현재 총 주행거리', '24,600km'),
+          _buildDetailRow(
+            '최초 등록 주행거리', 
+            '${_formatNumber(insuranceInfo['registeredDistance'])}km'
+          ),
           SizedBox(height: 16.h),
-          _buildDetailRow('계산 주행거리', '3,600km'),
+          _buildDetailRow(
+            '현재 총 주행거리', 
+            '${_formatNumber(insuranceInfo['totalDistance'])}km'
+          ),
           SizedBox(height: 16.h),
-          _buildDetailRow('월 평균 환산 주행거리', '30km/월'),
-          SizedBox(height: 24.h),
-          _buildTipSection(),
+          _buildDetailRow(
+            '계산 주행거리', 
+            '${_formatNumber(insuranceInfo['calculatedDistance'])}km'
+          ),
+          SizedBox(height: 16.h),
+          _buildDetailRow(
+            '일 평균 주행거리', 
+            '${_formatNumber(insuranceInfo['dailyAverageDistance'])}km/일'
+          ),
         ],
       ),
     );
@@ -45,50 +80,14 @@ class InsuranceDetails extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: 14.sp,
-            color: Colors.grey[600],
+            fontWeight: FontWeight.w500,
           ),
         ),
         Text(
           value,
           style: TextStyle(
             fontSize: 14.sp,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTipSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(Icons.lightbulb_outline, size: 20.w, color: Colors.amber),
-            SizedBox(width: 8.w),
-            Text(
-              '관리 팁',
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 8.h),
-        Container(
-          padding: EdgeInsets.all(12.w),
-          decoration: BoxDecoration(
-            color: const Color(0xFFFFEFEF),
-            borderRadius: BorderRadius.circular(8.r),
-          ),
-          child: Text(
-            '400km 이상 운행하면 할인율이 낮아져요!',
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: Colors.red[400],
-            ),
+            color: Colors.grey[600],
           ),
         ),
       ],
