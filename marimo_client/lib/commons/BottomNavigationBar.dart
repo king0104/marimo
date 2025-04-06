@@ -135,7 +135,7 @@ class _CommonBottomNavigationBarState extends State<CommonBottomNavigationBar> {
                   showToast(context, 'OBD-II 연결 중...', icon: Icons.sync);
 
                   try {
-                    await provider.connectAndStartPolling(context);
+                    await provider.connectAndStartPolling();
 
                     if (provider.isConnected) {
                       showToast(

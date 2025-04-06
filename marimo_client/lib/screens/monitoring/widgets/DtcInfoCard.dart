@@ -56,16 +56,17 @@ class DtcInfoCard extends StatelessWidget {
                     ? Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Expanded(
-                          child: Text(
-                            "AI 챗봇으로 자세하게 알아보기",
-                            style: TextStyle(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w400,
-                              color: brandColor,
+                        Row(
+                          children: [
+                            Text(
+                              "AI 챗봇으로 자세하게 알아보기",
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w400,
+                                color: brandColor,
+                              ),
                             ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                          ],
                         ),
                         GestureDetector(
                           onTap: () async {
@@ -85,7 +86,7 @@ class DtcInfoCard extends StatelessWidget {
                               final response = await chatService
                                   .fetchChatGPTResponse(
                                     code: code,
-                                    title: mappedTitle,
+                                    title: mappedTitle, // ✅ 여기에 매핑된 title 사용
                                   );
                               Navigator.of(context).pop();
 
@@ -136,17 +137,12 @@ class DtcInfoCard extends StatelessWidget {
                           ),
                         ),
                         SizedBox(height: 6.h),
-                        Padding(
-                          padding: EdgeInsets.only(right: 8.w), // ✅ 오른쪽 패딩 8
-                          child: Text(
-                            description,
-                            style: TextStyle(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w500,
-                              color: black,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                        Text(
+                          description,
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w500,
+                            color: black,
                           ),
                         ),
                       ],

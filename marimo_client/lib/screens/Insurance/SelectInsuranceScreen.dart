@@ -1,73 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/screens/Insurance/InsuranceInfoScreen.dart';
-import 'package:flutter_svg/flutter_svg.dart';  // SVG 패키지 추가
-import 'package:flutter/services.dart';  // SystemChrome을 위한 import 추가
 
 class SelectInsuranceScreen extends StatefulWidget {
-  static const List<Map<String, dynamic>> insuranceCompanies = [
-    {
-      'name': 'AXA손해보험',
-      'logo': 'assets/images/insurance/image_axa.png',
-      'code': 'axa'
-    },
-    {
-      'name': 'DB손해보험',
-      'logo': 'assets/images/insurance/image_db.png',
-      'code': 'db'
-    },
-    {
-      'name': 'KB손해보험',
-      'logo': 'assets/images/insurance/image_kb.png',
-      'code': 'kb'
-    },
-    {
-      'name': 'MG손해보험',
-      'logo': 'assets/images/insurance/image_mg.png',
-      'code': 'mg'
-    },
-    {
-      'name': '롯데손해보험',
-      'logo': 'assets/images/insurance/image_lotte.png',
-      'code': 'lotte'
-    },
-    {
-      'name': '메리츠화재',
-      'logo': 'assets/images/insurance/image_meritz.png',
-      'code': 'meritz'
-    },
-    {
-      'name': '삼성화재',
-      'logo': 'assets/images/insurance/image_samsung.png',
-      'code': 'samsung'
-    },
-    {
-      'name': '캐롯손해보험',
-      'logo': 'assets/images/insurance/image_carrot.png',
-      'code': 'carrot'
-    },
-    {
-      'name': '하나손해보험',
-      'logo': 'assets/images/insurance/image_hana.png',
-      'code': 'hana'
-    },
-    {
-      'name': '한화손해보험',
-      'logo': 'assets/images/insurance/image_hanhwa.png',
-      'code': 'hanwha'
-    },
-    {
-      'name': '현대해상',
-      'logo': 'assets/images/insurance/image_hyundai.png',
-      'code': 'hyundai'
-    },
-    {
-      'name': '흥국화재',
-      'logo': 'assets/images/insurance/image_heungkuk.png',
-      'code': 'heungkuk'
-    },
-  ];
-
   const SelectInsuranceScreen({super.key});
 
   @override
@@ -77,18 +12,20 @@ class SelectInsuranceScreen extends StatefulWidget {
 class _SelectInsuranceScreenState extends State<SelectInsuranceScreen> {
   int? selectedIndex;  // 선택된 보험사 인덱스
 
-  @override
-  void initState() {
-    super.initState();
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        statusBarColor: Colors.black,
-        statusBarIconBrightness: Brightness.light,
-        systemNavigationBarColor: Colors.black,
-        systemNavigationBarIconBrightness: Brightness.light,
-      ),
-    );
-  }
+  final List<Map<String, dynamic>> insuranceCompanies = const [
+    {'name': 'AXA손해보험', 'logo': 'assets/images/insurance/image_axa.png'},
+    {'name': 'DB손해보험', 'logo': 'assets/images/insurance/image_db.png'},
+    {'name': 'KB손해보험', 'logo': 'assets/images/insurance/image_kb.png'},
+    {'name': 'MG손해보험', 'logo': 'assets/images/insurance/image_mg.png'},
+    {'name': '롯데손해보험', 'logo': 'assets/images/insurance/image_lotte.png'},
+    {'name': '메리츠화재', 'logo': 'assets/images/insurance/image_meritz.png'},
+    {'name': '삼성화재', 'logo': 'assets/images/insurance/image_samsung.png'},
+    {'name': '캐롯손해보험', 'logo': 'assets/images/insurance/image_carrot.png'},
+    {'name': '하나손해보험', 'logo': 'assets/images/insurance/image_hana.png'},
+    {'name': '한화손해보험', 'logo': 'assets/images/insurance/image_hanhwa.png'},
+    {'name': '현대해상', 'logo': 'assets/images/insurance/image_hyundai.png'},
+    {'name': '흥국화재', 'logo': 'assets/images/insurance/image_heungkuk.png'},
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -97,29 +34,14 @@ class _SelectInsuranceScreenState extends State<SelectInsuranceScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        centerTitle: true,
-        systemOverlayStyle: const SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness: Brightness.dark,
-          systemNavigationBarColor: Colors.white,
-          systemNavigationBarIconBrightness: Brightness.dark,
-        ),
-        leading: GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () => Navigator.pop(context),
-          child: Padding(
-            padding: EdgeInsets.only(left: 20.w),
-            child: Center(
-              child: SvgPicture.asset(
-                'assets/images/icons/icon_back.svg',
-                width: 18.sp,
-                height: 18.sp,
-                color: Colors.black,
-              ),
-            ),
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios,
+            size: 24.w,
+            color: Colors.black,
           ),
+          onPressed: () => Navigator.pop(context),
         ),
-        leadingWidth: 44.w,
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.w),
@@ -150,7 +72,7 @@ class _SelectInsuranceScreenState extends State<SelectInsuranceScreen> {
             SizedBox(height: 32.h),
             Expanded(
               child: ListView.separated(
-                itemCount: SelectInsuranceScreen.insuranceCompanies.length,
+                itemCount: insuranceCompanies.length,
                 separatorBuilder: (context, index) => SizedBox(height: 16.h),
                 itemBuilder: (context, index) {
                   final isSelected = selectedIndex == index;
@@ -170,13 +92,13 @@ class _SelectInsuranceScreenState extends State<SelectInsuranceScreen> {
                       child: Row(
                         children: [
                           Image.asset(
-                            SelectInsuranceScreen.insuranceCompanies[index]['logo']!,
+                            insuranceCompanies[index]['logo']!,
                             width: 32.w,
                             height: 32.w,
                           ),
                           SizedBox(width: 16.w),
                           Text(
-                            SelectInsuranceScreen.insuranceCompanies[index]['name']!,
+                            insuranceCompanies[index]['name']!,
                             style: TextStyle(
                               fontSize: 16.sp,
                               fontWeight: FontWeight.w500,
@@ -198,13 +120,12 @@ class _SelectInsuranceScreenState extends State<SelectInsuranceScreen> {
                   child: ElevatedButton(
                     onPressed: selectedIndex != null 
                       ? () {
-                          final selected = SelectInsuranceScreen.insuranceCompanies[selectedIndex!];
+                          final selected = insuranceCompanies[selectedIndex!];
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => InsuranceInfoScreen(
                                 insuranceName: selected['name']!,
-                                insuranceCode: selected['code']!,
                                 insuranceLogo: selected['logo']!,
                               ),
                             ),

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:marimo_client/theme.dart';
-import 'package:marimo_client/utils/text_utils.dart';
 
 class AIDescModal extends StatelessWidget {
   final String code;
@@ -36,34 +35,24 @@ class AIDescModal extends StatelessWidget {
             // 상단 제목 바
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SvgPicture.asset(
-                        'assets/images/icons/icon_ai_bot.svg',
-                        width: 30.w,
-                        height: 30.h,
+                Row(
+                  children: [
+                    SvgPicture.asset(
+                      'assets/images/icons/icon_ai_bot.svg',
+                      width: 30.w,
+                      height: 30.h,
+                    ),
+                    SizedBox(width: 8.w),
+                    Text(
+                      "$code - $title",
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w500,
+                        color: pointRedColor,
                       ),
-                      SizedBox(width: 8.w),
-                      Expanded(
-                        // 이걸로 텍스트가 넘칠 경우 두 줄로 감싸기
-                        child: Text(
-                          "$code - $title".withHangeulWordBreak(),
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w500,
-                            color: brandColor,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          softWrap: true,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
                 GestureDetector(
                   onTap: () => Navigator.of(context).pop(),
@@ -71,7 +60,6 @@ class AIDescModal extends StatelessWidget {
                 ),
               ],
             ),
-
             SizedBox(height: 20.h),
 
             // 🔴 의미 설명

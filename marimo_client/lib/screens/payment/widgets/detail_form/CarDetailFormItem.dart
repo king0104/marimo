@@ -15,7 +15,6 @@ class CarDetailFormItem extends StatelessWidget {
   final int? maxLength;
   final bool isDateField;
   final String iconType;
-  final bool enabled;
 
   const CarDetailFormItem({
     Key? key,
@@ -29,7 +28,6 @@ class CarDetailFormItem extends StatelessWidget {
     this.maxLength,
     this.isDateField = false,
     this.iconType = 'down', // ✅ 기본값을 'down'으로 설정
-    this.enabled = true,
   }) : super(key: key);
 
   @override
@@ -121,21 +119,7 @@ class CarDetailFormItem extends StatelessWidget {
                         ),
                         child: TextFormField(
                           controller: controller,
-                          enabled: enabled,
                           textAlign: TextAlign.right,
-
-                          // ✅ 입력된 텍스트 색상 처리
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w300,
-                            color:
-                                !enabled
-                                    ? (controller.text.isNotEmpty
-                                        ? Colors.black
-                                        : const Color(0xFF8E8E8E))
-                                    : Colors.black,
-                          ),
-
                           decoration: InputDecoration(
                             hintText: hintText,
                             hintStyle: TextStyle(
