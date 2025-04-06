@@ -12,7 +12,7 @@ class MapSearchService {
     required String accessToken,
     required double latitude,
     required double longitude,
-    int radius = 3000,
+    int radius = 3,
     List<String>? brandList, // ✅ 수정
     String? oilType, // ✅ 수정
     bool? hasSelfService,
@@ -20,7 +20,7 @@ class MapSearchService {
     bool? hasCarWash,
     bool? hasCvs,
   }) async {
-    final url = Uri.parse('$baseUrl/api/v1/gas-stations/recommend');
+    final url = Uri.parse('$baseUrl/api/v1/maps/recommend/gas');
     final headers = buildHeaders(token: accessToken);
 
     final body = jsonEncode({
