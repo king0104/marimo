@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:marimo_client/models/map/Place.dart';
-import 'package:marimo_client/screens/map/data/MockData.dart';
+import 'package:marimo_client/models/map/gas_station_place.dart';
+import 'package:marimo_client/providers/map/filter.provider.dart';
+import 'package:marimo_client/screens/map/utils/map_filter_mapper.dart';
 import 'package:marimo_client/screens/map/utils/map_utils.dart';
 import 'package:marimo_client/screens/map/widgets/PlaceCard.dart';
 import 'package:marimo_client/services/map/MapService.dart';
@@ -10,10 +11,15 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:marimo_client/screens/map/widgets/category/CarWashIcon.dart';
 import 'package:marimo_client/screens/map/widgets/category/GasStationIcon.dart';
 import 'package:marimo_client/screens/map/widgets/category/RepairIcon.dart';
-import 'package:marimo_client/providers/map_provider.dart';
+import 'package:marimo_client/providers/map/location_provider.dart';
 import 'package:provider/provider.dart';
 import 'widgets/FilterIcon.dart';
 import 'widgets/FilterBottomSheet.dart';
+import 'package:collection/collection.dart';
+import 'package:marimo_client/services/map/map_search_service.dart';
+import 'package:marimo_client/models/map/gas_station_place.dart';
+import 'package:marimo_client/providers/member/auth_provider.dart';
+import 'package:marimo_client/screens/map/utils/map_place_mapper.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -44,7 +50,7 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final cachedPosition = context.read<MapStateProvider>().lastKnownPosition;
+    final cachedPosition = context.read<LocationProvider>().lastKnownPosition;
 
     return Scaffold(
       // 전체 화면 Stack 구성
@@ -75,7 +81,7 @@ class _MapScreenState extends State<MapScreen> {
                 if (permissionGranted.isGranted) {
                   final currentLatLng = await _mapService.fetchCurrentLatLng();
 
-                  context.read<MapStateProvider>().updatePosition(
+                  context.read<LocationProvider>().updatePosition(
                     currentLatLng,
                   );
 
@@ -106,13 +112,12 @@ class _MapScreenState extends State<MapScreen> {
               },
               onCameraIdle: () async {
                 final position = await _mapController?.getCameraPosition();
-                final currentTarget = position?.target;
-                if (currentTarget != null &&
-                    !MapUtils.isInsideKorea(currentTarget)) {
+                if (position?.target != null &&
+                    !MapUtils.isInsideKorea(position!.target)) {
                   await _mapController?.updateCamera(
                     NCameraUpdate.scrollAndZoomTo(
                       target: NLatLng(37.5665, 126.9780),
-                      zoom: position!.zoom,
+                      zoom: position.zoom,
                     ),
                   );
                 }
@@ -193,7 +198,7 @@ class _MapScreenState extends State<MapScreen> {
 
     final currentLatLng = await _mapService.fetchCurrentLatLng();
 
-    context.read<MapStateProvider>().updatePosition(currentLatLng);
+    context.read<LocationProvider>().updatePosition(currentLatLng);
 
     await _mapService.removeMarkersByIds(
       controller: _mapController!,
@@ -236,36 +241,83 @@ class _MapScreenState extends State<MapScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (context) => const FilterBottomSheet(),
+      builder: (modalContext) {
+        return Builder(
+          builder:
+              (modalContext) => FilterBottomSheet(
+                onApply: () => _onCategoryTap('gas'), // ✅ 현재 필터 기반으로 다시 호출
+              ), // ✅ 이 ctx로 Provider 접근
+        );
+      },
     );
   }
 
   /// 카테고리 선택 시 마커 생성
   Future<void> _onCategoryTap(String type) async {
+    final token = context.read<AuthProvider>().accessToken;
+    final position = context.read<LocationProvider>().lastKnownPosition;
+    final filters = context.read<FilterProvider>().filtersByCategory;
+    final parsed = parseFilterOptions(filters); // ✅ 이제 Map 기반 파싱
+
     await _mapService.removeMarkersByIds(
       controller: _mapController!,
-      ids: _previousMarkerIds,
+      ids: _previousMarkerIds.toSet().toList(),
     );
 
-    final filtered = mockPlaces.where((p) => p.type == type).take(3).toList();
+    await Future.delayed(const Duration(milliseconds: 50));
+    _previousMarkerIds.clear();
+
+    if (token == null || position == null) {
+      print('❗ 토큰 또는 위치 정보 없음');
+      return;
+    }
+
+    List<Place> places = [];
+
+    try {
+      if (type == 'gas') {
+        // ✅ 위치 + 필터 파라미터 포함한 POST 요청
+        final data = await MapSearchService.getGasStations(
+          accessToken: token,
+          latitude: position.latitude,
+          longitude: position.longitude,
+          radius: 3000,
+          hasSelfService: parsed.hasSelfService,
+          hasMaintenance: parsed.hasMaintenance,
+          hasCarWash: parsed.hasCarWash,
+          hasCvs: parsed.hasCvs,
+          brandList: parsed.brandList,
+          oilType: parsed.oilType,
+        );
+
+        print('✅ [API 응답] 받은 주유소 개수: ${data.length}');
+
+        places = data.map((json) => mapGasStationJsonToPlace(json)).toList();
+      } else {
+        // TODO: 정비소/세차장 API 완성되면 여기도 확장
+        return;
+      }
+    } catch (e) {
+      print('🚨 주유소 데이터 불러오기 실패: $e');
+      return;
+    }
 
     setState(() {
+      _currentPlaces = places;
+      _highlightedPlaceId = null;
+      _previousMarkerIds = places.map((e) => e.id).toList();
       _gasStationFilter = type == 'gas';
       _repairFilter = type == 'repair';
       _carWashFilter = type == 'carwash';
-      _currentPlaces = filtered;
-      _highlightedPlaceId = null;
-      _previousMarkerIds = filtered.map((e) => e.id).toList();
     });
 
     await _mapService.addPlaceMarkers(
       controller: _mapController!,
-      places: _currentPlaces,
+      places: places,
       onMarkerTap: _onMarkerTapped,
     );
 
     await Future.delayed(const Duration(milliseconds: 300));
-
     await _mapService.centerMarkersWithZoom(
       controller: _mapController!,
       places: _currentPlaces,
@@ -274,32 +326,13 @@ class _MapScreenState extends State<MapScreen> {
 
   /// 마커 탭 시 강조 처리
   void _onMarkerTapped(String markerId) async {
-    final tappedPlace = _currentPlaces.firstWhere((p) => p.id == markerId);
-
-    if (_highlightedPlaceId != null && _highlightedPlaceId != markerId) {
-      final prev = _currentPlaces.firstWhere(
-        (p) => p.id == _highlightedPlaceId,
-      );
-      await _mapService.resetMarker(controller: _mapController!, place: prev);
-    }
-
-    await _mapService.highlightMarker(
-      controller: _mapController!,
-      place: tappedPlace,
-    );
-
-    setState(() {
-      _highlightedPlaceId = markerId;
-    });
-
-    await _mapService.moveCamera(
-      controller: _mapController!,
-      target: NLatLng(tappedPlace.lat, tappedPlace.lng),
-    );
+    await handlePlaceSelection(markerId);
   }
 
   /// 하단 장소 카드 렌더링
   Widget _buildStationCard() {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Visibility(
       visible: _currentPlaces.isNotEmpty,
       child: SizedBox(
@@ -312,37 +345,55 @@ class _MapScreenState extends State<MapScreen> {
             final place = _currentPlaces[index];
             return PlaceCard(
               place: place,
+              rank: index + 1,
               isSelected: _highlightedPlaceId == place.id,
-              onTap: (position) async {
-                if (_highlightedPlaceId != null &&
-                    _highlightedPlaceId != place.id) {
-                  final prev = _currentPlaces.firstWhere(
-                    (p) => p.id == _highlightedPlaceId,
-                  );
-                  await _mapService.resetMarker(
-                    controller: _mapController!,
-                    place: prev,
-                  );
-                }
-
-                await _mapService.highlightMarker(
-                  controller: _mapController!,
-                  place: place,
-                );
-
-                setState(() {
-                  _highlightedPlaceId = place.id;
-                });
-
-                await _mapService.moveCamera(
-                  controller: _mapController!,
-                  target: NLatLng(place.lat, place.lng),
-                );
-              },
+              onTap: () => handlePlaceSelection(place.id),
+              screenWidth: screenWidth,
             );
           },
         ),
       ),
     );
+  }
+
+  /// 공통 로직 처리: 마커 및 카드 선택 처리
+  Future<void> handlePlaceSelection(String selectedPlaceId) async {
+    final previousPlaceId = _highlightedPlaceId; // ✅ 이전 강조된 ID 저장
+
+    // 1️⃣ UI 반응 빠르게: 먼저 선택된 카드 강조
+    setState(() {
+      _highlightedPlaceId = selectedPlaceId;
+    });
+
+    // 2️⃣ 이전 마커 비활성화
+    final prevPlace = _currentPlaces.firstWhereOrNull(
+      (p) => p.id == previousPlaceId,
+    );
+
+    if (prevPlace != null && previousPlaceId != selectedPlaceId) {
+      await _mapService.resetMarker(
+        controller: _mapController!,
+        place: prevPlace,
+        onTap: () => _onMarkerTapped(prevPlace.id),
+      );
+    }
+
+    // 3️⃣ 새 마커 강조
+    final newPlace = _currentPlaces.firstWhereOrNull(
+      (p) => p.id == selectedPlaceId,
+    );
+
+    if (newPlace != null) {
+      await _mapService.highlightMarker(
+        controller: _mapController!,
+        place: newPlace,
+        onTap: () => _onMarkerTapped(newPlace.id),
+      );
+
+      await _mapService.moveCamera(
+        controller: _mapController!,
+        target: NLatLng(newPlace.lat, newPlace.lng),
+      );
+    }
   }
 }
