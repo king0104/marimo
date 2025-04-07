@@ -268,7 +268,7 @@ Map<String, dynamic> _generateTestResults(File imageFile) {
   final treadDepth = 3.5 + randomFactor * 2.0; // 3.5~5.5 사이 값
 
   final condition = _determineTireCondition(treadDepth);
-  final wearPercentage = _calculateWearPercentage(treadDepth);
+  // final replacementGauge = _calculateReplacementGauge(treadDepth);
   final remainingLife = _calculateRemainingLife(treadDepth);
 
   print("📊 가상 결과 (트레드 깊이): ${treadDepth.toStringAsFixed(2)}mm");
@@ -276,8 +276,9 @@ Map<String, dynamic> _generateTestResults(File imageFile) {
   return {
     'treadDepth': treadDepth,
     'condition': condition,
-    'wearPercentage': wearPercentage,
+    // 'replacementGauge': replacementGauge,
     'remainingLife': remainingLife,
+    'analysis': null,
   };
 }
 
