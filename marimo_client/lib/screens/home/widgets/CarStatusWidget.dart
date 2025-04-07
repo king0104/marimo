@@ -12,6 +12,11 @@ class CarStatusWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final responses = context.watch<ObdPollingProvider>().responses;
     final data = parseObdResponses(responses);
+    print('📊 현재 상태 데이터:');
+    print('   distance: ${data.distanceSinceCodesCleared}');
+    print('   rpm: ${data.rpm}');
+    print('   maf: ${data.maf}');
+    print('   fuel: ${data.fuelLevel}');
 
     final lastPollingTime =
         context.watch<ObdPollingProvider>().lastSuccessfulPollingTime;

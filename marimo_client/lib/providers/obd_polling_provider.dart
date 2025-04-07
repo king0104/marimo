@@ -212,6 +212,7 @@ class ObdPollingProvider with ChangeNotifier {
       jsonMap.forEach((key, value) {
         _pidResponses[key] = value.toString();
       });
+      debugPrint('🟡 Provider 내부 상태: $_pidResponses');
       notifyListeners();
     }
 

@@ -203,13 +203,10 @@ class _CommonBottomNavigationBarState extends State<CommonBottomNavigationBar> {
                   height: 56.w,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors:
-                          isConnected
-                              ? [Colors.greenAccent, Colors.green]
-                              : [
-                                const Color(0xFF9DBFFF),
-                                const Color(0xFF4888FF),
-                              ],
+                      colors: [
+                        const Color(0xFF9DBFFF),
+                        const Color(0xFF4888FF),
+                      ],
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                     ),
@@ -235,8 +232,8 @@ class _CommonBottomNavigationBarState extends State<CommonBottomNavigationBar> {
                             )
                             : Image.asset(
                               isConnected
-                                  ? 'assets/images/icons/check.png'
-                                  : 'assets/images/icons/connect.png',
+                                  ? 'assets/images/icons/connect.png'
+                                  : 'assets/images/icons/connected.png',
                               width: 28.sp,
                               color: white,
                             ),
