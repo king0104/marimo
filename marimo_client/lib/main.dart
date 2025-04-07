@@ -45,6 +45,10 @@ void main() async {
     onAuthFailed: (ex) => print("네이버 지도 인증 오류: $ex"),
   );
 
+  // ✅ CarPaymentProvider 초기화 및 진단일 로드
+  final carPaymentProvider = CarPaymentProvider();
+  await carPaymentProvider.loadTireDiagnosisDate(); // ✅ 진단일 불러오기
+
   // 전역 시스템 UI 스타일 설정
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(

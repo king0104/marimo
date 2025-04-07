@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:marimo_client/screens/tirediagnosis/TireDiagnosisScreen.dart';
 import 'package:marimo_client/providers/obd_polling_provider.dart';
 import 'package:marimo_client/utils/obd_response_parser.dart';
+import 'package:marimo_client/providers/car_payment_provider.dart';
 
 class TireDiagnosisButton extends StatelessWidget {
   const TireDiagnosisButton({super.key});
@@ -13,12 +14,37 @@ class TireDiagnosisButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final responses = context.watch<ObdPollingProvider>().responses;
     final parsed = parseObdResponses(responses);
-    final distance = parsed.distanceSinceCodesCleared;
+    // final distance = parsed.distanceSinceCodesCleared;
 
-    final formattedDistance =
-        distance != null
-            ? NumberFormat.decimalPattern().format(distance)
-            : "--";
+    // final formattedDistance =
+    //     distance != null
+    //         ? NumberFormat.decimalPattern().format(distance)
+    //         : "--";
+
+    final diagnosisDate = context.watch<CarPaymentProvider>().tireDiagnosisDate;
+    final daysSinceDiagnosis =
+        diagnosisDate != null
+            ? DateTime.now().difference(diagnosisDate).inDays
+            : null;
+
+    final diagnosisText =
+        diagnosisDate != null
+            ? (() {
+              final now = DateTime.now();
+              final duration = now.difference(diagnosisDate);
+
+              if (duration.inMinutes < 1) {
+                return "방금 전 분석했어요";
+              } else if (duration.inMinutes < 60) {
+                return "마지막 마모도 분석 후 ${duration.inMinutes}분 지남";
+              } else if (duration.inHours < 24) {
+                return "마지막 마모도 분석 후 ${duration.inHours}시간 지남";
+              } else {
+                final days = duration.inHours ~/ 24;
+                return "마지막 마모도 분석 후 ${days}일 지남";
+              }
+            })()
+            : "아직 타이어 마모도 분석 이력이 없습니다";
 
     return SizedBox(
       width: double.infinity,
@@ -56,7 +82,7 @@ class TireDiagnosisButton extends StatelessWidget {
               SizedBox(width: 7.w),
               Expanded(
                 child: Text(
-                  "마지막 점검 후 $formattedDistance km 주행",
+                  diagnosisText,
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w500,

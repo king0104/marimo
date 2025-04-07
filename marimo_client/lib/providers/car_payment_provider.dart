@@ -1,6 +1,7 @@
 // car_payment_provider.dart
 import 'package:flutter/material.dart';
 import 'package:marimo_client/models/payment/car_payment_entry.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CarPaymentProvider with ChangeNotifier {
   final List<CarPaymentEntry> _entries = [];
@@ -245,5 +246,26 @@ class CarPaymentProvider with ChangeNotifier {
     _selectedDate = DateTime.now();
     _selectedRepairItems = [];
     notifyListeners();
+  }
+
+  // ✅ 진단 일자 상태 추가
+  DateTime? _tireDiagnosisDate;
+  DateTime? get tireDiagnosisDate => _tireDiagnosisDate;
+
+  void setTireDiagnosisDate(DateTime date) async {
+    _tireDiagnosisDate = date;
+    notifyListeners();
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('tireDiagnosisDate', date.toIso8601String()); // ✅ 저장
+  }
+
+  Future<void> loadTireDiagnosisDate() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getString('tireDiagnosisDate');
+    if (saved != null) {
+      _tireDiagnosisDate = DateTime.tryParse(saved);
+      notifyListeners();
+    }
   }
 }
