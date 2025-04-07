@@ -15,7 +15,6 @@ class MyPageHeader extends StatelessWidget {
     final carNickname = carProvider.cars.isNotEmpty 
         ? carProvider.cars.first.nickname ?? '차량 없음'
         : '차량 없음';
-    
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,7 +46,7 @@ class MyPageHeader extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4.r),
                   ),
                   child: Text(
-                    '오너 김두철',
+                    '오너 ${authProvider.userName ?? '사용자'}',
                     style: TextStyle(
                       fontSize: 16.sp,
                       color: const Color(0xFF4888FF),
@@ -56,32 +55,32 @@ class MyPageHeader extends StatelessWidget {
                 ),
               ],
             ),
-            Padding(
-              padding: EdgeInsets.only(top: 4.h),
-              child: TextButton(
-                onPressed: () {},
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 20.w),
-                  minimumSize: Size(50.w, 20.h),
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  backgroundColor: Colors.white,
-                  side: BorderSide(
-                    color: Colors.black.withOpacity(0.2),
-                    width: 1,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                ),
-                child: Text(
-                  '정보 변경',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-            ),
+            // Padding(
+            //   padding: EdgeInsets.only(top: 4.h),
+            //   child: TextButton(
+            //     onPressed: () {},
+            //     style: TextButton.styleFrom(
+            //       padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 20.w),
+            //       minimumSize: Size(50.w, 20.h),
+            //       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            //       backgroundColor: Colors.white,
+            //       side: BorderSide(
+            //         color: Colors.black.withOpacity(0.2),
+            //         width: 1,
+            //       ),
+            //       shape: RoundedRectangleBorder(
+            //         borderRadius: BorderRadius.circular(8.r),
+            //       ),
+            //     ),
+            //     child: Text(
+            //       '정보 변경',
+            //       style: TextStyle(
+            //         fontSize: 14.sp,
+            //         color: Colors.black,
+            //       ),
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ],
