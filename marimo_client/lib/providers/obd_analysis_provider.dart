@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:marimo_client/models/obd_data_model.dart';
+import 'package:marimo_client/utils/warning_storage.dart';
 
 class ObdAnalysisItem {
   final IconData icon;
@@ -19,7 +20,7 @@ class ObdAnalysisProvider with ChangeNotifier {
   List<ObdAnalysisItem> _statusItems = [];
   List<ObdAnalysisItem> get statusItems => _statusItems;
 
-  void analyze(ObdDataModel d) {
+  Future<void> analyze(ObdDataModel d) async {
     final items = <ObdAnalysisItem>[];
 
     // 1. 공기 유량
@@ -44,6 +45,14 @@ class ObdAnalysisProvider with ChangeNotifier {
         }
       }
 
+      if (status == "주의") {
+        await WarningStorage.saveWarning({
+          "title": title,
+          "description": description,
+          "status": status,
+        });
+      }
+
       items.add(
         ObdAnalysisItem(
           icon: Icons.air,
@@ -51,6 +60,13 @@ class ObdAnalysisProvider with ChangeNotifier {
           description: description,
           status: status,
         ),
+      );
+
+      (
+        icon: Icons.cloud,
+        title: title,
+        description: description,
+        status: status,
       );
     }
 
@@ -67,6 +83,14 @@ class ObdAnalysisProvider with ChangeNotifier {
         status = "주의";
         title = "연료 분사량이 비정상적이에요";
         description = "STFT/LTFT 값이 ±20%를 초과하고 있습니다.";
+      }
+
+      if (status == "주의") {
+        await WarningStorage.saveWarning({
+          "title": title,
+          "description": description,
+          "status": status,
+        });
       }
 
       items.add(
@@ -91,6 +115,14 @@ class ObdAnalysisProvider with ChangeNotifier {
         title = "스로틀을 밟았는데 반응이 느려요";
         description =
             "스로틀 ${d.throttlePosition!.toStringAsFixed(1)}%인데 RPM ${d.rpm!.toStringAsFixed(0)}";
+      }
+
+      if (status == "주의") {
+        await WarningStorage.saveWarning({
+          "title": title,
+          "description": description,
+          "status": status,
+        });
       }
 
       items.add(
@@ -119,6 +151,14 @@ class ObdAnalysisProvider with ChangeNotifier {
             "전압 ${d.o2SensorVoltage!.toStringAsFixed(2)}V로 정상 범위 이탈 (0.1~0.9V)";
       }
 
+      if (status == "주의") {
+        await WarningStorage.saveWarning({
+          "title": title,
+          "description": description,
+          "status": status,
+        });
+      }
+
       items.add(
         ObdAnalysisItem(
           icon: Icons.sensors,
@@ -140,6 +180,14 @@ class ObdAnalysisProvider with ChangeNotifier {
         title = "NOx 배출이 높아요";
         description =
             "NOx 센서 ${d.noxSensor!.toStringAsFixed(0)} ppm (기준 200ppm 초과)";
+      }
+
+      if (status == "주의") {
+        await WarningStorage.saveWarning({
+          "title": title,
+          "description": description,
+          "status": status,
+        });
       }
 
       items.add(
@@ -177,6 +225,14 @@ class ObdAnalysisProvider with ChangeNotifier {
         description = "정확한 연비를 계산할 수 없어요. 추정값 기준으로 분석됩니다.";
       }
 
+      if (status == "주의") {
+        await WarningStorage.saveWarning({
+          "title": title,
+          "description": description,
+          "status": status,
+        });
+      }
+
       items.add(
         ObdAnalysisItem(
           icon: Icons.local_offer,
@@ -198,6 +254,14 @@ class ObdAnalysisProvider with ChangeNotifier {
         status = "주의";
         title = "연료 잔량이 낮아요";
         description += "\n연료가 거의 없습니다. 가까운 주유소를 찾아주세요.";
+      }
+
+      if (status == "주의") {
+        await WarningStorage.saveWarning({
+          "title": title,
+          "description": description,
+          "status": status,
+        });
       }
 
       items.add(
@@ -222,6 +286,14 @@ class ObdAnalysisProvider with ChangeNotifier {
         status = "주의";
         title = "흡기 흐름에 문제가 있을 수 있어요";
         description += "\n흡기 압력과 대기압이 거의 같아, 공기 유입 경로에 문제가 있는지 점검이 필요해요.";
+      }
+
+      if (status == "주의") {
+        await WarningStorage.saveWarning({
+          "title": title,
+          "description": description,
+          "status": status,
+        });
       }
 
       items.add(
@@ -251,6 +323,14 @@ class ObdAnalysisProvider with ChangeNotifier {
         description += "\n전압이 14.7V를 초과하여, 알터네이터 과출력 또는 레귤레이터 이상 가능성이 있어요.";
       }
 
+      if (status == "주의") {
+        await WarningStorage.saveWarning({
+          "title": title,
+          "description": description,
+          "status": status,
+        });
+      }
+
       items.add(
         ObdAnalysisItem(
           icon: Icons.battery_full,
@@ -271,6 +351,14 @@ class ObdAnalysisProvider with ChangeNotifier {
         status = "주의";
         title = "예열 없이 급가속 중이에요";
         description += "\n엔진이 충분히 데워지지 않은 상태에서 가속 중입니다. 엔진 마모 위험이 있어요.";
+      }
+
+      if (status == "주의") {
+        await WarningStorage.saveWarning({
+          "title": title,
+          "description": description,
+          "status": status,
+        });
       }
 
       items.add(
@@ -297,6 +385,14 @@ class ObdAnalysisProvider with ChangeNotifier {
         status = "주의";
         title = "DPF 막힘이 의심돼요";
         description += "\nDPF 내부 압력이 높습니다. 재생 실패나 막힘 가능성이 있어요.";
+      }
+
+      if (status == "주의") {
+        await WarningStorage.saveWarning({
+          "title": title,
+          "description": description,
+          "status": status,
+        });
       }
 
       items.add(

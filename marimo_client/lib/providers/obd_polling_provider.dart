@@ -21,6 +21,7 @@ class ObdPollingProvider with ChangeNotifier {
 
   bool isRunning = false;
   bool isConnected = false;
+  bool _isPollingInProgress = false;
 
   Completer<String>? _commandCompleter;
   StringBuffer? _responseBuffer;
@@ -90,24 +91,34 @@ class ObdPollingProvider with ChangeNotifier {
   }
 
   void _pollPids(BuildContext context) async {
-    while (isRunning && isConnected) {
-      for (final pid in _pollingPids) {
-        if (!isRunning || !isConnected) break;
+    if (_isPollingInProgress) {
+      debugPrint('⚠️ 이미 polling 중이므로 중복 실행 방지');
+      return;
+    }
+    _isPollingInProgress = true;
 
-        try {
-          final response = await _sendCommand('01$pid');
-          _pidResponses['01$pid'] = response;
-          await _saveResponsesToLocal();
-        } catch (_) {
-          _pidResponses['01$pid'] = 'NO RESPONSE';
+    try {
+      while (isRunning && isConnected) {
+        for (final pid in _pollingPids) {
+          if (!isRunning || !isConnected) break;
+
+          try {
+            final response = await _sendCommand('01$pid');
+            _pidResponses['01$pid'] = response;
+            await _saveResponsesToLocal();
+          } catch (_) {
+            _pidResponses['01$pid'] = 'NO RESPONSE';
+          }
+          notifyListeners();
+          await Future.delayed(const Duration(milliseconds: 120));
         }
-        notifyListeners();
-        await Future.delayed(const Duration(milliseconds: 120));
-      }
 
-      // ✅ 모든 PID 순회 후 서버 전송
-      await sendObdDataToServer(context); // ⬅️ context 사용
-      lastSuccessfulPollingTime = DateTime.now();
+        await sendObdDataToServer(context);
+        lastSuccessfulPollingTime = DateTime.now();
+        await _saveResponsesToLocal(); // ⬅️ 여기서만 마지막 시각 저장
+      }
+    } finally {
+      _isPollingInProgress = false;
     }
   }
 
@@ -212,22 +223,10 @@ class ObdPollingProvider with ChangeNotifier {
       jsonMap.forEach((key, value) {
         _pidResponses[key] = value.toString();
       });
+      debugPrint('🟡 Provider 내부 상태: $_pidResponses');
       notifyListeners();
     }
 
-    // // ######################################################################
-    // // 지울 것
-    // lastSuccessfulPollingTime = DateTime.now();
-    // if (lastSuccessfulPollingTime != null) {
-    //   await prefs.setString(
-    //     'last_polling_time',
-    //     lastSuccessfulPollingTime!.toIso8601String(),
-    //   );
-    //   debugPrint('⏱️ 마지막 순회 시각 저장됨: $lastSuccessfulPollingTime');
-    // }
-    // // ######################################################################
-
-    // ✅ 마지막 순회 시각 불러오기
     final savedTime = prefs.getString('last_polling_time');
     if (savedTime != null) {
       lastSuccessfulPollingTime = DateTime.tryParse(savedTime);
@@ -281,6 +280,7 @@ class ObdPollingProvider with ChangeNotifier {
 
     final result = dtcCodes.toList();
     debugPrint('✅ 최종 DTC 코드 목록 (중복 제거): $result');
+    await saveDtcCodesToLocal(result);
     return result;
   }
 
@@ -342,5 +342,18 @@ class ObdPollingProvider with ChangeNotifier {
   String get formattedLastPollingTime {
     if (lastSuccessfulPollingTime == null) return '없음';
     return '${lastSuccessfulPollingTime!.toLocal()}';
+  }
+
+  Future<void> saveDtcCodesToLocal(List<String> codes) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('stored_dtc_codes', codes);
+    debugPrint('✅ DTC 코드 저장됨: $codes');
+  }
+
+  Future<List<String>> loadDtcCodesFromLocal() async {
+    final prefs = await SharedPreferences.getInstance();
+    final codes = prefs.getStringList('stored_dtc_codes') ?? [];
+    debugPrint('📥 로컬에서 불러온 DTC 코드: $codes');
+    return codes;
   }
 }

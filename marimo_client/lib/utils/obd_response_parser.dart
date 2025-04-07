@@ -3,7 +3,7 @@ import 'package:marimo_client/models/obd_data_model.dart';
 /// OBD 응답 값을 파싱하여 ObdDataModel로 반환
 ObdDataModel parseObdResponses(Map<String, String> responses) {
   double? parseHexToDouble(String pid, double Function(List<int>) parser) {
-    final raw = responses['01$pid'];
+    final raw = responses['01$pid'] ?? responses[pid];
     if (raw == null || raw.contains('NO DATA')) return null;
 
     try {
@@ -28,7 +28,7 @@ ObdDataModel parseObdResponses(Map<String, String> responses) {
   }
 
   int? parseHexToInt(String pid, int Function(List<int>) parser) {
-    final raw = responses['01$pid'];
+    final raw = responses['01$pid'] ?? responses[pid];
     if (raw == null || raw.contains('NO DATA')) return null;
 
     try {
@@ -54,7 +54,7 @@ ObdDataModel parseObdResponses(Map<String, String> responses) {
   }
 
   String? parseFuelType(String pid) {
-    final raw = responses['01$pid'];
+    final raw = responses['01$pid'] ?? responses[pid];
     if (raw == null || raw.contains('NO DATA')) return null;
 
     try {
@@ -88,7 +88,7 @@ ObdDataModel parseObdResponses(Map<String, String> responses) {
   }
 
   String? parseScrStatus(String pid) {
-    final raw = responses['01$pid'];
+    final raw = responses['01$pid'] ?? responses[pid];
     if (raw == null || raw.contains('NO DATA')) return null;
 
     try {

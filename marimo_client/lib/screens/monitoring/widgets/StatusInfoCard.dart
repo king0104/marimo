@@ -55,7 +55,7 @@ class StatusInfoCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w500,
-                    color: brandColor,
+                    color: status.contains('주의') ? pointRedColor : brandColor,
                   ),
                 ),
                 SizedBox(height: 4.h),

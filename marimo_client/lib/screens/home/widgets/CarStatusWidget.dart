@@ -1,6 +1,7 @@
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:marimo_client/models/obd_data_model.dart';
 import 'package:provider/provider.dart';
 import 'package:marimo_client/providers/obd_polling_provider.dart';
 import 'package:marimo_client/utils/obd_response_parser.dart';
@@ -12,6 +13,11 @@ class CarStatusWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final responses = context.watch<ObdPollingProvider>().responses;
     final data = parseObdResponses(responses);
+    print('📊 현재 상태 데이터:');
+    print('   distance: ${data.distanceSinceCodesCleared}');
+    print('   rpm: ${data.rpm}');
+    print('   maf: ${data.maf}');
+    print('   fuel: ${data.fuelLevel}');
 
     final lastPollingTime =
         context.watch<ObdPollingProvider>().lastSuccessfulPollingTime;
@@ -35,12 +41,15 @@ class CarStatusWidget extends StatelessWidget {
       },
       {
         'icon': 'icon_car.png',
-        'label': '마력',
+        'label': 'ECU 배터리 전압',
         'value':
-            (data.rpm != null && data.maf != null)
-                ? ((data.maf! * data.rpm!) / 5652).toStringAsFixed(1)
-                : '--',
-        'unit': 'HP',
+            data.controlModuleVoltage != null
+                ? NumberFormat(
+                  "##0.0",
+                  "en_US",
+                ).format(data.controlModuleVoltage)
+                : NumberFormat("##0.0", "en_US").format(data.batteryVoltage),
+        'unit': 'V',
       },
 
       {
@@ -204,5 +213,21 @@ class CarStatusWidget extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String evaluateEngineStatus(ObdDataModel data) {
+    final rpm = data.rpm ?? 0;
+    final temp = data.coolantTemp ?? 0;
+    final load = data.engineLoad ?? 0;
+
+    if (rpm < 600) {
+      return '정상 (공회전)'; // 시동만 켜진 상태
+    } else if (temp > 100 || load > 90) {
+      return '주의: 과열 또는 고부하';
+    } else if (rpm > 4000) {
+      return '주의: 고회전 상태';
+    } else {
+      return '엔진 정상';
+    }
   }
 }
