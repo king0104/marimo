@@ -99,21 +99,27 @@ class _TireCameraGuideState extends State<TireCameraGuide> {
           const double baseGuideTop = 100.0;
           const double baseGuidePadding = 30.0;
           const double baseTextMarginFromGuide = 52.0; // 152 - 100
-          const double baseIconMarginFromGuide = 32.0; // 하단 여백
-          const double baseButtonMarginFromGuide = 106.0; // 대략 버튼까지 여백
+          const double baseIconMarginFromGuide = 35.0; // 하단 여백
+          const double baseButtonMarginFromGuide = 120.0; // 대략 버튼까지 여백
+          // 여기에 따로 추가할 오프셋 정의 (예: 20px 아래로)
+          const double guideOffset = 10.0;
 
           // 헤더 높이 비율에 맞춰 제외 (예: 45 / 603 ≈ 0.0746)
           final double headerOffset = screenHeight * (45 / baseHeight);
           final double cameraHeight = screenHeight - headerOffset;
 
           // 2. 비율 계산
-          final double guideTop = screenHeight * (baseGuideTop / baseHeight);
+          // 가이드 박스는 offset 반영해서 아래로 내림
+          final double guideTop =
+              screenHeight * ((baseGuideTop + guideOffset) / baseHeight);
           final double guidePadding = baseGuidePadding.w;
           final double guideWidth = screenWidth - (guidePadding * 2);
           final double guideHeight = guideWidth;
 
+          // final double topTextTop = guideTop - screenHeight * (35 / baseHeight);
+          // 텍스트는 원래 자리 그대로!
           final double topTextTop =
-              guideTop - screenHeight * (baseTextMarginFromGuide / baseHeight);
+              screenHeight * ((baseGuideTop - 35) / baseHeight);
 
           // 가이드 박스 아래 여백 계산 (전체 화면 기준)
           final double guideBottom = guideTop + guideHeight;
@@ -123,10 +129,10 @@ class _TireCameraGuideState extends State<TireCameraGuide> {
           final double captureButtonMarginFromBottom =
               guideBottomSpace * (30 / 203); // ← 아래 여백 30 유지하려면 이걸로
           final double iconMarginFromGuide =
-              guideBottomSpace * (32 / 203); // 아이콘은 위 기준
+              guideBottomSpace * (35 / 203); // 아이콘은 위 기준
 
           final double buttonMarginFromGuide =
-              cameraHeight * (106.0 / baseHeight); // 106은 기준값
+              cameraHeight * (120.0 / baseHeight); // 106은 기준값
           final double distanceIconTop = guideBottom + iconMarginFromGuide;
           final double eyeIconTop = distanceIconTop;
           final double captureButtonTop = guideBottom + buttonMarginFromGuide;
@@ -268,7 +274,7 @@ class _TireCameraGuideState extends State<TireCameraGuide> {
 
     if (assetPath.contains('icon_distance')) {
       width = 28.w;
-      height = 14.h;
+      height = 18.h;
     } else if (assetPath.contains('icon_eye')) {
       width = 21.w;
       height = 18.h;
