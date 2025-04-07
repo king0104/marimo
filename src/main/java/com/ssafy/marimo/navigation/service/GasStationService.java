@@ -32,7 +32,6 @@ public class GasStationService {
 
     private final GasStationRepository gasStationRepository;
     private final MemberCardRepository memberCardRepository;
-    private final FintechApiClient fintechApiClient;
     private final CardBenefitRepository cardBenefitRepository;
     private final CardBenefitDetailRepository cardBenefitDetailRepository;
     private final CardTransactionService cardTransactionService;
