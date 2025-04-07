@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:marimo_client/providers/navigation_provider.dart';
 import 'package:marimo_client/screens/monitoring/widgets/WebviewScreen.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 import 'package:marimo_client/theme.dart';
 import 'package:marimo_client/utils/text_utils.dart';
 import 'package:provider/provider.dart';
@@ -127,7 +126,7 @@ class AIDescModal extends StatelessWidget {
                       onPressed: () {
                         final query = Uri.encodeComponent('$title 자동차 부품 가격비교');
                         final url =
-                            'https://search.shopping.naver.com/search/all?query=$query';
+                            'https://msearch.shopping.naver.com/search/all?query=$query';
 
                         Navigator.of(context).push(
                           MaterialPageRoute(
