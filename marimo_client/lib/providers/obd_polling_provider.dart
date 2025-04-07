@@ -21,6 +21,7 @@ class ObdPollingProvider with ChangeNotifier {
 
   bool isRunning = false;
   bool isConnected = false;
+  bool _isPollingInProgress = false;
 
   Completer<String>? _commandCompleter;
   StringBuffer? _responseBuffer;
@@ -90,24 +91,34 @@ class ObdPollingProvider with ChangeNotifier {
   }
 
   void _pollPids(BuildContext context) async {
-    while (isRunning && isConnected) {
-      for (final pid in _pollingPids) {
-        if (!isRunning || !isConnected) break;
+    if (_isPollingInProgress) {
+      debugPrint('⚠️ 이미 polling 중이므로 중복 실행 방지');
+      return;
+    }
+    _isPollingInProgress = true;
 
-        try {
-          final response = await _sendCommand('01$pid');
-          _pidResponses['01$pid'] = response;
-          await _saveResponsesToLocal();
-        } catch (_) {
-          _pidResponses['01$pid'] = 'NO RESPONSE';
+    try {
+      while (isRunning && isConnected) {
+        for (final pid in _pollingPids) {
+          if (!isRunning || !isConnected) break;
+
+          try {
+            final response = await _sendCommand('01$pid');
+            _pidResponses['01$pid'] = response;
+            await _saveResponsesToLocal();
+          } catch (_) {
+            _pidResponses['01$pid'] = 'NO RESPONSE';
+          }
+          notifyListeners();
+          await Future.delayed(const Duration(milliseconds: 120));
         }
-        notifyListeners();
-        await Future.delayed(const Duration(milliseconds: 120));
-      }
 
-      // ✅ 모든 PID 순회 후 서버 전송
-      await sendObdDataToServer(context); // ⬅️ context 사용
-      lastSuccessfulPollingTime = DateTime.now();
+        await sendObdDataToServer(context);
+        lastSuccessfulPollingTime = DateTime.now();
+        await _saveResponsesToLocal(); // ⬅️ 여기서만 마지막 시각 저장
+      }
+    } finally {
+      _isPollingInProgress = false;
     }
   }
 
