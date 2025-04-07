@@ -50,7 +50,7 @@ public class GasStationService {
         // ✅ 검색 반경 처리: null → 5km, 0 → 전국
         Integer radiusKm = req.radius();
         boolean isNationwide = radiusKm != null && radiusKm == 0;
-        int radiusMeter = isNationwide ? Integer.MAX_VALUE : (radiusKm != null ? radiusKm * 1000 : 5000);
+        int radiusMeter = isNationwide ? Integer.MAX_VALUE : (radiusKm != null ? radiusKm * 1000 : 3000);
 
         // ✅ JPA로 필터링 먼저 적용
         List<GasStation> filteredStations = gasStationRepository.findFilteredStations(
@@ -86,12 +86,16 @@ public class GasStationService {
             }
         }
 
-        return filteredStations.stream()
+        List<PostGasStationRecommendResponse> candidates = filteredStations.stream()
                 .filter(s -> isValidOilType(req.oilType(), s))
                 .map(s -> toRecommendResponse(s, req, radiusMeter, isOilCardRegistered, isOilCardMonthlyRequirementSatisfied, memberCard))
                 .filter(Objects::nonNull)
                 .sorted(Comparator.comparing(PostGasStationRecommendResponse::distance))
-                .limit(3)
+                .limit(5) // 가장 가까운 5개 먼저 뽑고
+                .toList();
+
+        return candidates.stream()
+                .sorted(Comparator.comparing(PostGasStationRecommendResponse::discountedPrice)) // 그중 가격 낮은 순
                 .toList();
     }
 
