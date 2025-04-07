@@ -44,7 +44,7 @@ class TireDiagnosisButton extends StatelessWidget {
                 return "마지막 마모도 분석 후 ${days}일 지남";
               }
             })()
-            : "아직 타이어 마모도 분석 이력이 없습니다";
+            : "아직 타이어 진단 이력이 없습니다";
 
     return SizedBox(
       width: double.infinity,
