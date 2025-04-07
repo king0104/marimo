@@ -88,23 +88,88 @@ class TireTestPage extends StatelessWidget {
                       ),
                       SizedBox(height: 16.h),
 
-                      // 트레드 깊이
                       _buildResultRow(
                         '트레드 깊이:',
                         '${result['treadDepth'].toStringAsFixed(2)} mm',
                       ),
 
-                      Divider(height: 24.h),
+                      SizedBox(height: 24.h),
 
-                      // 마모율
-                      _buildResultRow(
-                        '마모율:',
-                        '${result['wearPercentage'].toStringAsFixed(1)}%',
+                      _buildResultRow('교체 시기:', ''),
+
+                      SizedBox(height: 24.h),
+
+                      // 트레드 깊이에 따른 문구
+                      Text(
+                        () {
+                          final depth = result['treadDepth'];
+                          if (depth <= 1.6) {
+                            return '❗ 타이어 트레드의 법적 최저 한계선보다 마모되었습니다.\n당장 타이어 교체가 필요합니다.';
+                          } else if (depth <= 3.0) {
+                            return '⚠️ 트레드 깊이가 1.6mm ~ 3.0mm 사이입니다.\n타이어 교체를 권장합니다.';
+                          } else {
+                            return '✅ 아직 타이어 교체 시기가 아닙니다.';
+                          }
+                        }(),
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: () {
+                            final depth = result['treadDepth'];
+                            if (depth <= 1.6) return Colors.red;
+                            if (depth <= 3.0) return Colors.orange;
+                            return Colors.green;
+                          }(),
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
 
-                      Divider(height: 24.h),
+                      SizedBox(height: 12.h),
 
-                      // 잔여 수명
+                      Text(
+                        '트레드 깊이 게이지 (0~8mm)',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: Colors.grey[700],
+                        ),
+                      ),
+
+                      SizedBox(height: 8.h),
+
+                      Stack(
+                        children: [
+                          Container(
+                            width: double.infinity,
+                            height: 24.h,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              color: Colors.grey[200],
+                            ),
+                          ),
+                          Positioned(
+                            left: (1.6 / 8.0) * contentWidth,
+                            width: ((3.0 - 1.6) / 8.0) * contentWidth,
+                            top: 0,
+                            bottom: 0,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.amber.withOpacity(0.6),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            left:
+                                (result['treadDepth'] / 8.0) * contentWidth -
+                                1.5,
+                            top: 0,
+                            bottom: 0,
+                            child: Container(width: 3, color: Colors.black),
+                          ),
+                        ],
+                      ),
+
+                      SizedBox(height: 24.h),
+
                       _buildResultRow(
                         '잔여 수명:',
                         '${result['remainingLife'].toStringAsFixed(1)}%',
@@ -112,7 +177,6 @@ class TireTestPage extends StatelessWidget {
 
                       SizedBox(height: 20.h),
 
-                      // 시각적 표시기
                       Text(
                         '잔여 수명 그래프',
                         style: TextStyle(
@@ -120,7 +184,9 @@ class TireTestPage extends StatelessWidget {
                           color: Colors.grey[700],
                         ),
                       ),
+
                       SizedBox(height: 8.h),
+
                       Container(
                         width: double.infinity,
                         height: 24.h,
