@@ -43,7 +43,7 @@ spring:
   data:
     redis:
       host: ${REDIS_HOST}
-      port: ${REDIS_POST}
+      port: ${REDIS_PORT}
 
   cache:
     type: redis

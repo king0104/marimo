@@ -157,7 +157,9 @@ public class GasStationService {
                 discountedPrice,
                 discountAmount,
                 distance,
-                req.oilType() != null ? req.oilType() : "일반 휘발유"
+                req.oilType() != null ? req.oilType() : "일반 휘발유",
+                isOilCardRegistered,
+                isOilCardMonthlyRequirementSatisfied
         );
     }
 
