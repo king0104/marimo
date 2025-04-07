@@ -33,7 +33,6 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadDtcCodes();
       _analyzeObdData();
-      // saveTestDtcCodesOnce();
     });
   }
 
@@ -45,65 +44,27 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
 
   Future<void> _loadDtcCodes() async {
     final provider = context.read<ObdPollingProvider>();
-
     try {
       await Future.delayed(const Duration(seconds: 1));
-
-      List<String> fetchedCodes;
-
-      if (provider.isConnected) {
-        // OBD 연결되어 있으면 OBD에서 가져옴
-        fetchedCodes = await provider.fetchStoredDtcCodes();
-        debugPrint('📥 OBD에서 받아온 DTC 목록: $fetchedCodes');
-      } else {
-        // OBD 연결 안 되어 있으면 SharedPreferences에서 로드
-        fetchedCodes = await provider.loadDtcCodesFromLocal();
-        debugPrint('📂 로컬 저장된 DTC 목록 로딩됨: $fetchedCodes');
-      }
-
-      setState(() {
-        dtcCodes = fetchedCodes;
-      });
+      List<String> fetchedCodes =
+          provider.isConnected
+              ? await provider.fetchStoredDtcCodes()
+              : await provider.loadDtcCodesFromLocal();
+      setState(() => dtcCodes = fetchedCodes);
     } catch (e) {
       debugPrint('❌ DTC 코드 로딩 실패: $e');
     }
   }
 
-  // // Obd2InfoList.dart
-  // Future<void> saveTestDtcCodesOnce() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   const key = 'stored_dtc_codes'; // ✅ 이 키로 저장
-  //   final testDtcCodes = [
-  //     'P007E',
-  //     'B0024',
-  //     'P3007',
-  //     'U2902',
-  //     'C0300',
-  //     'C3EA0',
-  //     'P2430',
-  //     'P07EB',
-  //     'P0243',
-  //   ];
-  //   await prefs.setStringList(key, testDtcCodes);
-  //   debugPrint('✅ 테스트 DTC 코드 저장 완료: $testDtcCodes');
-  // }
-
   @override
   Widget build(BuildContext context) {
-    final responses = context.watch<ObdPollingProvider>().responses;
-    final data = parseObdResponses(responses);
-
     final statusItems = context.watch<ObdAnalysisProvider>().statusItems;
-
     final isDtcEmpty = showDtcInfo && dtcCodes.isEmpty;
 
-    return // 추가할 상태 변수
-    Listener(
+    return Listener(
       behavior: HitTestBehavior.translucent,
       onPointerMove: (event) {
-        // 리스트 스크롤 중에는 이벤트 무시
         if (isListScrolling) return;
-
         if (event.delta.dy < -5 && !isExpanded) {
           setState(() => isExpanded = true);
           widget.onToggleWidgets?.call();
@@ -116,10 +77,7 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
         padding: EdgeInsets.fromLTRB(12.w, 12.h, 12.w, 80.h),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(8.r),
-            topRight: Radius.circular(8.r),
-          ),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(8.r)),
           border: Border.all(color: const Color(0xFFD7D7D7), width: 0.2),
           boxShadow: [
             BoxShadow(
@@ -137,8 +95,7 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
                 setState(() => isExpanded = !isExpanded);
                 widget.onToggleWidgets?.call();
               },
-              child: Container(
-                color: Colors.transparent,
+              child: Padding(
                 padding: EdgeInsets.only(bottom: 12.h),
                 child: Center(
                   child: Container(
@@ -164,14 +121,13 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
                   ),
                 ),
                 GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const Obd2DetailScreen(),
+                  onTap:
+                      () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const Obd2DetailScreen(),
+                        ),
                       ),
-                    );
-                  },
                   child: Padding(
                     padding: EdgeInsets.symmetric(
                       vertical: 4.h,
@@ -198,40 +154,45 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
                   } else if (notification is ScrollEndNotification) {
                     setState(() => isListScrolling = false);
                   }
-                  return true; // 이벤트 전파 방지
+                  return true;
                 },
-                child: GestureDetector(
-                  onVerticalDragUpdate: (_) {},
-                  child:
-                      isDtcEmpty
-                          ? _buildNoDtcWidget()
-                          : ListView.builder(
-                            padding: EdgeInsets.only(bottom: 32.h),
-                            itemCount:
-                                showDtcInfo
-                                    ? dtcCodes.length
-                                    : statusItems.length,
-                            itemBuilder:
-                                (context, index) => Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 4.h),
-                                  child:
-                                      showDtcInfo
-                                          ? _buildDtcCard(index)
-                                          : StatusInfoCard(
-                                            icon: statusItems[index].icon,
-                                            title: statusItems[index].title,
-                                            description:
-                                                statusItems[index].description,
-                                            status: statusItems[index].status,
-                                          ),
+                child: ListView.builder(
+                  padding: EdgeInsets.only(bottom: 32.h),
+                  primary: false,
+                  physics: const ClampingScrollPhysics(),
+                  itemCount: showDtcInfo ? dtcCodes.length : statusItems.length,
+                  itemBuilder:
+                      (context, index) => Padding(
+                        padding: EdgeInsets.symmetric(vertical: 4.h),
+                        child:
+                            showDtcInfo
+                                ? _buildDtcCard(index)
+                                : StatusInfoCard(
+                                  icon: statusItems[index].icon,
+                                  title: statusItems[index].title,
+                                  description: statusItems[index].description,
+                                  status: statusItems[index].status,
                                 ),
-                          ),
+                      ),
                 ),
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildDtcCard(int index) {
+    final code = dtcCodes[index];
+    final desc = dtcDescriptions[code] ?? "알 수 없는 고장 코드";
+    return DtcInfoCard(
+      code: code,
+      description: desc,
+      isSelected: selectedIndex == index,
+      onTap: () {
+        setState(() => selectedIndex = selectedIndex == index ? null : index);
+      },
     );
   }
 
@@ -315,21 +276,6 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildDtcCard(int index) {
-    final code = dtcCodes[index];
-    final desc = dtcDescriptions[code] ?? "알 수 없는 고장 코드";
-    return DtcInfoCard(
-      code: code,
-      description: desc,
-      isSelected: selectedIndex == index,
-      onTap: () {
-        setState(() {
-          selectedIndex = selectedIndex == index ? null : index;
-        });
-      },
     );
   }
 }
