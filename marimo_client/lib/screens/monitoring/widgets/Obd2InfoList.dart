@@ -31,7 +31,14 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadDtcCodes();
+      _analyzeObdData();
     });
+  }
+
+  void _analyzeObdData() {
+    final responses = context.read<ObdPollingProvider>().responses;
+    final data = parseObdResponses(responses);
+    context.read<ObdAnalysisProvider>().analyze(data);
   }
 
   Future<void> _loadDtcCodes() async {
@@ -54,8 +61,6 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
     final responses = context.watch<ObdPollingProvider>().responses;
     final data = parseObdResponses(responses);
 
-    final analysisProvider = context.read<ObdAnalysisProvider>();
-    analysisProvider.analyze(data);
     final statusItems = context.watch<ObdAnalysisProvider>().statusItems;
 
     final isDtcEmpty = showDtcInfo && dtcCodes.isEmpty;

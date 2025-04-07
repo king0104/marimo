@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/utils/warning_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NotificationBadges extends StatefulWidget {
   const NotificationBadges({super.key});
@@ -61,18 +62,33 @@ class _NotificationBadgesState extends State<NotificationBadges>
 
   Future<void> _loadWarnings() async {
     final infoWarnings = await WarningStorage.loadWarnings();
+    final prefs = await SharedPreferences.getInstance();
+    final dtcCodes = prefs.getStringList('stored_dtc_codes') ?? [];
+
+    final infoList = infoWarnings.map((e) {
+      return {
+        'id': e['title'],
+        'color': const Color(0xFF4888FF),
+        'icon': Icons.info_rounded,
+        'content1': e['title'],
+        'content2': e['description'],
+        'source': 'info',
+      };
+    });
+
+    final dtcList = dtcCodes.map((code) {
+      return {
+        'id': code,
+        'color': Colors.red,
+        'icon': Icons.warning_rounded,
+        'content1': 'DTC 코드 감지: $code',
+        'content2': '차량 진단 코드 $code가 감지되었습니다. 정비가 필요할 수 있어요.',
+        'source': 'dtc',
+      };
+    });
 
     setState(() {
-      notifications =
-          infoWarnings.map((e) {
-            return {
-              'id': e['title'],
-              'color': const Color(0xFF4888FF), // 정보 알림은 항상 파란색
-              'icon': Icons.info_rounded,
-              'content1': e['title'],
-              'content2': e['description'],
-            };
-          }).toList();
+      notifications = [...infoList, ...dtcList];
     });
   }
 
@@ -81,7 +97,16 @@ class _NotificationBadgesState extends State<NotificationBadges>
       notifications.removeWhere((item) => item['id'] == id);
     });
 
-    await WarningStorage.deleteWarningByTitle(id);
+    final prefs = await SharedPreferences.getInstance();
+    final isInfo = notificationType == const Color(0xFF4888FF);
+
+    if (isInfo) {
+      await WarningStorage.deleteWarningByTitle(id);
+    } else {
+      final dtcCodes = prefs.getStringList('stored_dtc_codes') ?? [];
+      dtcCodes.removeWhere((code) => code == id);
+      await prefs.setStringList('stored_dtc_codes', dtcCodes);
+    }
 
     if (notifications.where((n) => n['color'] == notificationType).isEmpty) {
       if (context.mounted) Navigator.of(context).pop();

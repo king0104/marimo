@@ -216,19 +216,6 @@ class ObdPollingProvider with ChangeNotifier {
       notifyListeners();
     }
 
-    // // ######################################################################
-    // // 지울 것
-    // lastSuccessfulPollingTime = DateTime.now();
-    // if (lastSuccessfulPollingTime != null) {
-    //   await prefs.setString(
-    //     'last_polling_time',
-    //     lastSuccessfulPollingTime!.toIso8601String(),
-    //   );
-    //   debugPrint('⏱️ 마지막 순회 시각 저장됨: $lastSuccessfulPollingTime');
-    // }
-    // // ######################################################################
-
-    // ✅ 마지막 순회 시각 불러오기
     final savedTime = prefs.getString('last_polling_time');
     if (savedTime != null) {
       lastSuccessfulPollingTime = DateTime.tryParse(savedTime);
@@ -282,6 +269,7 @@ class ObdPollingProvider with ChangeNotifier {
 
     final result = dtcCodes.toList();
     debugPrint('✅ 최종 DTC 코드 목록 (중복 제거): $result');
+    await saveDtcCodesToLocal(result);
     return result;
   }
 
@@ -343,5 +331,18 @@ class ObdPollingProvider with ChangeNotifier {
   String get formattedLastPollingTime {
     if (lastSuccessfulPollingTime == null) return '없음';
     return '${lastSuccessfulPollingTime!.toLocal()}';
+  }
+
+  Future<void> saveDtcCodesToLocal(List<String> codes) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('stored_dtc_codes', codes);
+    debugPrint('✅ DTC 코드 저장됨: $codes');
+  }
+
+  Future<List<String>> loadDtcCodesFromLocal() async {
+    final prefs = await SharedPreferences.getInstance();
+    final codes = prefs.getStringList('stored_dtc_codes') ?? [];
+    debugPrint('📥 로컬에서 불러온 DTC 코드: $codes');
+    return codes;
   }
 }
