@@ -9,6 +9,8 @@ import 'package:marimo_client/commons/CustomAppHeader.dart';
 import 'TireDiagnosisResult.dart';
 import 'TireTestPage.dart';
 import 'package:marimo_client/screens/tirediagnosis/TireAnalyzeImage.dart';
+import 'package:provider/provider.dart';
+import 'package:marimo_client/providers/car_payment_provider.dart';
 
 class TireDiagnosisScreen extends StatefulWidget {
   const TireDiagnosisScreen({Key? key}) : super(key: key);
@@ -100,6 +102,11 @@ class _TireDiagnosisScreenState extends State<TireDiagnosisScreen>
                     onAddImage: addImage,
                     onRemoveImage: removeImage,
                     onAnalysisPressed: () async {
+                      Provider.of<CarPaymentProvider>(
+                        context,
+                        listen: false,
+                      ).setTireDiagnosisDate(DateTime.now());
+
                       if (_selectedImages.isEmpty) return;
 
                       await loadModel(); // ✅ 버튼 누르기 직전, 안전하게 모델 로드
