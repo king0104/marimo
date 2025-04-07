@@ -7,8 +7,8 @@ import com.ssafy.marimo.card.domain.MemberCard;
 import com.ssafy.marimo.card.repository.CardBenefitDetailRepository;
 import com.ssafy.marimo.card.repository.CardBenefitRepository;
 import com.ssafy.marimo.card.repository.MemberCardRepository;
+import com.ssafy.marimo.card.service.CardTransactionService;
 import com.ssafy.marimo.common.annotation.ExecutionTimeLog;
-import com.ssafy.marimo.exception.BadRequestException;
 import com.ssafy.marimo.exception.ErrorStatus;
 import com.ssafy.marimo.exception.ServerException;
 import com.ssafy.marimo.external.fintech.FintechApiClient;
@@ -16,7 +16,6 @@ import com.ssafy.marimo.navigation.domain.GasStation;
 import com.ssafy.marimo.navigation.dto.request.PostGasStationRecommendRequest;
 import com.ssafy.marimo.navigation.dto.response.PostGasStationRecommendResponse;
 import com.ssafy.marimo.navigation.repository.GasStationRepository;
-import jakarta.persistence.criteria.CriteriaBuilder.In;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +35,7 @@ public class GasStationService {
     private final FintechApiClient fintechApiClient;
     private final CardBenefitRepository cardBenefitRepository;
     private final CardBenefitDetailRepository cardBenefitDetailRepository;
+    private final CardTransactionService cardTransactionService;
 
     private static final String CATEGORY_GAS = "GAS";
 
@@ -61,16 +61,42 @@ public class GasStationService {
                 (req.brandList() == null || req.brandList().isEmpty()) ? null : req.brandList()
         );
 
+        // 1. 카드 등록 여부
+        boolean isOilCardRegistered;
+        boolean isOilCardMonthlyRequirementSatisfied;
+        Optional<MemberCard> memberCard = memberCardRepository.findByMemberId(memberId);
+        if (memberCard == null) {
+            isOilCardMonthlyRequirementSatisfied = false;
+            isOilCardRegistered = false;
+        }
+
+        // 2. 외부 API 사용해서 전월실적 가져오기
+        else {
+            isOilCardRegistered = true;
+            Card card = memberCard.get().getCard();
+            Integer monthlyRequirement = card.getMonthlyRequirement();
+            Integer estimatedBalance = Integer.parseInt(
+                    cardTransactionService.getCardTransactions(card.getCardNo(), card.getCvc(),
+                            "20250401", "20250404").getRec().getEstimatedBalance());
+            // 전월 실적 기준 <= 실제 전월 실적
+            if (monthlyRequirement <= estimatedBalance) {
+                isOilCardMonthlyRequirementSatisfied = true;
+            } else {
+                isOilCardMonthlyRequirementSatisfied = false;
+            }
+        }
+
         return filteredStations.stream()
                 .filter(s -> isValidOilType(req.oilType(), s))
-                .map(s -> toRecommendResponse(s, req, radiusMeter, memberId))
+                .map(s -> toRecommendResponse(s, req, radiusMeter, isOilCardRegistered, isOilCardMonthlyRequirementSatisfied, memberCard))
                 .filter(Objects::nonNull)
                 .sorted(Comparator.comparing(PostGasStationRecommendResponse::distance))
                 .limit(3)
                 .toList();
     }
 
-    private PostGasStationRecommendResponse toRecommendResponse(GasStation s, PostGasStationRecommendRequest req, int radiusMeter, Integer memberId) {
+    @ExecutionTimeLog
+    public PostGasStationRecommendResponse toRecommendResponse(GasStation s, PostGasStationRecommendRequest req, int radiusMeter, boolean isOilCardRegistered, boolean isOilCardMonthlyRequirementSatisfied, Optional<MemberCard> memberCard) {
         double userLat = req.latitude();
         double userLng = req.longitude();
         int distance = calcDistance(userLat, userLng, s.getLatitude(), s.getLongitude());
@@ -83,59 +109,35 @@ public class GasStationService {
         float discountedPrice = price;
         float discountAmount = 0; // 현재 할인 없음
 
-        // 가격 할인 로직은 별도로 추가하세요.
-        /**
-         * TODO : 전월실적
-         */
-        boolean isOilCardRegistered = true;
-        boolean isOilCardMonthlyRequirementSatisfied = false;
-        Optional<MemberCard> memberCard = memberCardRepository.findByMemberId(memberId);
-        if (memberCard == null) {
-            isOilCardRegistered = false;
+        // 카드 혜택 적용
+        if (isOilCardRegistered && isOilCardMonthlyRequirementSatisfied) {
+            Card card = memberCard.get().getCard(); // 이 코드 수정 필요 (null 체크 해줘야함)
+
+            List<CardBenefit> cardBenefits = cardBenefitRepository.findByCardIdAndCategory(card.getId(), CATEGORY_GAS);
+            for (CardBenefit benefit : cardBenefits) {
+                List<CardBenefitDetail> cardBenefitDetails =
+                        cardBenefitDetailRepository.findByCardBenefitId(benefit.getId());
+
+                for (CardBenefitDetail cardBenefitDetail : cardBenefitDetails) {
+                    // 카드 혜택 적용하기
+                    if (cardBenefitDetail.getAppliesToAllBrands()) {
+                        discountedPrice = applyCardBenefit(price, cardBenefitDetail.getDiscountValue(),
+                                cardBenefitDetail.getDiscountUnit());
+                        discountAmount = price - discountedPrice;
+                        break;
+                    }
+
+                    if (cardBenefitDetail.getGasStationBrand().equals(s.getBrand())) {
+                        discountedPrice = applyCardBenefit(price, cardBenefitDetail.getDiscountValue(),
+                                cardBenefitDetail.getDiscountUnit());
+                        discountAmount = price - discountedPrice;
+
+                    }
+
+               }
+            }
         }
 
-        // 2. 외부 API 사용해서 전월실적 가져오기
-
-        else {
-
-            Card card = memberCard.get().getCard();
-            Integer monthlyRequirement = card.getMonthlyRequirement();
-            Integer estimatedBalance = Integer.parseInt(
-                    fintechApiClient.getCardTransactions(card.getCardUniqueNo(), card.getCvc().toString(),
-                            "2025-04-01", "2025-04-04").getRec().getEstimatedBalance());
-            // 전월 실적 기준 <= 실제 전월 실적
-            if (monthlyRequirement <= estimatedBalance) {
-                isOilCardMonthlyRequirementSatisfied = true;
-            }
-
-            // 전월 실적 넘었으면, 카드 혜택 제공하기
-            if (isOilCardRegistered && isOilCardMonthlyRequirementSatisfied) {
-                List<CardBenefit> cardBenefits = cardBenefitRepository.findByCardIdAndCategory(card.getId(), CATEGORY_GAS);
-                for (CardBenefit benefit : cardBenefits) {
-                    List<CardBenefitDetail> cardBenefitDetails =
-                            cardBenefitDetailRepository.findByCardBenefitId(benefit.getId());
-
-                    for (CardBenefitDetail cardBenefitDetail : cardBenefitDetails) {
-                        // 카드 혜택 적용하기
-                        if (cardBenefitDetail.getAppliesToAllBrands()) {
-                            discountedPrice = applyCardBenefit(price, cardBenefitDetail.getDiscountValue(),
-                                    cardBenefitDetail.getDiscountUnit());
-                            discountAmount = price - discountedPrice;
-                            break;
-                        }
-
-                        if (cardBenefitDetail.getGasStationBrand().equals(s.getBrand())) {
-                            discountedPrice = applyCardBenefit(price, cardBenefitDetail.getDiscountValue(),
-                                    cardBenefitDetail.getDiscountUnit());
-                            discountAmount = price - discountedPrice;
-
-                        }
-
-                   }
-                }
-            }
-
-        }
 
 
         // DTO 생성
