@@ -36,4 +36,11 @@ class WarningStorage {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_key);
   }
+
+  // OBD 상태 정보 - 주의 - 반환
+  static Future<int> count() async {
+    final prefs = await SharedPreferences.getInstance();
+    final rawList = prefs.getStringList(_key) ?? [];
+    return rawList.length;
+  }
 }
