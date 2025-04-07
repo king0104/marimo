@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:marimo_client/providers/obd_polling_provider.dart';
 import 'package:marimo_client/utils/obd_response_parser.dart';
 
+// 차량 상태 위젯
 class CarStatusWidget extends StatelessWidget {
   const CarStatusWidget({super.key});
 
