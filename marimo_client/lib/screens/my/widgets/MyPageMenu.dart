@@ -3,11 +3,46 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/screens/payment/CarTotalPayment.dart';
 
 import 'package:marimo_client/providers/car_payment_provider.dart';
+import 'package:marimo_client/providers/member/auth_provider.dart';
+import 'package:marimo_client/providers/car_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:marimo_client/screens/Insurance/InsuranceScreen.dart';
 
-class MyPageMenu extends StatelessWidget {
+class MyPageMenu extends StatefulWidget {
   const MyPageMenu({super.key});
+
+  @override
+  State<MyPageMenu> createState() => _MyPageMenuState();
+}
+
+class _MyPageMenuState extends State<MyPageMenu> {
+  void _handleInsuranceTap(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final carProvider = Provider.of<CarProvider>(context, listen: false);
+    
+    final carId = carProvider.firstCarId;
+    final accessToken = authProvider.accessToken;
+
+    if (carId == null || accessToken == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('차량 정보가 없습니다. 차량을 먼저 등록해주세요.')),
+      );
+      return;
+    }
+
+    final car = carProvider.getCarById(carId);
+    if (car?.totalDistance == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('총 주행거리 정보가 없습니다. OBD2 연결 후 이용해주세요!')),
+      );
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const InsuranceScreen()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,12 +63,7 @@ class MyPageMenu extends StatelessWidget {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const InsuranceScreen()),
-            );
-          },
+          onTap: () => _handleInsuranceTap(context),
         ),
         SizedBox(height: 24.h),
         Text(
