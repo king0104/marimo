@@ -232,10 +232,9 @@ class _CommonBottomNavigationBarState extends State<CommonBottomNavigationBar> {
                             )
                             : Image.asset(
                               isConnected
-                                  ? 'assets/images/icons/connect.png'
-                                  : 'assets/images/icons/connected.png',
+                                  ? 'assets/images/icons/connected.png'
+                                  : 'assets/images/icons/connect.png',
                               width: 28.sp,
-                              color: white,
                             ),
                   ),
                 ),
