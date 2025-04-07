@@ -356,4 +356,10 @@ class ObdPollingProvider with ChangeNotifier {
     debugPrint('📥 로컬에서 불러온 DTC 코드: $codes');
     return codes;
   }
+
+  Future<int> getStoredDtcCodeCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    final codes = prefs.getStringList('stored_dtc_codes') ?? [];
+    return codes.length;
+  }
 }
