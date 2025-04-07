@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:marimo_client/providers/obd_polling_provider.dart';
 import 'package:marimo_client/utils/obd_response_parser.dart';
 
+// 차량 상태 위젯
 class CarStatusWidget extends StatelessWidget {
   const CarStatusWidget({super.key});
 
@@ -42,13 +43,11 @@ class CarStatusWidget extends StatelessWidget {
       {
         'icon': 'icon_car.png',
         'label': 'ECU 배터리 전압',
-        'value':
-            data.controlModuleVoltage != null
-                ? NumberFormat(
-                  "##0.0",
-                  "en_US",
-                ).format(data.controlModuleVoltage)
-                : NumberFormat("##0.0", "en_US").format(data.batteryVoltage),
+        'value': data.controlModuleVoltage != null
+            ? NumberFormat("##0.0", "en_US").format(data.controlModuleVoltage)
+            : data.batteryVoltage != null
+                ? NumberFormat("##0.0", "en_US").format(data.batteryVoltage)
+                : '--',
         'unit': 'V',
       },
 
