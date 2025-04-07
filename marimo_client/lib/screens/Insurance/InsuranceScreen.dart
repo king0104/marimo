@@ -27,10 +27,15 @@ class _InsuranceScreenState extends State<InsuranceScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchInsuranceInfo();
+    // 다음 프레임에서 실행하도록 수정
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchInsuranceInfo();
+    });
   }
 
   Future<void> _fetchInsuranceInfo() async {
+    if (!mounted) return;
+    
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final carProvider = Provider.of<CarProvider>(context, listen: false);
@@ -40,26 +45,16 @@ class _InsuranceScreenState extends State<InsuranceScreen> {
 
       print('🔍 Fetching insurance info - carId: $carId, token: $accessToken');
 
-      if (carId != null && accessToken != null) {
-        final info = await InsuranceService.getInsuranceInfo(carId, accessToken);
-        print('✅ Received insurance info: $info');
-        
-        if (!mounted) return;
-        
-        setState(() {
-          insuranceInfo = info;
-          isInsuranceRegistered = true;
-          isLoading = false;
-        });
-      } else {
-        print('❌ CarId or AccessToken is null');
-        if (!mounted) return;
-        setState(() {
-          isLoading = false;
-          isInsuranceRegistered = false;
-        });
-        _navigateToMyTab(context);
-      }
+      final info = await InsuranceService.getInsuranceInfo(carId!, accessToken!);
+      print('✅ Received insurance info: $info');
+      
+      if (!mounted) return;
+      
+      setState(() {
+        insuranceInfo = info;
+        isInsuranceRegistered = true;
+        isLoading = false;
+      });
     } catch (e) {
       if (!mounted) return;
       
@@ -276,20 +271,15 @@ class _InsuranceScreenState extends State<InsuranceScreen> {
       appBar: CustomAppHeader(
         title: '자동차 보험',
         onBackPressed: () {
-          if (isInsuranceRegistered) {
-            // 보험이 등록된 상태일 때 메인 스크린으로 이동하고 마이페이지 탭 선택
-            final navigationProvider = Provider.of<NavigationProvider>(context, listen: false);
-            Navigator.pushNamedAndRemoveUntil(
-              context,
-              '/',
-              (route) => false,
-            ).then((_) {
-              navigationProvider.setIndex(4);
-            });
-          } else {
-            // 보험 등록 과정 중에는 이전 화면으로 이동
-            Navigator.pop(context);
-          }
+          // 보험이 등록된 상태이거나 등록되지 않은 상태 모두 마이 탭으로 이동
+          final navigationProvider = Provider.of<NavigationProvider>(context, listen: false);
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/',
+            (route) => false,
+          ).then((_) {
+            navigationProvider.setIndex(4);  // 마이 탭 인덱스
+          });
         },
       ),
       body: SingleChildScrollView(

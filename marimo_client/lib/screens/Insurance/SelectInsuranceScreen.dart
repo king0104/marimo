@@ -54,7 +54,7 @@ class SelectInsuranceScreen extends StatefulWidget {
     {
       'name': '한화손해보험',
       'logo': 'assets/images/insurance/image_hanhwa.png',
-      'code': 'hanwha'
+      'code': 'hanhwa'
     },
     {
       'name': '현대해상',
