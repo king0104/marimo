@@ -22,6 +22,7 @@ class _TireCameraGuideState extends State<TireCameraGuide> {
   CameraController? _cameraController;
   List<CameraDescription>? _cameras;
   bool _isCameraInitialized = false;
+  int _selectedCameraIndex = 0; // 선택된 카메라 인덱스 (0: 후면, 1: 전면)
 
   final double baseHeight = 603.0; // 기준 해상도 height
 
@@ -35,7 +36,7 @@ class _TireCameraGuideState extends State<TireCameraGuide> {
     _cameras = await availableCameras();
     if (_cameras != null && _cameras!.isNotEmpty) {
       _cameraController = CameraController(
-        _cameras!.first,
+        _cameras![_selectedCameraIndex],
         ResolutionPreset.high,
       );
       await _cameraController!.initialize();
@@ -44,6 +45,31 @@ class _TireCameraGuideState extends State<TireCameraGuide> {
           _isCameraInitialized = true;
         });
       }
+    }
+  }
+
+  // 카메라 전환 함수
+  Future<void> _switchCamera() async {
+    if (_cameras == null || _cameras!.length <= 1) return;
+
+    // 현재 카메라 컨트롤러 해제
+    await _cameraController?.dispose();
+
+    // 다음 카메라 인덱스 선택 (전면 <-> 후면)
+    _selectedCameraIndex = (_selectedCameraIndex + 1) % _cameras!.length;
+
+    // 새 카메라로 컨트롤러 초기화
+    _cameraController = CameraController(
+      _cameras![_selectedCameraIndex],
+      ResolutionPreset.high,
+    );
+
+    // 초기화 및 상태 업데이트
+    await _cameraController!.initialize();
+    if (mounted) {
+      setState(() {
+        _isCameraInitialized = true;
+      });
     }
   }
 
@@ -197,6 +223,27 @@ class _TireCameraGuideState extends State<TireCameraGuide> {
                       'assets/images/icons/icon_camerabutton.png',
                       width: 66.w,
                       height: 66.h,
+                    ),
+                  ),
+                ),
+              ),
+
+              // 카메라 전환 버튼
+              Positioned(
+                top: 15.h,
+                right: 15.w,
+                child: GestureDetector(
+                  onTap: _switchCamera,
+                  child: Container(
+                    padding: EdgeInsets.all(8.w),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.5),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.flip_camera_ios,
+                      color: Colors.white,
+                      size: 24.w,
                     ),
                   ),
                 ),

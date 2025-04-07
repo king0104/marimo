@@ -1,35 +1,68 @@
 import 'package:flutter/material.dart';
+import 'package:marimo_client/providers/map/filter.provider.dart';
+import 'package:provider/provider.dart';
 
 class FilterBottomSheet extends StatefulWidget {
-  const FilterBottomSheet({super.key});
+  final VoidCallback? onApply; // 콜백 추가
+  const FilterBottomSheet({super.key, this.onApply});
 
   @override
   State<FilterBottomSheet> createState() => _FilterBottomSheetState();
 }
 
 class _FilterBottomSheetState extends State<FilterBottomSheet> {
-  final Set<String> selectedOptions = {};
+  late Map<String, Set<String>> selectedFiltersByCategory;
 
   final Map<String, List<String>> filterOptions = {
-    '운영 정보': ['24시 운영', '셀프 주유'],
+    '운영 정보': ['셀프 주유'],
     '부가 서비스': ['세차장', '경정비', '편의점'],
     '브랜드': ['SK', 'GS', 'S-OIL', '현대오일'],
     '기름 종류': ['일반 휘발유', '고급 휘발유', '경유', 'LPG', '등유'],
   };
 
-  void _toggleOption(String label) {
+  @override
+  void initState() {
+    super.initState();
+    final filterProvider = context.read<FilterProvider>();
+    selectedFiltersByCategory = {
+      for (final entry in filterOptions.entries)
+        entry.key: filterProvider.filtersByCategory[entry.key] ?? <String>{},
+    };
+  }
+
+  void _toggleOption(String category, String option) {
+    final filterProvider = context.read<FilterProvider>();
+
     setState(() {
-      if (selectedOptions.contains(label)) {
-        selectedOptions.remove(label);
+      final selectedSet = selectedFiltersByCategory[category] ?? <String>{};
+
+      if (category == '기름 종류') {
+        // ✅ 단일 선택만 허용
+        selectedSet.clear(); // 기존 선택 제거
+        selectedSet.add(option);
+        filterProvider.setSingleFilter(category, option); // 단일 필터 메서드 호출 필요
       } else {
-        selectedOptions.add(label);
+        // ✅ 일반 다중 선택 필터
+        if (selectedSet.contains(option)) {
+          selectedSet.remove(option);
+          filterProvider.removeFilter(category, option);
+        } else {
+          selectedSet.add(option);
+          filterProvider.addFilter(category, option);
+        }
       }
+
+      selectedFiltersByCategory[category] = selectedSet;
     });
   }
 
   void _resetFilters() {
+    final filterProvider = context.read<FilterProvider>();
     setState(() {
-      selectedOptions.clear();
+      for (final key in selectedFiltersByCategory.keys) {
+        selectedFiltersByCategory[key] = <String>{};
+      }
+      filterProvider.clearFilters();
     });
   }
 
@@ -81,10 +114,16 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                                 runSpacing: 6,
                                 children:
                                     entry.value.map((option) {
-                                      final isSelected = selectedOptions
-                                          .contains(option);
+                                      final isSelected =
+                                          selectedFiltersByCategory[entry.key]
+                                              ?.contains(option) ??
+                                          false;
                                       return GestureDetector(
-                                        onTap: () => _toggleOption(option),
+                                        onTap:
+                                            () => _toggleOption(
+                                              entry.key,
+                                              option,
+                                            ),
                                         child: AnimatedContainer(
                                           duration: const Duration(
                                             milliseconds: 200,
@@ -138,9 +177,9 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
 
             const SizedBox(height: 12),
 
-            // 하단 버튼 영역 (고정)
+            // 하단 버튼 영역
             Padding(
-              padding: const EdgeInsets.only(bottom: 20), // 하단 여백 20
+              padding: const EdgeInsets.only(bottom: 20),
               child: Row(
                 children: [
                   Expanded(
@@ -161,7 +200,20 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
+                        final filterProvider = context.read<FilterProvider>();
+
+                        // 기존 필터 초기화
+                        filterProvider.clearFilters();
+
+                        // 새 필터 반영
+                        selectedFiltersByCategory.forEach((category, options) {
+                          for (final option in options) {
+                            filterProvider.addFilter(category, option);
+                          }
+                        });
+
                         Navigator.pop(context);
+                        widget.onApply?.call(); // ✅ 필터 적용 후 콜백 실행
                       },
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size.fromHeight(50),

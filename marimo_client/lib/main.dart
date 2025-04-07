@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:marimo_client/providers/map/category_provider.dart';
+import 'package:marimo_client/providers/map/filter.provider.dart';
+import 'package:marimo_client/providers/map/location_provider.dart';
+import 'package:marimo_client/providers/map/station_cards_provider.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -60,8 +64,11 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => CarProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => MapStateProvider()),
-        ChangeNotifierProvider.value(value: carPaymentProvider),
+        ChangeNotifierProvider(create: (_) => CategoryProvider()),
+        ChangeNotifierProvider(create: (_) => FilterProvider()),
+        ChangeNotifierProvider(create: (_) => LocationProvider()),
+        ChangeNotifierProvider(create: (_) => StationCardsProvider()),
+        ChangeNotifierProvider(create: (_) => CarPaymentProvider()),
         ChangeNotifierProvider(create: (_) => ObdPollingProvider()),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ChangeNotifierProvider(create: (_) => ObdAnalysisProvider()),
