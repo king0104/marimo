@@ -12,6 +12,7 @@ import 'package:marimo_client/screens/payment/CarPaymentDetailForm.dart';
 // Provider 임포트 (CarPaymentProvider)
 import 'package:provider/provider.dart';
 import 'package:marimo_client/providers/car_payment_provider.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 class Chatbot extends StatefulWidget {
   const Chatbot({super.key});
@@ -27,10 +28,11 @@ class _ChatbotState extends State<Chatbot> {
   bool _isProcessing = false;
 
   // 원래 placeholder 텍스트
+  final String _guideText = "버튼을 누르고, 예시처럼 말해보세요.\n";
   final String _placeholderText =
-      "엔진 마모가 뭐야?\n마리모 요청: 차계부에 오늘 날짜로 GS칼텍스 방이점에 주유 2만원 기록해줘";
+      "\"엔진 마모가 뭐야?\"\n\n\"마리모 요청: 차계부에 오늘 날짜로 GS칼텍스 방이점에 주유 2만원 기록해줘\"";
   String _recognizedText =
-      "엔진 마모가 뭐야?\n마리모 요청: 차계부에 오늘 날짜로 GS칼텍스 방이점에 주유 2만원 기록해줘";
+      "버튼을 누르고, 예시처럼 말해보세요.\n\"엔진 마모가 뭐야?\"\n\n\"마리모 요청: 차계부에 오늘 날짜로 GS칼텍스 방이점에 주유 2만원 기록해줘\"";
 
   // Gemma 모델 추론 인스턴스
   InferenceModel? _inferenceModel;
@@ -210,8 +212,38 @@ class _ChatbotState extends State<Chatbot> {
     });
   }
 
+  // 마크다운 특수문자를 제거하는 함수
+  String removeMarkdownCharacters(String text) {
+    return text
+        .replaceAll(RegExp(r'`{1,3}'), '') // 코드 블록
+        .replaceAll(RegExp(r'\*{1,3}'), '') // 볼드/이탤릭
+        .replaceAll(RegExp(r'#{1,6}\s'), '') // 헤더
+        .replaceAll(RegExp(r'>\s'), '') // 인용구
+        .replaceAll(RegExp(r'- '), '') // 리스트
+        .replaceAll(RegExp(r'\[([^\]]*)\]\([^\)]*\)'), r'\$1') // 링크
+        .replaceAll(RegExp(r'!\[([^\]]*)\]\([^\)]*\)'), r'\$1'); // 이미지
+  }
+
+  // 마크다운 문법을 수정하는 함수
+  String fixMarkdownSyntax(String text) {
+    return text
+        .replaceAll(RegExp(r'\*   \*\*'), '* **')  // 불필요한 공백 제거
+        .replaceAll(RegExp(r'\*\* '), '**')  // 볼드 뒤의 공백 제거
+        .replaceAll(':**', ':** ');  // 콜론 뒤에 공백 추가
+  }
+
+  // 불필요한 마크다운 태그를 제거하는 함수
+  String removeUnnecessaryMarkdown(String text) {
+    return text
+        .replaceAll(RegExp(r'^```.*\n'), '')  // 시작 부분의 ``` 제거
+        .replaceAll(RegExp(r'\n```.*\n'), '\n')  // 중간의 ``` 제거
+        .replaceAll(RegExp(r'\n```.*$'), '')  // 끝 부분의 ``` 제거
+        .replaceAll(RegExp(r'```.*$'), '')  // 문자열 끝의 ``` 제거 (줄바꿈 없는 경우)
+        .trim();
+  }
+
   Future<void> _startListening() async {
-    if (_recognizedText == _placeholderText) {
+    if (_recognizedText == _guideText + _placeholderText) {
       setState(() {
         _recognizedText = "";
       });
@@ -356,14 +388,21 @@ class _ChatbotState extends State<Chatbot> {
               _recognizedText = "AI 마리모가 대답을 준비하고 있어요.\n";
             });
             String generatedResponse = await _performGemmaInference(recognized);
+            // 불필요한 마크다운 태그 제거
+            generatedResponse = removeUnnecessaryMarkdown(generatedResponse);
+            // 마크다운 형식이 유지되도록 중복 제거 전에 줄바꿈 추가
+            generatedResponse = generatedResponse.replaceAll(". ", ".\n");
+            // 마크다운 문법 수정을 중복 제거 전에 수행
+            generatedResponse = fixMarkdownSyntax(generatedResponse);
             generatedResponse = removeDuplicateSentences(generatedResponse);
             debugPrint("Gemma 일반 응답: $generatedResponse");
             _stopProcessingAnimation();
             setState(() {
               _isProcessing = false;
-              _recognizedText = generatedResponse + "\n";
+              _recognizedText = generatedResponse;
             });
-            await _flutterTts.speak(generatedResponse);
+            // TTS에는 마크다운이 제거된 텍스트를 전달
+            await _flutterTts.speak(removeMarkdownCharacters(generatedResponse));
           }
         },
         listenFor: const Duration(seconds: 10),
@@ -432,13 +471,20 @@ class _ChatbotState extends State<Chatbot> {
     final size = MediaQuery.of(context).size;
     final containerHeight = size.height * 0.428;
     final horizontalMargin = size.width * 0.05;
-    final topPadding = containerHeight * 0.05;
-    final textTop = containerHeight * 0.25;
+    final topPadding = containerHeight * 0.08;
+    final textTop = containerHeight * 0.16;
     final textBottom = containerHeight * 0.25;
     final micBottom = containerHeight * 0.1;
 
-    TextStyle textStyle = TextStyle(
+    TextStyle guideTextStyle = TextStyle(
       color: Colors.black,
+      fontSize: size.width * 0.04,
+      fontFamily: 'FreesentationVF',
+      fontWeight: FontWeight.w600,
+    );
+
+    TextStyle placeholderTextStyle = TextStyle(
+      color: Colors.grey[600],
       fontSize: size.width * 0.04,
       fontFamily: 'FreesentationVF',
       fontWeight: FontWeight.w400,
@@ -467,18 +513,18 @@ class _ChatbotState extends State<Chatbot> {
           children: [
             // 로고 (좌측 상단)
             Positioned(
-              top: topPadding,
-              left: horizontalMargin,
-              child: Image.asset(
-                "assets/images/logo/marimo_logo.png",
-                width: size.width * 0.1,
-                height: size.width * 0.1,
+              top: topPadding*0.8,
+              left: horizontalMargin*1.2,
+              child: SvgPicture.asset(
+                "assets/images/icons/logo_app_bar.svg",
+                width: size.width * 0.06,
+                height: size.width * 0.06,
               ),
             ),
             // 닫기 버튼 (우측 상단)
             Positioned(
-              top: topPadding,
-              right: horizontalMargin,
+              top: topPadding*0.2,
+              right: horizontalMargin*0.2,
               child: IconButton(
                 icon: SvgPicture.asset("assets/images/icons/icon_close.svg"),
                 onPressed: () {
@@ -493,13 +539,79 @@ class _ChatbotState extends State<Chatbot> {
               left: horizontalMargin,
               right: horizontalMargin,
               child: SingleChildScrollView(
-                child: Center(
-                  child: Text(
-                    _recognizedText,
-                    textAlign: TextAlign.center,
-                    softWrap: true,
-                    style: textStyle,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (_recognizedText.startsWith(_guideText))
+                      Center(
+                        child: Text(
+                          _guideText,
+                          style: guideTextStyle,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    MarkdownBody(
+                      data: _recognizedText.startsWith(_guideText)
+                          ? _recognizedText.substring(_guideText.length)
+                          : _recognizedText,
+                      styleSheet: MarkdownStyleSheet(
+                        p: _recognizedText.startsWith(_guideText)
+                            ? placeholderTextStyle
+                            : TextStyle(
+                                color: Colors.black,
+                                fontSize: size.width * 0.04,
+                                fontFamily: 'FreesentationVF',
+                                fontWeight: FontWeight.w400,
+                              ),
+                        h1: TextStyle(
+                          color: Colors.black,
+                          fontSize: size.width * 0.05,
+                          fontFamily: 'FreesentationVF',
+                          fontWeight: FontWeight.w600,
+                        ),
+                        h2: TextStyle(
+                          color: Colors.black,
+                          fontSize: size.width * 0.045,
+                          fontFamily: 'FreesentationVF',
+                          fontWeight: FontWeight.w600,
+                        ),
+                        code: TextStyle(
+                          color: Colors.black87,
+                          backgroundColor: Colors.grey[200],
+                          fontSize: size.width * 0.038,
+                          fontFamily: 'monospace',
+                        ),
+                        codeblockPadding: EdgeInsets.all(8),
+                        codeblockDecoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        blockquote: TextStyle(
+                          color: Colors.black87,
+                          fontSize: size.width * 0.04,
+                          fontFamily: 'FreesentationVF',
+                          fontStyle: FontStyle.italic,
+                        ),
+                        blockquoteDecoration: BoxDecoration(
+                          border: Border(
+                            left: BorderSide(
+                              color: Colors.grey[400]!,
+                              width: 4,
+                            ),
+                          ),
+                        ),
+                        blockquotePadding: EdgeInsets.only(left: 16),
+                        listBullet: TextStyle(
+                          color: Colors.black,
+                          fontSize: size.width * 0.04,
+                          fontFamily: 'FreesentationVF',
+                        ),
+                      ),
+                      selectable: true,
+                      softLineBreak: true,
+                      fitContent: true,
+                    ),
+                  ],
                 ),
               ),
             ),
