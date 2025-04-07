@@ -230,10 +230,10 @@ class _CommonBottomNavigationBarState extends State<CommonBottomNavigationBar> {
                                 color: white,
                               ),
                             )
-                            : Image.asset(
+                            : SvgPicture.asset(
                               isConnected
-                                  ? 'assets/images/icons/connected.png'
-                                  : 'assets/images/icons/connect.png',
+                                  ? 'assets/images/icons/connected.svg'
+                                  : 'assets/images/icons/connect.svg',
                               width: 28.sp,
                             ),
                   ),
