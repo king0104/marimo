@@ -42,7 +42,6 @@ class _CarRegistrationStepperScreenState
     CarModelScreen(),
     CarAdditionalInfoScreen(),
     CarLastInspectionScreen(),
-    CardBrandScreen(),
     CardSelectScreen(),
     CarNicknameScreen(),
   ];
