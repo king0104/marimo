@@ -12,7 +12,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "gas_station")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class GasStation {
+public class
+GasStation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

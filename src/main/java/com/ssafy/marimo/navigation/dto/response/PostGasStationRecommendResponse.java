@@ -18,9 +18,11 @@ public record PostGasStationRecommendResponse(
         // Boolean is24Hours,
         Float price,
         Float discountedPrice,
-        Integer discountAmount,
+        Float discountAmount,
         Integer distance,
-        String oilType
+        String oilType,
+        Boolean isOilCardRegistered,
+        Boolean isOilCardMonthlyRequirementSatisfied
 ) {
     public static PostGasStationRecommendResponse of(
             Integer id,
@@ -37,9 +39,11 @@ public record PostGasStationRecommendResponse(
             // Boolean is24Hours,
             Float price,
             Float discountedPrice,
-            Integer discountAmount,
+            Float discountAmount,
             Integer distance,
-            String oilType
+            String oilType,
+            Boolean isOilCardRegistered,
+            Boolean isOilCardMonthlyRequirementSatisfied
     ) {
         return PostGasStationRecommendResponse.builder()
                 .id(id)
@@ -59,6 +63,8 @@ public record PostGasStationRecommendResponse(
                 .discountAmount(discountAmount)
                 .distance(distance)
                 .oilType(oilType)
+                .isOilCardRegistered(isOilCardRegistered)
+                .isOilCardMonthlyRequirementSatisfied(isOilCardMonthlyRequirementSatisfied)
                 .build();
     }
 }

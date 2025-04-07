@@ -68,6 +68,12 @@ dependencies {
 	//* 좌표계 변환
 	implementation 'org.locationtech.proj4j:proj4j:1.2.2'
 
+	// * redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-cache'
+	implementation 'org.springframework:spring-context-support'
+
+
 }
 
 
