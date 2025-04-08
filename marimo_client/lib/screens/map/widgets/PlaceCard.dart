@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/models/map/gas_station_place.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart'; // ✅ 이거 하나면 끝!
+import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 
 class PlaceCard extends StatelessWidget {
   final Place place;
@@ -25,159 +25,200 @@ class PlaceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeInOut,
-        margin: const EdgeInsets.only(right: 12),
-        padding: const EdgeInsets.all(12),
-        width: screenWidth * 0.83,
-        height: 112.h,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border:
-              isSelected
-                  ? Border.all(color: Colors.blue, width: 2)
-                  : Border.all(color: Colors.transparent, width: 0),
-          boxShadow: const [BoxShadow(blurRadius: 4, color: Colors.black12)],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ✅ 1순위
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    '${rank}순위',
-                    style: const TextStyle(color: Colors.white, fontSize: 10),
-                  ),
-                ),
 
-                // 오른쪽: 연료 종류
-                Text(
-                  place
-                      .oilType, // 🔄 기존: place.oilType ?? '휘발유' → 불필요한 null-safe 제거
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+      child: Stack(
+        // ✅ 변경됨: 상태 라벨 표시를 위해 Stack으로 감쌈
+        children: [
+          // ✅ 기존 카드 UI
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
+            margin: const EdgeInsets.only(right: 12),
+            padding: const EdgeInsets.all(12),
+            width: screenWidth * 0.83,
+            height: 150.h,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              border:
+                  isSelected
+                      ? Border.all(color: Colors.blue, width: 2)
+                      : Border.all(color: Colors.transparent, width: 0),
+              boxShadow: const [
+                BoxShadow(blurRadius: 4, color: Colors.black12),
               ],
             ),
-
-            const SizedBox(height: 4),
-
-            // ✅ 주유소 이름 + 가격
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Text(
-                    place.name,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.bold,
+                // ✅ 1순위
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 20.w,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        '${rank}순위',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                Text(
-                  place.discountedPrice?.toString() ?? '',
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
 
-            const SizedBox(height: 4),
-
-            // ✅ 부가 정보 태그 영역
-            Wrap(
-              spacing: 6,
-              runSpacing: 4,
-              children: [
-                if (place.hasSelfService) _buildTag("셀프"),
-                if (place.hasCarWash) _buildTag("세차"),
-                if (place.hasMaintenance) _buildTag("경정비"),
-                if (place.hasCvs) _buildTag("편의점"),
-                _buildTag("24시"), // 이건 지금 고정으로 넣었어. 필요하면 조건부로 수정 가능
-              ],
-            ),
-
-            const Spacer(),
-
-            // ✅ 거리 + 카카오내비 버튼
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  '${place.distance.toStringAsFixed(1)}km',
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                ElevatedButton.icon(
-                  onPressed: () async {
-                    final destination = Location(
-                      name: place.name,
-                      x: place.lng.toString(), // 경도
-                      y: place.lat.toString(), // 위도
-                    );
-
-                    print(
-                      '📍 목적지 위치 - x: ${place.lng}, y: ${place.lat}, 목적지: ${place.name}',
-                    );
-
-                    // 카카오내비 설치 여부
-                    final result =
-                        await NaviApi.instance.isKakaoNaviInstalled();
-
-                    if (result) {
-                      print('카카오내비 앱으로 길안내 가능');
-                      await NaviApi.instance.navigate(destination: destination);
-                    } else {
-                      print('카카오내비 미설치');
-                      // 카카오내비 설치 페이지로 이동
-                      launchBrowserTab(Uri.parse(NaviApi.webNaviInstall));
-                    }
-                  },
-
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF3B82F6),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                    // 오른쪽: 연료 종류
+                    Text(
+                      place
+                          .oilType, // 🔄 기존: place.oilType ?? '휘발유' → 불필요한 null-safe 제거
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
+                  ],
+                ),
+
+                const SizedBox(height: 4),
+
+                // ✅ 주유소 이름 + 가격
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        place.name,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      place.discountedPrice?.toString() ?? '',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 4),
+
+                // ✅✅ 변경된 부분: 상태 라벨을 Column 안으로 이동시킴
+                if (_getStatusLabel(place) != null)
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 6),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
-                      vertical: 6,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.black, width: 1),
+                    ),
+                    child: Text(
+                      _getStatusLabel(place)!,
+                      style: TextStyle(
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
+                      ),
                     ),
                   ),
-                  icon: SvgPicture.asset(
-                    'assets/images/icons/icon_kakaoNavi.svg',
-                    height: 20,
-                  ),
-                  label: const Text(
-                    '카카오내비',
-                    style: TextStyle(fontSize: 14, color: Colors.white),
-                  ),
+                // ✅✅ 여기까지가 기존 Stack/Positioned → Column 내부로 옮긴 변경 내용
+
+                // ✅ 부가 정보 태그 영역
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 4,
+                  children: [
+                    if (place.hasSelfService) _buildTag("셀프"),
+                    if (place.hasCarWash) _buildTag("세차"),
+                    if (place.hasMaintenance) _buildTag("경정비"),
+                    if (place.hasCvs) _buildTag("편의점"),
+                    _buildTag("24시"), // 이건 지금 고정으로 넣었어. 필요하면 조건부로 수정 가능
+                  ],
+                ),
+
+                const Spacer(),
+
+                // ✅ 거리 + 카카오내비 버튼
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      '${place.distance.toStringAsFixed(1)}km',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: () async {
+                        final destination = Location(
+                          name: place.name,
+                          x: place.lng.toString(), // 경도
+                          y: place.lat.toString(), // 위도
+                        );
+
+                        print(
+                          '📍 목적지 위치 - x: ${place.lng}, y: ${place.lat}, 목적지: ${place.name}',
+                        );
+
+                        // 카카오내비 설치 여부
+                        final result =
+                            await NaviApi.instance.isKakaoNaviInstalled();
+
+                        if (result) {
+                          print('카카오내비 앱으로 길안내 가능');
+                          await NaviApi.instance.navigate(
+                            destination: destination,
+                          );
+                        } else {
+                          print('카카오내비 미설치');
+                          // 카카오내비 설치 페이지로 이동
+                          launchBrowserTab(Uri.parse(NaviApi.webNaviInstall));
+                        }
+                      },
+
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF3B82F6),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
+                      ),
+                      icon: SvgPicture.asset(
+                        'assets/images/icons/icon_kakaoNavi.svg',
+                        height: 20,
+                      ),
+                      label: const Text(
+                        '카카오내비',
+                        style: TextStyle(fontSize: 14, color: Colors.white),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -198,5 +239,12 @@ class PlaceCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  // ✅ 추가됨: 카드 상태 텍스트 반환 함수
+  String? _getStatusLabel(Place place) {
+    if (!place.isOilCardRegistered) return '카드 미등록';
+    if (!place.isOilCardMonthlyRequirementSatisfied) return '전월 실적 부족';
+    return null;
   }
 }

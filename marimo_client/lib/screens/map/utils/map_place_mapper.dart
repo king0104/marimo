@@ -18,6 +18,10 @@ Place mapGasStationJsonToPlace(Map<String, dynamic> json) {
     discountAmount: json['discountAmount'] ?? 0,
     distance: json['distance'] ?? 0,
     oilType: json['oilType'] ?? '',
+    // ✅ 추가된 필드들
+    isOilCardRegistered: json['isOilCardRegistered'] ?? false,
+    isOilCardMonthlyRequirementSatisfied:
+        json['isOilCardMonthlyRequirementSatisfied'] ?? false,
   );
 }
 

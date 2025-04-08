@@ -12,9 +12,11 @@ class Place {
   final bool hasCvs;
   final double? price;
   final double? discountedPrice;
-  final int discountAmount;
+  final double discountAmount; // 🔄 타입 변경
   final int distance;
   final String oilType;
+  final bool isOilCardRegistered;
+  final bool isOilCardMonthlyRequirementSatisfied;
 
   const Place({
     required this.id,
@@ -33,6 +35,8 @@ class Place {
     required this.discountAmount,
     required this.distance,
     required this.oilType,
+    required this.isOilCardRegistered, // ✅ 추가
+    required this.isOilCardMonthlyRequirementSatisfied, // ✅ 추가
   });
 
   factory Place.fromJson(Map<String, dynamic> json) {
@@ -50,9 +54,13 @@ class Place {
       hasCvs: json['hasCvs'] ?? false,
       price: (json['price'] as num?)?.toDouble(),
       discountedPrice: (json['discountedPrice'] as num?)?.toDouble(),
-      discountAmount: json['discountAmount'] ?? 0,
-      distance: json['distance'] ?? 0,
+      discountAmount: (json['discountAmount'] as num?)?.toDouble() ?? 0.0,
+      distance: (json['distance'] as num?)?.toInt() ?? 0, // 🔄 수정됨
       oilType: json['oilType'] ?? '휘발유',
+      // ✅ JSON 파싱 필드 추가
+      isOilCardRegistered: json['isOilCardRegistered'] ?? false,
+      isOilCardMonthlyRequirementSatisfied:
+          json['isOilCardMonthlyRequirementSatisfied'] ?? false,
     );
   }
 }

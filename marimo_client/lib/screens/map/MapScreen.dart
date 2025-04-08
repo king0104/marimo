@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/models/map/gas_station_place.dart';
-import 'package:marimo_client/providers/map/filter.provider.dart';
+import 'package:marimo_client/providers/map/filter_provider.dart';
 import 'package:marimo_client/screens/map/utils/map_filter_mapper.dart';
 import 'package:marimo_client/providers/navigation_provider.dart';
 import 'package:marimo_client/screens/map/utils/map_utils.dart';
@@ -41,6 +41,7 @@ class _MapScreenState extends State<MapScreen> {
   List<Place> _currentPlaces = [];
   List<String> _previousMarkerIds = [];
   String? _highlightedPlaceId;
+  int _radius = 3; // ✅ 필터 반경 상태 추가
 
   @override
   void dispose() {
@@ -235,7 +236,12 @@ class _MapScreenState extends State<MapScreen> {
         return Builder(
           builder:
               (modalContext) => FilterBottomSheet(
-                onApply: () => _onCategoryTap('gas'), // ✅ 현재 필터 기반으로 다시 호출
+                onApply: (selectedRadius) {
+                  setState(() {
+                    _radius = selectedRadius; // ✅ 선택된 반경을 상태에 저장
+                  });
+                  _onCategoryTap('gas');
+                },
               ), // ✅ 이 ctx로 Provider 접근
         );
       },
@@ -270,7 +276,7 @@ class _MapScreenState extends State<MapScreen> {
           accessToken: token,
           latitude: position.latitude,
           longitude: position.longitude,
-          radius: 3,
+          radius: _radius,
           hasSelfService: parsed.hasSelfService,
           hasMaintenance: parsed.hasMaintenance,
           hasCarWash: parsed.hasCarWash,

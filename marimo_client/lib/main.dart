@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:marimo_client/providers/map/category_provider.dart';
-import 'package:marimo_client/providers/map/filter.provider.dart';
+import 'package:marimo_client/providers/map/filter_provider.dart';
 import 'package:marimo_client/providers/map/location_provider.dart';
 import 'package:marimo_client/providers/map/station_cards_provider.dart';
 import 'package:provider/provider.dart';

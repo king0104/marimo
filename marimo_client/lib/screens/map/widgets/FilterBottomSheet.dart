@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:marimo_client/providers/map/filter.provider.dart';
+import 'package:marimo_client/providers/map/filter_provider.dart';
 import 'package:provider/provider.dart';
 
 class FilterBottomSheet extends StatefulWidget {
-  final VoidCallback? onApply; // 콜백 추가
+  final void Function(int radius)? onApply; // ✅ 반경도 함께 전달할 수 있도록 수정
   const FilterBottomSheet({super.key, this.onApply});
 
   @override
@@ -12,6 +12,7 @@ class FilterBottomSheet extends StatefulWidget {
 
 class _FilterBottomSheetState extends State<FilterBottomSheet> {
   late Map<String, Set<String>> selectedFiltersByCategory;
+  int _radius = 3; // ✅ 기본값 3km
 
   final Map<String, List<String>> filterOptions = {
     '운영 정보': ['셀프 주유'],
@@ -28,6 +29,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
       for (final entry in filterOptions.entries)
         entry.key: filterProvider.filtersByCategory[entry.key] ?? <String>{},
     };
+    _radius = filterProvider.radiusKm; // ✅ Provider에서 반경 값으로 초기화
   }
 
   void _toggleOption(String category, String option) {
@@ -62,6 +64,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
       for (final key in selectedFiltersByCategory.keys) {
         selectedFiltersByCategory[key] = <String>{};
       }
+      _radius = 3; // ✅ 초기화 시 반경도 3km로 되돌림
       filterProvider.clearFilters();
     });
   }
@@ -69,7 +72,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 510,
+      height: 560,
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
@@ -93,6 +96,30 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                       ),
                     ),
                     const SizedBox(height: 16),
+
+                    // ✅ 반경 선택 슬라이더 추가
+                    const Text(
+                      '검색 반경',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Slider(
+                      value: _radius.toDouble(),
+                      onChanged: (value) {
+                        setState(() {
+                          _radius = value.round();
+                        });
+                      },
+                      min: 1,
+                      max: 5,
+                      divisions: 2,
+                      label: '${_radius}km',
+                    ),
+
+                    const SizedBox(height: 16),
+
                     ...filterOptions.entries.map(
                       (entry) => Padding(
                         padding: const EdgeInsets.only(bottom: 16),
@@ -212,8 +239,9 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                           }
                         });
 
+                        filterProvider.setRadius(_radius); // ✅ Provider에 반영
                         Navigator.pop(context);
-                        widget.onApply?.call(); // ✅ 필터 적용 후 콜백 실행
+                        widget.onApply?.call(_radius); // ✅ radius 전달
                       },
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size.fromHeight(50),
