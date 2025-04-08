@@ -7,6 +7,7 @@ import com.ssafy.marimo.exception.ExternalApiException;
 import com.ssafy.marimo.external.dto.FintechCardListResponse;
 import com.ssafy.marimo.external.dto.FintechCardTransactionResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class FintechApiClient {
@@ -67,6 +69,8 @@ public class FintechApiClient {
         body.put("cvc", cvc);
         body.put("startDate", startDate);
         body.put("endDate", endDate);
+
+        log.info("📤 Sending card transaction request with cardNo={}, startDate={}, endDate={}", cardNo, startDate, endDate);
 
         try {
             return webClient.post()
