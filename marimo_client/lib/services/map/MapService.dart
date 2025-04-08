@@ -8,10 +8,13 @@ import 'package:marimo_client/screens/map/utils/map_utils.dart';
 class MapService {
   /// 현재 위치 가져오기
   Future<NLatLng> fetchCurrentLatLng() async {
-    final position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
-    return NLatLng(position.latitude, position.longitude);
+    // final position = await Geolocator.getCurrentPosition(
+    //   desiredAccuracy: LocationAccuracy.high,
+    // );
+    // return NLatLng(position.latitude, position.longitude);
+
+    // 실제 위치 대신 역삼역 좌표 반환
+    return NLatLng(37.500612, 127.036431);
   }
 
   /// 현재 위치 마커 추가 (고정된 이미지 사용)

@@ -24,8 +24,8 @@ class MapSearchService {
     final headers = buildHeaders(token: accessToken);
 
     final body = jsonEncode({
-      "latitude": latitude,
-      "longitude": longitude,
+      "latitude": 37.500612, // latitude,
+      "longitude": 127.036431, //longitude,
       "radius": radius,
       "hasSelfService": hasSelfService,
       "hasMaintenance": hasMaintenance,

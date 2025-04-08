@@ -103,7 +103,7 @@ class PlaceCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      place.discountedPrice?.toString() ?? '',
+                      '${place.discountedPrice}원' ?? '',
                       style: TextStyle(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.bold,
@@ -114,7 +114,7 @@ class PlaceCard extends StatelessWidget {
 
                 const SizedBox(height: 4),
 
-                // ✅✅ 변경된 부분: 상태 라벨을 Column 안으로 이동시킴
+                // ✅ 상태 라벨 (ex. 카드 미등록, 전월 실적 부족)
                 if (_getStatusLabel(place) != null)
                   Container(
                     margin: const EdgeInsets.only(bottom: 6),
@@ -136,7 +136,6 @@ class PlaceCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                // ✅✅ 여기까지가 기존 Stack/Positioned → Column 내부로 옮긴 변경 내용
 
                 // ✅ 부가 정보 태그 영역
                 Wrap(
@@ -150,6 +149,22 @@ class PlaceCard extends StatelessWidget {
                     _buildTag("24시"), // 이건 지금 고정으로 넣었어. 필요하면 조건부로 수정 가능
                   ],
                 ),
+
+                // ✅ 할인된 경우: 취소선 가격 아래에 표시 (변경된 부분)
+                if (place.isOilCardRegistered &&
+                    place.isOilCardMonthlyRequirementSatisfied &&
+                    place.price != place.discountedPrice)
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      '${place.price}원',
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        color: Colors.grey,
+                        decoration: TextDecoration.lineThrough,
+                      ),
+                    ),
+                  ),
 
                 const Spacer(),
 
