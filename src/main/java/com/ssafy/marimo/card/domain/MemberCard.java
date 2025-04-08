@@ -35,6 +35,9 @@ public class MemberCard extends BaseTimeEntity {
     @JoinColumn(name = "card_id", nullable = false)
     private Card card;
 
+    @Column(nullable = false)
+    private Integer cardPreviousPerformance; // 전월실적
+
     @Builder
     private MemberCard(Member member, Card card) {
         this.member = member;
@@ -48,4 +51,7 @@ public class MemberCard extends BaseTimeEntity {
                 .build();
     }
 
+    public void updateCardPreviousPerformance(Integer cardPreviousPerformance) {
+        this.cardPreviousPerformance = cardPreviousPerformance;
+    }
 }

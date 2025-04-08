@@ -50,6 +50,7 @@ public enum ErrorStatus {
     INSURANCE_NOT_FOUND("해당 보험을 찾을 수 없습니다"),
     CAR_INSURANCE_NOT_FOUND("차량이 해당 보험을 가지고 있지 않습니다"),
     DISCOUNT_RULE_NOT_FOUND("현재 거리에 해당하는 마일리지 특약 혜택 구간이 존재하지 않습니다"),
+    MEMBER_CARD_NOT_FOUND("현재 등록된 카드가 없습니다"),
 
 
     /**

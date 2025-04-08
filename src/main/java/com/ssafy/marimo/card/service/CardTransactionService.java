@@ -1,5 +1,6 @@
 package com.ssafy.marimo.card.service;
 
+import com.ssafy.marimo.common.annotation.ExecutionTimeLog;
 import com.ssafy.marimo.external.dto.FintechCardTransactionResponse;
 import com.ssafy.marimo.external.fintech.FintechApiClient;
 import lombok.RequiredArgsConstructor;
