@@ -15,11 +15,11 @@ public class CardTransactionService {
 
     private final FintechApiClient fintechApiClient;
 
-    @Cacheable(
-            value = "card-transactions",
-            key = "#cardNo + '-' + #cvc + '-' + #startDate + '-' + #endDate",
-            unless = "#result == null"
-    )
+//    @Cacheable(
+//            value = "card-transactions",
+//            key = "#cardNo + '-' + #cvc + '-' + #startDate + '-' + #endDate",
+//            unless = "#result == null"
+//    )
     public FintechCardTransactionResponse getCardTransactions(
             String cardNo, String cvc, String startDate, String endDate) {
 
