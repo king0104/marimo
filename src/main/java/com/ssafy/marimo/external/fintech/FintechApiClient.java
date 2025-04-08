@@ -3,6 +3,7 @@ package com.ssafy.marimo.external.fintech;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ssafy.marimo.common.annotation.ExecutionTimeLog;
 import com.ssafy.marimo.exception.ExternalApiException;
 import com.ssafy.marimo.external.dto.FintechCardListResponse;
 import com.ssafy.marimo.external.dto.FintechCardTransactionResponse;
@@ -59,6 +60,7 @@ public class FintechApiClient {
         }
     }
 
+    @ExecutionTimeLog
     public FintechCardTransactionResponse getCardTransactions(String cardNo, String cvc, String startDate, String endDate) {
         Map<String, Object> body = new HashMap<>();
         body.put("Header", headerProvider.generateHeader(

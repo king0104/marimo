@@ -20,6 +20,7 @@ public class CardTransactionService {
 //            key = "#cardNo + '-' + #cvc + '-' + #startDate + '-' + #endDate",
 //            unless = "#result == null"
 //    )
+    @ExecutionTimeLog
     public FintechCardTransactionResponse getCardTransactions(
             String cardNo, String cvc, String startDate, String endDate) {
 
