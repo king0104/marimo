@@ -114,6 +114,7 @@ class ObdPollingProvider with ChangeNotifier {
         }
 
         await sendObdDataToServer(context);
+
         lastSuccessfulPollingTime = DateTime.now();
         await _saveResponsesToLocal(); // ⬅️ 여기서만 마지막 시각 저장
       }
@@ -315,12 +316,10 @@ class ObdPollingProvider with ChangeNotifier {
   Future<void> sendObdDataToServer(BuildContext context) async {
     try {
       final carProvider = Provider.of<CarProvider>(context, listen: false);
-      final authProvider = Provider.of<AuthProvider>(
-        context,
-        listen: false,
-      ); // ✅ 추가
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
       final carId = carProvider.firstCarId;
-      final accessToken = authProvider.accessToken; // ✅ 토큰 가져오기
+      final accessToken = authProvider.accessToken;
 
       if (carId == null || accessToken == null) {
         debugPrint('🚫 전송 실패: 차량 ID 또는 토큰이 없습니다');
@@ -330,10 +329,29 @@ class ObdPollingProvider with ChangeNotifier {
       await ObdService.sendObdData(
         carId: carId,
         accessToken: accessToken,
-        provider: this, // ObdPollingProvider 자체 전달
+        provider: this,
       );
 
       debugPrint('✅ OBD 데이터 서버 전송 완료');
+
+      // ✅ 추가: 총 주행거리도 함께 전송
+      final hexDistance = responses['31']; // 31번 PID 값 (16진수)
+
+      if (hexDistance != null) {
+        try {
+          final distance = int.parse(hexDistance, radix: 16);
+          await ObdService.sendTotalDistance(
+            carId: carId,
+            totalDistance: distance,
+            accessToken: accessToken,
+          );
+          debugPrint('✅ 총 주행거리 전송 완료: $distance km');
+        } catch (e) {
+          debugPrint('❌ 주행거리 파싱/전송 실패: $e');
+        }
+      } else {
+        debugPrint('⚠️ PID 31 (총 주행거리) 값이 없습니다');
+      }
     } catch (e) {
       debugPrint('❌ OBD 데이터 전송 실패: $e');
     }
