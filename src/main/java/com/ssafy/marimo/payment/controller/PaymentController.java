@@ -22,8 +22,8 @@ public class PaymentController {
     @GetMapping("/cars/{carId}")
     public ResponseEntity<GetMonthlyPaymentResponse> getMonthlyHistory(
             @PathVariable("carId") @DecryptedId Integer carId,
-            @RequestParam("year") int year,
-            @RequestParam("month") int month
+            @RequestParam(value = "year", required = false) Integer year,
+            @RequestParam(value = "month", required = false) Integer month
     ) {
         GetMonthlyPaymentResponse response = paymentService.getMonthlyHistory(carId, year, month);
 
