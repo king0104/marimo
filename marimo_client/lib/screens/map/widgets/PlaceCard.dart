@@ -36,7 +36,7 @@ class PlaceCard extends StatelessWidget {
             margin: const EdgeInsets.only(right: 12),
             padding: const EdgeInsets.all(12),
             width: screenWidth * 0.83,
-            height: 150.h,
+            height: 160.h,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(14),

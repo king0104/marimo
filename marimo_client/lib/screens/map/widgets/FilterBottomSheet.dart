@@ -116,6 +116,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                       max: 5,
                       divisions: 2,
                       label: '${_radius}km',
+                      activeColor: const Color(0xFF3B82F6),
                     ),
 
                     const SizedBox(height: 16),
