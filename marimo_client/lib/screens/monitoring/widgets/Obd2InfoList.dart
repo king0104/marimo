@@ -10,6 +10,7 @@ import 'package:marimo_client/providers/obd_polling_provider.dart';
 import 'package:marimo_client/providers/obd_analysis_provider.dart';
 import 'package:marimo_client/utils/obd_response_parser.dart';
 import 'package:marimo_client/constants/obd_dtcs.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Obd2InfoList extends StatefulWidget {
   final VoidCallback? onToggleWidgets;
@@ -31,31 +32,67 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadDtcCodes();
+      _analyzeObdData();
+      // saveTestDtcCodesOnce();
     });
+  }
+
+  void _analyzeObdData() {
+    final responses = context.read<ObdPollingProvider>().responses;
+    final data = parseObdResponses(responses);
+    context.read<ObdAnalysisProvider>().analyze(data);
   }
 
   Future<void> _loadDtcCodes() async {
     final provider = context.read<ObdPollingProvider>();
+
     try {
-      await Future.delayed(const Duration(seconds: 2));
-      final fetchedCodes = await provider.fetchStoredDtcCodes();
-      debugPrint('📥 Obd2InfoList에서 받아온 DTC 목록: $fetchedCodes');
+      await Future.delayed(const Duration(seconds: 1));
+
+      List<String> fetchedCodes;
+
+      if (provider.isConnected) {
+        // OBD 연결되어 있으면 OBD에서 가져옴
+        fetchedCodes = await provider.fetchStoredDtcCodes();
+        debugPrint('📥 OBD에서 받아온 DTC 목록: $fetchedCodes');
+      } else {
+        // OBD 연결 안 되어 있으면 SharedPreferences에서 로드
+        fetchedCodes = await provider.loadDtcCodesFromLocal();
+        debugPrint('📂 로컬 저장된 DTC 목록 로딩됨: $fetchedCodes');
+      }
 
       setState(() {
         dtcCodes = fetchedCodes;
       });
     } catch (e) {
-      debugPrint('❌ Obd2InfoList에서 DTC 조회 실패: $e');
+      debugPrint('❌ DTC 코드 로딩 실패: $e');
     }
   }
+
+  // // Obd2InfoList.dart
+  // Future<void> saveTestDtcCodesOnce() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   const key = 'stored_dtc_codes'; // ✅ 이 키로 저장
+  //   final testDtcCodes = [
+  //     'P007E',
+  //     'B0024',
+  //     'P3007',
+  //     'U2902',
+  //     'C0300',
+  //     'C3EA0',
+  //     'P2430',
+  //     'P07EB',
+  //     'P0243',
+  //   ];
+  //   await prefs.setStringList(key, testDtcCodes);
+  //   debugPrint('✅ 테스트 DTC 코드 저장 완료: $testDtcCodes');
+  // }
 
   @override
   Widget build(BuildContext context) {
     final responses = context.watch<ObdPollingProvider>().responses;
     final data = parseObdResponses(responses);
 
-    final analysisProvider = context.read<ObdAnalysisProvider>();
-    analysisProvider.analyze(data);
     final statusItems = context.watch<ObdAnalysisProvider>().statusItems;
 
     final isDtcEmpty = showDtcInfo && dtcCodes.isEmpty;

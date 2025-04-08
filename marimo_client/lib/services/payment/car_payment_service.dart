@@ -2,9 +2,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
 import 'package:marimo_client/services/commons/api.dart';
 import 'package:marimo_client/providers/car_payment_provider.dart';
+import 'package:marimo_client/models/payment/car_payment_entry.dart';
 
 class CarPaymentService {
   static final String baseUrl =
@@ -57,6 +57,34 @@ class CarPaymentService {
     } else {
       final errorMessage = utf8.decode(response.bodyBytes);
       throw Exception("결제 저장 실패: $errorMessage");
+    }
+  }
+
+  static Future<List<CarPaymentEntry>> fetchPaymentsByMonth({
+    required int year,
+    required int month,
+    required String accessToken,
+  }) async {
+    final url = Uri.parse('$baseUrl/api/v1/payments?year=$year&month=$month');
+    final headers = buildHeaders(token: accessToken);
+
+    final response = await http.get(url, headers: headers);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
+
+      return data.map((item) {
+        return CarPaymentEntry(
+          paymentId: item['id'].toString(),
+          category: item['category'],
+          amount: item['price'],
+          date: DateTime.parse(item['paymentDate']),
+          details: item,
+        );
+      }).toList();
+    } else {
+      final message = utf8.decode(response.bodyBytes);
+      throw Exception('전체 차계부 조회 실패: $message');
     }
   }
 }

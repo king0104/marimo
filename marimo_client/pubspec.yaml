@@ -59,6 +59,7 @@ dependencies:
   tflite_flutter: ^0.11.0
   shared_preferences: ^2.5.3
   flutter_launcher_icons: ^0.14.3
+  flutter_markdown: ^0.7.7
 
 dev_dependencies:
   flutter_test:

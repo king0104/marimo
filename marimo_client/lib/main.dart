@@ -55,6 +55,7 @@ void main() async {
   // ✅ CarPaymentProvider 초기화 및 진단일 로드
   final carPaymentProvider = CarPaymentProvider();
   await carPaymentProvider.loadTireDiagnosisDate(); // ✅ 진단일 불러오기
+  await carPaymentProvider.loadLastPaymentId();
 
   // 전역 시스템 UI 스타일 설정
   SystemChrome.setSystemUIOverlayStyle(
@@ -169,7 +170,8 @@ class _MainScreenState extends State<MainScreen>
 
     Future.microtask(() async {
       final provider = context.read<ObdPollingProvider>();
-      await provider.loadResponsesFromLocal(context); // 이전 값 먼저 불러오고
+      await provider.loadResponsesFromLocal(context); // 이전 값 먼저 불러오
+      await provider.loadDtcCodesFromLocal();
     });
 
     _controller = AnimationController(
