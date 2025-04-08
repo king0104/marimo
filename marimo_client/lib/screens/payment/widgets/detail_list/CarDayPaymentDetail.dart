@@ -1,28 +1,38 @@
-// CarDayDetailPayment.dart
+// CarDayPaymentDetail.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
+import 'package:marimo_client/providers/car_payment_provider.dart';
+import 'package:marimo_client/models/payment/car_payment_entry.dart';
 import 'CarDayPaymentItemList.dart';
 
-class CarDayDetailPayment extends StatelessWidget {
-  final int selectedMonth;
-
-  const CarDayDetailPayment({super.key, required this.selectedMonth});
+class CarDayPaymentDetail extends StatelessWidget {
+  const CarDayPaymentDetail({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // 날짜별 데이터 리스트 (나중에 Provider로 대체 가능)
-    final List<DateTime> dummyDates = [
-      DateTime(2025, selectedMonth, 16),
-      DateTime(2025, selectedMonth, 12),
-      DateTime(2025, selectedMonth, 11),
-      DateTime(2025, selectedMonth, 1),
-    ];
+    final entries = context.select<CarPaymentProvider, List<CarPaymentEntry>>(
+      (provider) => provider.filteredEntries,
+    );
+
+    /// ⏱ 그룹핑 한 번만
+    final Map<DateTime, List<CarPaymentEntry>> groupedByDate = {};
+    for (final entry in entries) {
+      final date = DateTime(entry.date.year, entry.date.month, entry.date.day);
+      groupedByDate.putIfAbsent(date, () => []).add(entry);
+    }
+
+    /// ⏱ 정렬도 한 번만
+    final sortedDates =
+        groupedByDate.keys.toList()..sort((a, b) => b.compareTo(a));
 
     return ListView.builder(
-      physics: const BouncingScrollPhysics(),
-      itemCount: dummyDates.length,
+      cacheExtent: 1000, // ✅ 미리 렌더링 범위
+      itemCount: sortedDates.length,
       itemBuilder: (context, index) {
-        final date = dummyDates[index];
+        final date = sortedDates[index];
+        final items = groupedByDate[date]!;
+
         return Padding(
           padding: EdgeInsets.only(bottom: 16.h),
           child: Column(
@@ -33,7 +43,7 @@ class CarDayDetailPayment extends StatelessWidget {
                 style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w300),
               ),
               SizedBox(height: 16.h),
-              CarDayPaymentItemList(date: date),
+              CarDayPaymentItemList(date: date, entries: items),
             ],
           ),
         );

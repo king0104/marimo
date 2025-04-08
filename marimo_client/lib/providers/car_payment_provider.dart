@@ -299,9 +299,13 @@ class CarPaymentProvider with ChangeNotifier {
     await prefs.remove('lastPaymentId');
   }
 
-  Future<void> fetchPaymentsForSelectedMonth(String accessToken) async {
+  Future<void> fetchPaymentsForSelectedMonth({
+    required String accessToken,
+    required String carId,
+  }) async {
     try {
       final payments = await CarPaymentService.fetchPaymentsByMonth(
+        carId: carId,
         year: _selectedYear,
         month: _selectedMonth,
         accessToken: accessToken,
@@ -315,5 +319,17 @@ class CarPaymentProvider with ChangeNotifier {
     } catch (e) {
       print('❌ 전체 차계부 조회 실패: $e');
     }
+  }
+
+  bool _hasFetchedInitial = false;
+
+  Future<void> fetchPaymentsOnceIfNeeded({
+    required String accessToken,
+    required String carId,
+  }) async {
+    if (_hasFetchedInitial) return;
+    _hasFetchedInitial = true;
+
+    await fetchPaymentsForSelectedMonth(accessToken: accessToken, carId: carId);
   }
 }

@@ -13,4 +13,29 @@ class CarPaymentEntry {
     required this.date,
     required this.details,
   });
+
+  /// 🔽 서버에서 받아온 JSON 데이터를 쉽게 변환하는 생성자
+  factory CarPaymentEntry.fromJson(Map<String, dynamic> item) {
+    return CarPaymentEntry(
+      paymentId: item['paymentId'].toString(),
+      category: item['type'],
+      amount: item['price'],
+      date: DateTime.parse(item['paymentDate']),
+      details: item,
+    );
+  }
+
+  /// ✅ 한글 카테고리 변환 getter
+  String get categoryKr {
+    switch (category.toUpperCase()) {
+      case 'OIL':
+        return '주유';
+      case 'REPAIR':
+        return '정비';
+      case 'WASH':
+        return '세차';
+      default:
+        return category;
+    }
+  }
 }
