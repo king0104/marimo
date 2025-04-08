@@ -161,7 +161,13 @@ class _SignUpScreenBodyState extends State<SignUpScreenBody> {
       _debounce = Timer(const Duration(milliseconds: 300), () async {
         await signUpProvider.verifyEmail(emailController.text.trim(), trimmed);
         if (signUpProvider.isEmailVerified) {
-          showToast(context, "이메일 인증 완료", icon: Icons.check, type: 'success');
+          showToast(
+            context,
+            "이메일 인증 완료",
+            icon: Icons.check,
+            type: 'success',
+            position: "top-down",
+          );
           setState(() {
             currentStep = 5;
           });

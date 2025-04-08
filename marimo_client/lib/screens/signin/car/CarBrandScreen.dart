@@ -18,6 +18,7 @@ class CarBrandScreen extends StatelessWidget {
     final manufacturers = [
       {"name": "현대", "logo": "assets/images/logo/logo_hyundai.png"},
       {"name": "기아", "logo": "assets/images/logo/logo_kia.png"},
+      {"name": "토요타", "logo": "assets/images/logo/logo_toyota.png"},
       {"name": "KGM", "logo": "assets/images/logo/logo_kgm.png"},
     ];
 

@@ -44,7 +44,7 @@ class CardService {
 
     final response = await http.get(url, headers: headers);
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 || response.statusCode == 201) {
       final body = utf8.decode(response.bodyBytes);
       final json = jsonDecode(body);
       print("✅ 카드 목록 응답: $json");
@@ -73,7 +73,7 @@ class CardService {
 
     final response = await http.post(url, headers: headers, body: body);
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 201) {
       final responseBody = utf8.decode(response.bodyBytes);
       print("✅ 주유 카드 등록 성공! 응답 바디 : $responseBody");
     } else {
