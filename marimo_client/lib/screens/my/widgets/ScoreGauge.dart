@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:provider/provider.dart';
 import 'package:marimo_client/providers/obd_polling_provider.dart';
 import 'package:marimo_client/utils/warning_storage.dart';
+import 'package:marimo_client/providers/navigation_provider.dart';
 
 class ScoreGauge extends StatefulWidget {
   const ScoreGauge({super.key});
@@ -36,7 +37,11 @@ class _ScoreGaugeState extends State<ScoreGauge> with SingleTickerProviderStateM
   Future<void> _calculateScore() async {
     // DTC 코드 점수 계산 (20점 만점)
     final dtcCount = await Provider.of<ObdPollingProvider>(context, listen: false).getStoredDtcCodeCount();
-    _dtcScore = dtcCount == 0 ? 20 : 0;
+    _dtcScore = dtcCount == 0 
+      ? 20  // 고장 카운트 0개: 20점
+      : dtcCount >= 10 
+        ? 0   // 고장 카운트 10개 이상: 0점
+        : 20 - (dtcCount * 2);  // 그 외: 카운트당 2점씩 감점
     
     // 경고 메시지 점수 계산 (80점 만점)
     final warningCount = await WarningStorage.count();
@@ -58,6 +63,11 @@ class _ScoreGaugeState extends State<ScoreGauge> with SingleTickerProviderStateM
       _animationController.reset();
       _animationController.forward();
     }
+  }
+
+  void _navigateToMonitoringTab(BuildContext context) {
+    final navigationProvider = Provider.of<NavigationProvider>(context, listen: false);
+    navigationProvider.setIndex(1); // 모니터링 탭 인덱스로 설정
   }
 
   @override
@@ -134,13 +144,13 @@ class _ScoreGaugeState extends State<ScoreGauge> with SingleTickerProviderStateM
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _buildScoreItem('고장 코드', _dtcScore),
+                  _buildScoreItem('고장 코드 점수', _dtcScore),
                   SizedBox(width: 16.w),
-                  _buildScoreItem('상태 주의', _warningScore),
+                  _buildScoreItem('상태 주의 점수', _warningScore),
                 ],
               ),
               SizedBox(height: 28.h),
-              if (_totalScore < 100) // 100점이 아닐 때만 버튼 표시
+              // if (_totalScore < 100) // 100점이 아닐 때만 버튼 표시
                 Center(
                   child: Container(
                     decoration: BoxDecoration(
@@ -151,10 +161,7 @@ class _ScoreGaugeState extends State<ScoreGauge> with SingleTickerProviderStateM
                       ),
                     ),
                     child: TextButton(
-                      onPressed: () {
-                        // 모니터링 탭(2번 탭)으로 이동
-                        DefaultTabController.of(context).animateTo(1);
-                      },
+                      onPressed: () => _navigateToMonitoringTab(context),
                       style: TextButton.styleFrom(
                         padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 10.h),
                         minimumSize: Size(50.w, 20.h),
