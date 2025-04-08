@@ -57,4 +57,29 @@ class CardService {
       throw Exception("카드 목록 조회 실패: $errorBody");
     }
   }
+
+  static Future<void> registerUserOilCard({
+    required String accessToken,
+    required String cardUniqueNo,
+  }) async {
+    final url = Uri.parse('$baseUrl/api/v1/cards/oil/me');
+    final headers = buildHeaders(token: accessToken);
+
+    final body = jsonEncode({"cardUniqueNo": cardUniqueNo});
+
+    print('📡 [REQUEST] POST $url');
+    print('🧾 Headers: $headers');
+    print('📦 Body: $body');
+
+    final response = await http.post(url, headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      final responseBody = utf8.decode(response.bodyBytes);
+      print("✅ 주유 카드 등록 성공! 응답 바디 : $responseBody");
+    } else {
+      final errorBody = utf8.decode(response.bodyBytes);
+      print("❌ 주유 카드 등록 실패: $errorBody");
+      throw Exception("주유 카드 등록 실패: $errorBody");
+    }
+  }
 }
