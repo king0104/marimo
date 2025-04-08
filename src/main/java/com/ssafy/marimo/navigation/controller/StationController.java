@@ -2,7 +2,9 @@ package com.ssafy.marimo.navigation.controller;
 
 import com.ssafy.marimo.common.annotation.CurrentMemberId;
 import com.ssafy.marimo.common.annotation.ExecutionTimeLog;
+import com.ssafy.marimo.navigation.dto.request.GetRepairShopRequest;
 import com.ssafy.marimo.navigation.dto.request.PostGasStationRecommendRequest;
+import com.ssafy.marimo.navigation.dto.response.GetRepairShopResponse;
 import com.ssafy.marimo.navigation.dto.response.PostGasStationRecommendResponse;
 import com.ssafy.marimo.navigation.service.GasStationService;
 import com.ssafy.marimo.navigation.service.OpinetStationSyncService;
@@ -36,5 +38,9 @@ public class StationController {
         opinetStationSyncService.syncByStationName("주유소");
         return ResponseEntity.ok().build();
     }
+
+
+
+
 
 }
