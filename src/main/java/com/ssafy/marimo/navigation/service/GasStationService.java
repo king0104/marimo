@@ -71,21 +71,40 @@ public class GasStationService {
         if (memberCard == null) {
             isOilCardMonthlyRequirementSatisfied = false;
             isOilCardRegistered = false;
+            log.warn("⚠️ [카드 미등록] memberId={} 에 등록된 카드 없음", memberId);
         }
 
         // 2. 외부 API 사용해서 전월실적 가져오기
+//        else {
+//            isOilCardRegistered = true;
+//            Card card = memberCard.get().getCard();
+//            Integer monthlyRequirement = card.getMonthlyRequirement();
+//            log.info("💳 [카드 정보] cardNo={}, monthlyRequirement={}", card.getCardNo(), monthlyRequirement);
+//            Integer estimatedBalance = Integer.parseInt(
+//                    cardTransactionService.getCardTransactions(card.getCardNo(), card.getCvc(),
+//                            "20250401", "20250404").getRec().getEstimatedBalance());
+//            // 전월 실적 기준 <= 실제 전월 실적
+//            if (monthlyRequirement <= estimatedBalance) {
+//                isOilCardMonthlyRequirementSatisfied = true;
+//            } else {
+//                isOilCardMonthlyRequirementSatisfied = false;
+//            }
+//        }
         else {
             isOilCardRegistered = true;
-            Card card = memberCard.get().getCard();
-            Integer monthlyRequirement = card.getMonthlyRequirement();
-            Integer estimatedBalance = Integer.parseInt(
-                    cardTransactionService.getCardTransactions(card.getCardNo(), card.getCvc(),
-                            "20250401", "20250404").getRec().getEstimatedBalance());
-            // 전월 실적 기준 <= 실제 전월 실적
-            if (monthlyRequirement <= estimatedBalance) {
-                isOilCardMonthlyRequirementSatisfied = true;
-            } else {
-                isOilCardMonthlyRequirementSatisfied = false;
+            try {
+                Card card = memberCard.get().getCard();
+                Integer monthlyRequirement = card.getMonthlyRequirement();
+                log.info("💳 [카드 정보] cardNo={}, monthlyRequirement={}", card.getCardNo(), monthlyRequirement);
+
+                String estimated = cardTransactionService.getCardTransactions(card.getCardNo(), card.getCvc(),
+                        "20250401", "20250404").getRec().getEstimatedBalance();
+                Integer estimatedBalance = Integer.parseInt(estimated);
+                isOilCardMonthlyRequirementSatisfied = (monthlyRequirement <= estimatedBalance);
+                log.info("📈 [실적 확인] estimatedBalance={}, 만족 여부={}", estimatedBalance, isOilCardMonthlyRequirementSatisfied);
+            } catch (Exception e) {
+                log.error("💥 [카드 실적 조회 실패] memberId={}, error={}", memberId, e.getMessage(), e);
+                throw new ServerException(ErrorStatus.INTERNAL_SERVER_ERROR.getErrorCode());
             }
         }
 
