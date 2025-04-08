@@ -55,11 +55,6 @@ class CarModelScreen extends StatelessWidget {
     final modelImageMap = getModelImageMapByBrand(selectedBrand);
     final String? imagePath = modelImageMap[selectedModel];
 
-    final isCompactImage = selectedModel == "에쿠스" || selectedModel == "제네시스";
-    final double imageWidth = isCompactImage ? 522.w : 770.w;
-    final double imageHeight = isCompactImage ? 280.h : 420.h;
-    final double imageRight = isCompactImage ? -260.w : -380.w;
-
     return Scaffold(
       body: LayoutBuilder(
         builder: (context, constraints) {
