@@ -4,6 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:marimo_client/providers/car_payment_provider.dart';
+import 'package:marimo_client/providers/car_provider.dart';
+import 'package:marimo_client/providers/member/auth_provider.dart';
 import 'package:marimo_client/theme.dart';
 import 'package:intl/intl.dart';
 
@@ -12,9 +14,10 @@ class CarMonthlyPayment extends StatelessWidget {
 
   void _showMonthSelector(BuildContext context) async {
     final provider = context.read<CarPaymentProvider>();
-
-    // 선택 전 상태 출력
-    // print('선택 전 월: ${provider.selectedMonth}');
+    final authProvider = context.read<AuthProvider>();
+    final carProvider = context.read<CarProvider>();
+    final accessToken = authProvider.accessToken;
+    final carId = carProvider.cars.first.id;
 
     final selected = await showModalBottomSheet<int>(
       context: context,
@@ -29,19 +32,26 @@ class CarMonthlyPayment extends StatelessWidget {
           ),
     );
 
-    if (selected != null) {
-      provider.setSelectedMonth(selected);
-      // 선택 후 상태 출력
-      // print('선택 후 월: ${provider.selectedMonth}, 선택한 값: $selected');
-      // print('CarMonthlyPayment hash: ${provider.hashCode}');
+    if (selected != null && accessToken != null && accessToken.isNotEmpty) {
+      await provider.updateMonthAndFetch(
+        month: selected,
+        year: provider.selectedYear, // 기존 연도 유지
+        accessToken: accessToken,
+        carId: carId,
+      );
     }
   }
 
   void _showYearSelector(BuildContext context) async {
     final provider = context.read<CarPaymentProvider>();
+    final authProvider = context.read<AuthProvider>();
+    final carProvider = context.read<CarProvider>();
+    final accessToken = authProvider.accessToken;
+    final carId = carProvider.cars.first.id;
+
     final currentYear = DateTime.now().year;
-    // 최근 5년간의 연도를 제공
-    final years = List.generate(5, (index) => currentYear - index);
+    // 최근 25년간의 연도를 제공
+    final years = List.generate(25, (index) => currentYear - index);
 
     final selected = await showModalBottomSheet<int>(
       context: context,
@@ -56,8 +66,13 @@ class CarMonthlyPayment extends StatelessWidget {
           ),
     );
 
-    if (selected != null) {
-      provider.setSelectedYear(selected);
+    if (selected != null && accessToken != null && accessToken.isNotEmpty) {
+      await provider.updateMonthAndFetch(
+        month: provider.selectedMonth, // 기존 월 유지
+        year: selected,
+        accessToken: accessToken,
+        carId: carId,
+      );
     }
   }
 

@@ -3,11 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:marimo_client/providers/car_payment_provider.dart';
-import 'package:marimo_client/providers/car_provider.dart';
 import 'package:marimo_client/screens/payment/widgets/detail_list/CarMonthlyPaymentReadOnly.dart';
 import 'package:marimo_client/screens/payment/widgets/detail_list/CarDayPaymentDetail.dart';
 import 'package:marimo_client/commons/CustomAppHeader.dart';
-import 'package:marimo_client/providers/member/auth_provider.dart';
 import 'CarTotalPayment.dart';
 
 class CarPaymentDetailList extends StatefulWidget {
@@ -21,26 +19,6 @@ class _CarDetailPaymentState extends State<CarPaymentDetailList>
     with WidgetsBindingObserver, AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    Future.microtask(() async {
-      final provider = context.read<CarPaymentProvider>();
-      final authProvider = context.read<AuthProvider>();
-      final carProvider = context.read<CarProvider>();
-
-      final accessToken = authProvider.accessToken;
-
-      if (accessToken != null && accessToken.isNotEmpty) {
-        await provider.fetchPaymentsForSelectedMonth(
-          accessToken: accessToken,
-          carId: carProvider.cars.first.id,
-        );
-      }
-    });
-  }
 
   @override
   void dispose() {
