@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:marimo_client/providers/card_provider.dart';
 import 'package:marimo_client/providers/map/category_provider.dart';
-import 'package:marimo_client/providers/map/filter.provider.dart';
+import 'package:marimo_client/providers/map/filter_provider.dart';
 import 'package:marimo_client/providers/map/location_provider.dart';
 import 'package:marimo_client/providers/map/station_cards_provider.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart'; // ✅ 이거 하나면 끝!
+
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -40,6 +42,11 @@ void main() async {
 
   await requestBluetoothPermissions();
   await dotenv.load(fileName: ".env");
+
+  KakaoSdk.init(
+    // ✅ ✅ 이 줄 추가!
+    nativeAppKey: dotenv.env['KAKAO_NATIVE_APP_KEY']!,
+  );
 
   await NaverMapSdk.instance.initialize(
     clientId: dotenv.env['NAVER_MAP_CLIENT_ID']!,

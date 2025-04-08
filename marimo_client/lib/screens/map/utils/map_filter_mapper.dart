@@ -6,6 +6,8 @@ class GasStationFilterParams {
   final List<String>? brandList;
   final String? oilType;
 
+  final int radius; // ✅ 추가
+
   const GasStationFilterParams({
     this.hasSelfService,
     this.hasMaintenance,
@@ -13,6 +15,7 @@ class GasStationFilterParams {
     this.hasCvs,
     this.brandList,
     this.oilType,
+    this.radius = 3, // ✅ 기본값: 3km
   });
 }
 
@@ -26,8 +29,9 @@ const Map<String, String> brandNameToCode = {
 
 /// ✅ 필터 옵션들을 DTO로 매핑하는 함수
 GasStationFilterParams parseFilterOptions(
-  Map<String, Set<String>> selectedOptions,
-) {
+  Map<String, Set<String>> selectedOptions, {
+  int radius = 3,
+}) {
   // ✅ Boolean 필드 처리
   bool? flag(String category, String label) =>
       selectedOptions[category]?.contains(label) == true ? true : null;
@@ -60,5 +64,6 @@ GasStationFilterParams parseFilterOptions(
     hasCvs: flag('부가 서비스', '편의점'),
     brandList: pickMappedBrandList('브랜드'),
     oilType: pickSingle('기름 종류'),
+    radius: radius, // ✅ 반영
   );
 }
