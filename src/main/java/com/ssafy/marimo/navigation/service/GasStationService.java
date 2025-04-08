@@ -122,10 +122,21 @@ public class GasStationService {
 //                isOilCardMonthlyRequirementSatisfied = false;
 //            }
 //        }
+        // [추가] 카드 혜택 미리 조회
+        List<CardBenefitDetail> cardBenefitDetails;
+        if (isOilCardRegistered && isOilCardMonthlyRequirementSatisfied) {
+            Card card = memberCard.get().getCard();
+            cardBenefitDetails = cardBenefitRepository.findWithDetailsByCardIdAndCategory(card.getId(), CATEGORY_GAS)
+                    .stream()
+                    .flatMap(cb -> cb.getDetails().stream())
+                    .toList();
+        } else {
+            cardBenefitDetails = null;
+        }
 
         List<PostGasStationRecommendResponse> candidates = filteredStations.stream()
                 .filter(s -> isValidOilType(req.oilType(), s))
-                .map(s -> toRecommendResponse(s, req, radiusMeter, isOilCardRegistered, isOilCardMonthlyRequirementSatisfied, memberCard))
+                .map(s -> toRecommendResponse(s, req, radiusMeter, isOilCardRegistered, isOilCardMonthlyRequirementSatisfied, memberCard, cardBenefitDetails))
                 .filter(Objects::nonNull)
                 .sorted(Comparator.comparing(PostGasStationRecommendResponse::distance))
                 .limit(5) // 가장 가까운 5개 먼저 뽑고
@@ -137,7 +148,7 @@ public class GasStationService {
     }
 
     @ExecutionTimeLog
-    public PostGasStationRecommendResponse toRecommendResponse(GasStation s, PostGasStationRecommendRequest req, int radiusMeter, boolean isOilCardRegistered, boolean isOilCardMonthlyRequirementSatisfied, Optional<MemberCard> memberCard) {
+    public PostGasStationRecommendResponse toRecommendResponse(GasStation s, PostGasStationRecommendRequest req, int radiusMeter, boolean isOilCardRegistered, boolean isOilCardMonthlyRequirementSatisfied, Optional<MemberCard> memberCard, List<CardBenefitDetail> cardBenefitDetails) {
         double userLat = req.latitude();
         double userLng = req.longitude();
         int distance = calcDistance(userLat, userLng, s.getLatitude(), s.getLongitude());
@@ -151,33 +162,50 @@ public class GasStationService {
         float discountAmount = 0; // 현재 할인 없음
 
         // 카드 혜택 적용
-        if (isOilCardRegistered && isOilCardMonthlyRequirementSatisfied) {
-            Card card = memberCard.get().getCard(); // 이 코드 수정 필요 (null 체크 해줘야함)
+        // [수정] cardBenefitRepository 호출 제거, cardBenefitDetails 사용
+        if (isOilCardRegistered && isOilCardMonthlyRequirementSatisfied && cardBenefitDetails != null) {
+            for (CardBenefitDetail cardBenefitDetail : cardBenefitDetails) {
+                if (cardBenefitDetail.getAppliesToAllBrands() ||
+                        cardBenefitDetail.getGasStationBrand().equals(s.getBrand())) {
 
-            List<CardBenefit> cardBenefits = cardBenefitRepository.findWithDetailsByCardIdAndCategory(card.getId(), CATEGORY_GAS);
-            for (CardBenefit benefit : cardBenefits) {
-                for (CardBenefitDetail cardBenefitDetail : benefit.getDetails()) {
-                    // 카드 혜택 적용하기
-                    if (cardBenefitDetail.getAppliesToAllBrands()) {
-                        discountedPrice = applyCardBenefit(price, cardBenefitDetail.getDiscountValue(),
-                                cardBenefitDetail.getDiscountUnit());
-                        discountAmount = price - discountedPrice;
-                        break;
-                    }
-
-                    if (cardBenefitDetail.getGasStationBrand().equals(s.getBrand())) {
-                        discountedPrice = applyCardBenefit(price, cardBenefitDetail.getDiscountValue(),
-                                cardBenefitDetail.getDiscountUnit());
-                        discountAmount = price - discountedPrice;
-
-                    }
-
+                    discountedPrice = applyCardBenefit(price,
+                            cardBenefitDetail.getDiscountValue(),
+                            cardBenefitDetail.getDiscountUnit());
+                    discountAmount = price - discountedPrice;
+                    break;
                 }
             }
-        }else {
-                log.info("ℹ️ [카드 혜택 미적용] 주유소ID={}, 등록 여부={}, 실적 만족 여부={}", s.getId(), isOilCardRegistered, isOilCardMonthlyRequirementSatisfied);
-
+        } else {
+            log.info("ℹ️ [카드 혜택 미적용] 주유소ID={}, 등록 여부={}, 실적 만족 여부={}", s.getId(), isOilCardRegistered, isOilCardMonthlyRequirementSatisfied);
         }
+//
+//        if (isOilCardRegistered && isOilCardMonthlyRequirementSatisfied) {
+//            Card card = memberCard.get().getCard(); // 이 코드 수정 필요 (null 체크 해줘야함)
+//
+//            List<CardBenefit> cardBenefits = cardBenefitRepository.findWithDetailsByCardIdAndCategory(card.getId(), CATEGORY_GAS);
+//            for (CardBenefit benefit : cardBenefits) {
+//                for (CardBenefitDetail cardBenefitDetail : benefit.getDetails()) {
+//                    // 카드 혜택 적용하기
+//                    if (cardBenefitDetail.getAppliesToAllBrands()) {
+//                        discountedPrice = applyCardBenefit(price, cardBenefitDetail.getDiscountValue(),
+//                                cardBenefitDetail.getDiscountUnit());
+//                        discountAmount = price - discountedPrice;
+//                        break;
+//                    }
+//
+//                    if (cardBenefitDetail.getGasStationBrand().equals(s.getBrand())) {
+//                        discountedPrice = applyCardBenefit(price, cardBenefitDetail.getDiscountValue(),
+//                                cardBenefitDetail.getDiscountUnit());
+//                        discountAmount = price - discountedPrice;
+//
+//                    }
+//
+//                }
+//            }
+//        }else {
+//                log.info("ℹ️ [카드 혜택 미적용] 주유소ID={}, 등록 여부={}, 실적 만족 여부={}", s.getId(), isOilCardRegistered, isOilCardMonthlyRequirementSatisfied);
+//
+//        }
 
 
 
