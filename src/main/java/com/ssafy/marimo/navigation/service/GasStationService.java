@@ -77,7 +77,6 @@ public class GasStationService {
             log.warn("⚠️ [카드 미등록] memberId={} 에 등록된 카드 없음", memberId);
         }
 
-
         else {
             isOilCardRegistered = true;
             try {
