@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/commons/chatbot.dart';
-import 'package:marimo_client/screens/Insurance/InsuranceScreen.dart';
+// import 'package:marimo_client/screens/Insurance/InsuranceScreen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:marimo_client/theme.dart';
 
@@ -18,6 +18,7 @@ class CommonAppBar extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _CommonAppBarState extends State<CommonAppBar> {
+  /* 알림 기능 임시 제거
   final List<Map<String, dynamic>> notifications = [
     {
       'id': '1',
@@ -249,6 +250,7 @@ class _CommonAppBarState extends State<CommonAppBar> {
           ),
     );
   }
+  */
 
   @override
   Widget build(BuildContext context) {
@@ -290,6 +292,7 @@ class _CommonAppBarState extends State<CommonAppBar> {
             );
           },
         ),
+        /* 알림 기능 임시 제거
         Stack(
           children: [
             IconButton(
@@ -315,6 +318,7 @@ class _CommonAppBarState extends State<CommonAppBar> {
               ),
           ],
         ),
+        */
         SizedBox(width: 8.w),
       ],
     );

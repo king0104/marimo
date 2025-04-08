@@ -30,9 +30,9 @@ class _ChatbotState extends State<Chatbot> {
   // 원래 placeholder 텍스트
   final String _guideText = "버튼을 누르고, 예시처럼 말해보세요.\n";
   final String _placeholderText =
-      "\"엔진 마모가 뭐야?\"\n\n\"마리모 요청: 차계부에 오늘 날짜로 GS칼텍스 방이점에 주유 2만원 기록해줘\"";
+      "\"냉각수가 뭐야?\"\n\n\"마리모 요청: 차계부에 오늘 날짜로 GS칼텍스 방이점에 주유 2만원 기록해줘\"";
   String _recognizedText =
-      "버튼을 누르고, 예시처럼 말해보세요.\n\"엔진 마모가 뭐야?\"\n\n\"마리모 요청: 차계부에 오늘 날짜로 GS칼텍스 방이점에 주유 2만원 기록해줘\"";
+      "버튼을 누르고, 예시처럼 말해보세요.\n\"냉각수가 뭐야?\"\n\n\"마리모 요청: 차계부에 오늘 날짜로 GS칼텍스 방이점에 주유 2만원 기록해줘\"";
 
   // Gemma 모델 추론 인스턴스
   InferenceModel? _inferenceModel;
@@ -239,6 +239,7 @@ class _ChatbotState extends State<Chatbot> {
         .replaceAll(RegExp(r'\n```.*\n'), '\n')  // 중간의 ``` 제거
         .replaceAll(RegExp(r'\n```.*$'), '')  // 끝 부분의 ``` 제거
         .replaceAll(RegExp(r'```.*$'), '')  // 문자열 끝의 ``` 제거 (줄바꿈 없는 경우)
+        .replaceAll(RegExp(r'```'), '')  // 남아있는 모든 ``` 제거
         .trim();
   }
 
@@ -385,7 +386,7 @@ class _ChatbotState extends State<Chatbot> {
             _startProcessingAnimation();
             setState(() {
               _isProcessing = true;
-              _recognizedText = "AI 마리모가 대답을 준비하고 있어요.\n";
+              _recognizedText = "마리모 AI가 대답을 준비하고 있어요.\n";
             });
             String generatedResponse = await _performGemmaInference(recognized);
             // 불필요한 마크다운 태그 제거
@@ -432,30 +433,38 @@ class _ChatbotState extends State<Chatbot> {
 
   void _stopListeningAnimation() {
     _listeningTimer?.cancel();
-    setState(() {
-      _listeningIconIndex = 1;
-    });
+    if (mounted) {
+      setState(() {
+        _listeningIconIndex = 1;
+      });
+    }
   }
 
   void _startProcessingAnimation() {
     _processingTimer?.cancel();
-    setState(() {
-      _isProcessing = true;
-    });
+    if (mounted) {
+      setState(() {
+        _isProcessing = true;
+      });
+    }
     _processingTimer = Timer.periodic(const Duration(milliseconds: 300), (
       timer,
     ) {
-      setState(() {
-        _processingIconIndex = (_processingIconIndex % 3) + 1;
-      });
+      if (mounted) {
+        setState(() {
+          _processingIconIndex = (_processingIconIndex % 3) + 1;
+        });
+      }
     });
   }
 
   void _stopProcessingAnimation() {
     _processingTimer?.cancel();
-    setState(() {
-      _processingIconIndex = 1;
-    });
+    if (mounted) {
+      setState(() {
+        _processingIconIndex = 1;
+      });
+    }
   }
 
   @override
@@ -469,8 +478,8 @@ class _ChatbotState extends State<Chatbot> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final containerHeight = size.height * 0.428;
-    final horizontalMargin = size.width * 0.05;
+    final containerHeight = size.height * 0.65;
+    final horizontalMargin = size.width * 0.08;
     final topPadding = containerHeight * 0.08;
     final textTop = containerHeight * 0.16;
     final textBottom = containerHeight * 0.25;
@@ -485,7 +494,14 @@ class _ChatbotState extends State<Chatbot> {
 
     TextStyle placeholderTextStyle = TextStyle(
       color: Colors.grey[600],
-      fontSize: size.width * 0.04,
+      fontSize: size.width * 0.035,  // 폰트 크기 축소
+      fontFamily: 'FreesentationVF',
+      fontWeight: FontWeight.w400,
+    );
+
+    TextStyle noticeTextStyle = TextStyle(  // 안내 문구용 스타일 추가
+      color: Colors.grey[500],
+      fontSize: size.width * 0.03,  // 더 작은 폰트 크기
       fontFamily: 'FreesentationVF',
       fontWeight: FontWeight.w400,
     );
@@ -513,8 +529,8 @@ class _ChatbotState extends State<Chatbot> {
           children: [
             // 로고 (좌측 상단)
             Positioned(
-              top: topPadding*0.8,
-              left: horizontalMargin*1.2,
+              top: topPadding*0.5,
+              left: horizontalMargin*1.0,
               child: SvgPicture.asset(
                 "assets/images/icons/logo_app_bar.svg",
                 width: size.width * 0.06,
@@ -550,67 +566,79 @@ class _ChatbotState extends State<Chatbot> {
                           textAlign: TextAlign.center,
                         ),
                       ),
-                    MarkdownBody(
-                      data: _recognizedText.startsWith(_guideText)
-                          ? _recognizedText.substring(_guideText.length)
-                          : _recognizedText,
-                      styleSheet: MarkdownStyleSheet(
-                        p: _recognizedText.startsWith(_guideText)
-                            ? placeholderTextStyle
-                            : TextStyle(
-                                color: Colors.black,
-                                fontSize: size.width * 0.04,
-                                fontFamily: 'FreesentationVF',
-                                fontWeight: FontWeight.w400,
+                    if (_recognizedText.startsWith(_guideText))
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _placeholderText,
+                            style: placeholderTextStyle,
+                          ),
+                          SizedBox(height: size.height * 0.08),  // h 대신 size.height 사용
+                          Text(
+                            "마리모 AI는 온디바이스 AI로, 날씨나 시간 등 실시간성 질문에 대한 답변은 부정확할 수 있습니다.",
+                            style: noticeTextStyle,
+                          ),
+                        ],
+                      )
+                    else
+                      MarkdownBody(
+                        data: _recognizedText,
+                        styleSheet: MarkdownStyleSheet(
+                          p: TextStyle(
+                            color: Colors.black,
+                            fontSize: size.width * 0.04,
+                            fontFamily: 'FreesentationVF',
+                            fontWeight: FontWeight.w400,
+                          ),
+                          h1: TextStyle(
+                            color: Colors.black,
+                            fontSize: size.width * 0.05,
+                            fontFamily: 'FreesentationVF',
+                            fontWeight: FontWeight.w600,
+                          ),
+                          h2: TextStyle(
+                            color: Colors.black,
+                            fontSize: size.width * 0.045,
+                            fontFamily: 'FreesentationVF',
+                            fontWeight: FontWeight.w600,
+                          ),
+                          code: TextStyle(
+                            color: Colors.black87,
+                            backgroundColor: Colors.grey[200],
+                            fontSize: size.width * 0.038,
+                            fontFamily: 'monospace',
+                          ),
+                          codeblockPadding: EdgeInsets.all(8),
+                          codeblockDecoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          blockquote: TextStyle(
+                            color: Colors.black87,
+                            fontSize: size.width * 0.04,
+                            fontFamily: 'FreesentationVF',
+                            fontStyle: FontStyle.italic,
+                          ),
+                          blockquoteDecoration: BoxDecoration(
+                            border: Border(
+                              left: BorderSide(
+                                color: Colors.grey[400]!,
+                                width: 4,
                               ),
-                        h1: TextStyle(
-                          color: Colors.black,
-                          fontSize: size.width * 0.05,
-                          fontFamily: 'FreesentationVF',
-                          fontWeight: FontWeight.w600,
-                        ),
-                        h2: TextStyle(
-                          color: Colors.black,
-                          fontSize: size.width * 0.045,
-                          fontFamily: 'FreesentationVF',
-                          fontWeight: FontWeight.w600,
-                        ),
-                        code: TextStyle(
-                          color: Colors.black87,
-                          backgroundColor: Colors.grey[200],
-                          fontSize: size.width * 0.038,
-                          fontFamily: 'monospace',
-                        ),
-                        codeblockPadding: EdgeInsets.all(8),
-                        codeblockDecoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        blockquote: TextStyle(
-                          color: Colors.black87,
-                          fontSize: size.width * 0.04,
-                          fontFamily: 'FreesentationVF',
-                          fontStyle: FontStyle.italic,
-                        ),
-                        blockquoteDecoration: BoxDecoration(
-                          border: Border(
-                            left: BorderSide(
-                              color: Colors.grey[400]!,
-                              width: 4,
                             ),
                           ),
+                          blockquotePadding: EdgeInsets.only(left: 16),
+                          listBullet: TextStyle(
+                            color: Colors.black,
+                            fontSize: size.width * 0.04,
+                            fontFamily: 'FreesentationVF',
+                          ),
                         ),
-                        blockquotePadding: EdgeInsets.only(left: 16),
-                        listBullet: TextStyle(
-                          color: Colors.black,
-                          fontSize: size.width * 0.04,
-                          fontFamily: 'FreesentationVF',
-                        ),
+                        selectable: true,
+                        softLineBreak: true,
+                        fitContent: true,
                       ),
-                      selectable: true,
-                      softLineBreak: true,
-                      fitContent: true,
-                    ),
                   ],
                 ),
               ),
