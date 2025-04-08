@@ -62,13 +62,23 @@ class _MonitoringScreenState extends State<MonitoringScreen>
 
       const fallback = "assets/images/cars/sonata_top.png";
 
-      return modelTopImageMap[model] ?? fallback;
+      final normalizedModel = model.trim().toLowerCase();
+
+      for (final entry in modelTopImageMap.entries) {
+        if (normalizedModel.contains(entry.key.toLowerCase())) {
+          print('✅ 매칭됨: ${entry.key} → ${entry.value}');
+          return entry.value;
+        }
+      }
+
+      print('⚠️ fallback 사용됨: $normalizedModel');
+      return fallback;
     }
 
     final topImage =
         car != null
             ? getTopImageAsset(car.modelName ?? '')
-            : 'assets/images/cars/prius_top.png';
+            : 'assets/images/cars/sonata_top.png';
 
     return Scaffold(
       body: Padding(

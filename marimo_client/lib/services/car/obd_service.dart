@@ -68,7 +68,7 @@ class ObdService {
     print('🧾 Headers: $headers');
     print('📦 Body JSON: $body');
 
-    final response = await http.post(url, headers: headers, body: body);
+    final response = await http.patch(url, headers: headers, body: body);
 
     final decoded = utf8.decode(response.bodyBytes);
     if (response.statusCode == 200 || response.statusCode == 201) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:marimo_client/mocks/obd_sample.dart';
 import 'package:marimo_client/providers/card_provider.dart';
 import 'package:marimo_client/providers/map/category_provider.dart';
 import 'package:marimo_client/providers/map/filter_provider.dart';
@@ -9,7 +10,7 @@ import 'package:provider/provider.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
-import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart'; // ✅ 이거 하나면 끝!
+import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -43,30 +44,18 @@ void main() async {
   await requestBluetoothPermissions();
   await dotenv.load(fileName: ".env");
 
-  KakaoSdk.init(
-    // ✅ ✅ 이 줄 추가!
-    nativeAppKey: dotenv.env['KAKAO_NATIVE_APP_KEY']!,
-  );
+  KakaoSdk.init(nativeAppKey: dotenv.env['KAKAO_NATIVE_APP_KEY']!);
 
   await NaverMapSdk.instance.initialize(
     clientId: dotenv.env['NAVER_MAP_CLIENT_ID']!,
     onAuthFailed: (ex) => print("네이버 지도 인증 오류: $ex"),
   );
 
-  // ✅ CarPaymentProvider 초기화 및 진단일 로드
   final carPaymentProvider = CarPaymentProvider();
-  await carPaymentProvider.loadTireDiagnosisDate(); // ✅ 진단일 불러오기
+  await carPaymentProvider.loadTireDiagnosisDate();
   await carPaymentProvider.loadLastPaymentId();
-
-  // 전역 시스템 UI 스타일 설정
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.black,
-      statusBarIconBrightness: Brightness.light,
-      systemNavigationBarColor: Colors.black,
-      systemNavigationBarIconBrightness: Brightness.light,
-    ),
-  );
+  // final prefs = await SharedPreferences.getInstance();
+  // await prefs.clear();
 
   runApp(
     MultiProvider(
@@ -123,18 +112,14 @@ class MyApp extends StatelessWidget {
 
 class InitialRouter extends StatelessWidget {
   const InitialRouter({super.key});
+
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final carProvider = Provider.of<CarProvider>(context, listen: false);
 
     return FutureBuilder<void>(
-      future: () async {
-        final prefs = await SharedPreferences.getInstance();
-        final stored = prefs.getString('last_obd_data');
-        print('✅ SharedPreferences 확인 결과:');
-        print(stored?.substring(0, 400)); // 너무 길면 앞부분만 확인
-      }(),
+      future: () async {}(),
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
           return const Scaffold(
@@ -172,7 +157,7 @@ class _MainScreenState extends State<MainScreen>
 
     Future.microtask(() async {
       final provider = context.read<ObdPollingProvider>();
-      await provider.loadResponsesFromLocal(context); // 이전 값 먼저 불러오
+      await provider.loadResponsesFromLocal(context);
       await provider.loadDtcCodesFromLocal();
     });
 
