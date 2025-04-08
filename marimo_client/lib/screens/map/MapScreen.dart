@@ -40,6 +40,7 @@ class _MapScreenState extends State<MapScreen> {
   bool _repairFilter = false;
   bool _carWashFilter = false;
   bool _hasSearched = false; // ✅ 검색 실행 여부 상태 추가
+  bool _isLoading = false; // 🔄 로딩 상태 관리
 
   List<Place> _currentPlaces = [];
   List<String> _previousMarkerIds = [];
@@ -177,6 +178,18 @@ class _MapScreenState extends State<MapScreen> {
               ],
             ),
           ),
+          // ✅ 로딩 인디케이터
+          if (_isLoading)
+            const Positioned.fill(
+              child: ColoredBox(
+                color: Colors.black38,
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: Color(0xFF3B82F6), // 앱 메인 컬러
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -252,6 +265,8 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Future<void> _onCategoryTap(String type) async {
+    setState(() => _isLoading = true); // 로딩 시작 표시
+
     final token = context.read<AuthProvider>().accessToken;
     final position = context.read<LocationProvider>().lastKnownPosition;
     final filters = context.read<FilterProvider>().filtersByCategory;
@@ -266,7 +281,7 @@ class _MapScreenState extends State<MapScreen> {
     _previousMarkerIds.clear();
 
     if (token == null || position == null) {
-      print('❗ 토큰 또는 위치 정보 없음');
+      setState(() => _isLoading = false); // ❗ 예외 상황에서도 꼭 해제
       return;
     }
 
@@ -297,6 +312,7 @@ class _MapScreenState extends State<MapScreen> {
       }
     } catch (e) {
       print('🚨 주유소 데이터 불러오기 실패: $e');
+      setState(() => _isLoading = false);
       return;
     }
 
@@ -308,6 +324,7 @@ class _MapScreenState extends State<MapScreen> {
       _gasStationFilter = type == 'gas';
       _repairFilter = type == 'repair';
       _carWashFilter = type == 'carwash';
+      _isLoading = false; // 🔄 로딩 끝
     });
 
     await _mapService.addPlaceMarkers(
