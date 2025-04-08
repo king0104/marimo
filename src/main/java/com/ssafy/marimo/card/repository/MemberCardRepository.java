@@ -9,9 +9,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface MemberCardRepository extends CrudRepository<MemberCard, Integer> {
-    // 현재 : 테스트 유저 하나의 memberCard를 조회
-    // 실제 서비스 : memberId를 사용해 해당 멤버가 등록한 memberCard를 조회
-    @Query("SELECT mc FROM MemberCard mc JOIN FETCH mc.card")
+    @Query("SELECT mc FROM MemberCard mc JOIN FETCH mc.card WHERE mc.member.id = :memberId")
     Optional<MemberCard> findByMemberId(@Param("memberId") Integer memberId);
 
     boolean existsByMemberIdAndCardId(Integer memberId, Integer cardId);

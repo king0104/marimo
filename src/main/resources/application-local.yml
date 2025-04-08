@@ -58,3 +58,9 @@ ssafy:
     key: ${SSAFY_API_KEY}
   user:
     key: ${SSAFY_USER_KEY}
+
+logging:
+  level:
+    org.springframework.cache: DEBUG
+    org.springframework.data.redis: DEBUG
+    io.lettuce.core: DEBUG

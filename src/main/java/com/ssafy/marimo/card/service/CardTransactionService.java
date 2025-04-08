@@ -3,9 +3,11 @@ package com.ssafy.marimo.card.service;
 import com.ssafy.marimo.external.dto.FintechCardTransactionResponse;
 import com.ssafy.marimo.external.fintech.FintechApiClient;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CardTransactionService {
