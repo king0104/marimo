@@ -159,7 +159,7 @@ class PlaceCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      '${place.distance.toStringAsFixed(1)}km',
+                      '${place.distance.toStringAsFixed(1)}m',
                       style: TextStyle(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.bold,

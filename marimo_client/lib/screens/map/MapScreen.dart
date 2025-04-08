@@ -7,6 +7,8 @@ import 'package:marimo_client/screens/map/utils/map_filter_mapper.dart';
 import 'package:marimo_client/providers/navigation_provider.dart';
 import 'package:marimo_client/screens/map/utils/map_utils.dart';
 import 'package:marimo_client/screens/map/widgets/PlaceCard.dart';
+import 'package:marimo_client/screens/map/widgets/EmptyPlaceCard.dart';
+
 import 'package:marimo_client/services/map/MapService.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:marimo_client/screens/map/widgets/category/CarWashIcon.dart';
@@ -37,6 +39,7 @@ class _MapScreenState extends State<MapScreen> {
   bool _gasStationFilter = false;
   bool _repairFilter = false;
   bool _carWashFilter = false;
+  bool _hasSearched = false; // ✅ 검색 실행 여부 상태 추가
 
   List<Place> _currentPlaces = [];
   List<String> _previousMarkerIds = [];
@@ -298,6 +301,7 @@ class _MapScreenState extends State<MapScreen> {
     }
 
     setState(() {
+      _hasSearched = true; // ✅ 여기!
       _currentPlaces = places;
       _highlightedPlaceId = null;
       _previousMarkerIds = places.map((e) => e.id).toList();
@@ -326,26 +330,31 @@ class _MapScreenState extends State<MapScreen> {
   Widget _buildStationCard() {
     final screenWidth = MediaQuery.of(context).size.width;
 
-    return Visibility(
-      visible: _currentPlaces.isNotEmpty,
-      child: SizedBox(
-        height: 168.h,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          itemCount: _currentPlaces.length,
-          itemBuilder: (context, index) {
-            final place = _currentPlaces[index];
-            return PlaceCard(
-              place: place,
-              rank: index + 1,
-              isSelected: _highlightedPlaceId == place.id,
-              onTap: () => handlePlaceSelection(place.id),
-              screenWidth: screenWidth,
-            );
-          },
-        ),
-      ),
+    if (!_hasSearched) return const SizedBox.shrink(); // ✅ 검색 전에는 아무것도 안 보여줌
+
+    return SizedBox(
+      height: 168.h,
+      child:
+          _currentPlaces.isEmpty
+              ? Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: EmptyPlaceCard(screenWidth: screenWidth),
+              )
+              : ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                itemCount: _currentPlaces.length,
+                itemBuilder: (context, index) {
+                  final place = _currentPlaces[index];
+                  return PlaceCard(
+                    place: place,
+                    rank: index + 1,
+                    isSelected: _highlightedPlaceId == place.id,
+                    onTap: () => handlePlaceSelection(place.id),
+                    screenWidth: screenWidth,
+                  );
+                },
+              ),
     );
   }
 
