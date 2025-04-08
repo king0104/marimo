@@ -28,7 +28,7 @@ class CustomAppHeader extends StatelessWidget implements PreferredSizeWidget {
         Container(
           height: 60.h, // 📌 헤더 높이 고정
           decoration: BoxDecoration(
-            color: white, // 📌 Figma 배경색 (#FBFBFB) 적용
+            color: backgroundColor, // 📌 Figma 배경색 (#FBFBFB) 적용
           ),
           child: Stack(
             children: [
