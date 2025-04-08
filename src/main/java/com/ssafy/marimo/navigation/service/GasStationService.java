@@ -68,7 +68,7 @@ public class GasStationService {
         boolean isOilCardMonthlyRequirementSatisfied;
 
         Optional<MemberCard> memberCard = memberCardRepository.findByMemberId(memberId);
-        if (memberCard == null) {
+        if (memberCard.isEmpty()) {
             isOilCardMonthlyRequirementSatisfied = false;
             isOilCardRegistered = false;
             log.warn("⚠️ [카드 미등록] memberId={} 에 등록된 카드 없음", memberId);
