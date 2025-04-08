@@ -51,6 +51,8 @@ public class GasStationService {
         boolean isNationwide = radiusKm != null && radiusKm == 0;
         int radiusMeter = isNationwide ? Integer.MAX_VALUE : (radiusKm != null ? radiusKm * 1000 : 3000);
 
+        log.info("📏 [검색 반경 설정] radiusKm={}, radiusMeter={}, isNationwide={}", radiusKm, radiusMeter, isNationwide);
+
         // ✅ JPA로 필터링 먼저 적용
         List<GasStation> filteredStations = gasStationRepository.findFilteredStations(
                 req.hasSelfService(),
@@ -60,9 +62,11 @@ public class GasStationService {
                 (req.brandList() == null || req.brandList().isEmpty()) ? null : req.brandList()
         );
 
+        log.info("🔍 [1차 필터링 완료] 조건에 맞는 주유소 {}개", filteredStations.size());
         // 1. 카드 등록 여부
         boolean isOilCardRegistered;
         boolean isOilCardMonthlyRequirementSatisfied;
+
         Optional<MemberCard> memberCard = memberCardRepository.findByMemberId(memberId);
         if (memberCard == null) {
             isOilCardMonthlyRequirementSatisfied = false;
@@ -137,8 +141,11 @@ public class GasStationService {
 
                     }
 
-               }
+                }
             }
+        }else {
+                log.info("ℹ️ [카드 혜택 미적용] 주유소ID={}, 등록 여부={}, 실적 만족 여부={}", s.getId(), isOilCardRegistered, isOilCardMonthlyRequirementSatisfied);
+
         }
 
 
