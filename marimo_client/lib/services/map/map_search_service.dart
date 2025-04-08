@@ -41,6 +41,12 @@ class MapSearchService {
 
     final response = await http.post(url, headers: headers, body: body);
 
+    final status = response.statusCode;
+    final rawBody = utf8.decode(response.bodyBytes);
+
+    print('📬 [RESPONSE STATUS] $status');
+    print('📬 [RESPONSE BODY] $rawBody');
+
     if (response.statusCode == 200) {
       final body = utf8.decode(response.bodyBytes);
       final json = jsonDecode(body); // 실제로는 List<dynamic>

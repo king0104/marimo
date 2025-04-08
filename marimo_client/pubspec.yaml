@@ -10,6 +10,9 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # kakao api
+  kakao_flutter_sdk: ^1.4.1 # ✅ 이거 하나면 전체 지원됨 (navi 포함)
+
   # 📦 Core
   provider: ^6.1.2
   http: ^1.3.0

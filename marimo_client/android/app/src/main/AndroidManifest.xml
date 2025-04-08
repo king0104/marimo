@@ -64,6 +64,12 @@
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
         </intent>
+
+        <!-- ✅ 카카오내비 앱 설치 여부 확인을 위한 설정 -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="kakaonavi" />
+        </intent>
     </queries>
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />

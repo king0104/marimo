@@ -3,6 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/models/map/gas_station_place.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart'; // ✅ 이거 하나면 끝!
+
 class PlaceCard extends StatelessWidget {
   final Place place;
   final VoidCallback onTap;
@@ -60,7 +62,8 @@ class PlaceCard extends StatelessWidget {
 
                 // 오른쪽: 연료 종류
                 Text(
-                  place.oilType ?? '휘발유', // null-safe 기본값
+                  place
+                      .oilType, // 🔄 기존: place.oilType ?? '휘발유' → 불필요한 null-safe 제거
                   style: TextStyle(
                     fontSize: 14.sp,
                     color: Colors.grey[600],
@@ -87,7 +90,7 @@ class PlaceCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  place.price?.toString() ?? '',
+                  place.discountedPrice?.toString() ?? '',
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.bold,
@@ -126,7 +129,31 @@ class PlaceCard extends StatelessWidget {
                   ),
                 ),
                 ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () async {
+                    final destination = Location(
+                      name: place.name,
+                      x: place.lng.toString(), // 경도
+                      y: place.lat.toString(), // 위도
+                    );
+
+                    print(
+                      '📍 목적지 위치 - x: ${place.lng}, y: ${place.lat}, 목적지: ${place.name}',
+                    );
+
+                    // 카카오내비 설치 여부
+                    final result =
+                        await NaviApi.instance.isKakaoNaviInstalled();
+
+                    if (result) {
+                      print('카카오내비 앱으로 길안내 가능');
+                      await NaviApi.instance.navigate(destination: destination);
+                    } else {
+                      print('카카오내비 미설치');
+                      // 카카오내비 설치 페이지로 이동
+                      launchBrowserTab(Uri.parse(NaviApi.webNaviInstall));
+                    }
+                  },
+
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF3B82F6),
                     foregroundColor: Colors.white,

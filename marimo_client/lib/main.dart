@@ -8,6 +8,8 @@ import 'package:provider/provider.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart'; // ✅ 이거 하나면 끝!
+
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -39,6 +41,11 @@ void main() async {
 
   await requestBluetoothPermissions();
   await dotenv.load(fileName: ".env");
+
+  KakaoSdk.init(
+    // ✅ ✅ 이 줄 추가!
+    nativeAppKey: dotenv.env['KAKAO_NATIVE_APP_KEY']!,
+  );
 
   await NaverMapSdk.instance.initialize(
     clientId: dotenv.env['NAVER_MAP_CLIENT_ID']!,

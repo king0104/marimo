@@ -270,7 +270,7 @@ class _MapScreenState extends State<MapScreen> {
           accessToken: token,
           latitude: position.latitude,
           longitude: position.longitude,
-          radius: 3000,
+          radius: 3,
           hasSelfService: parsed.hasSelfService,
           hasMaintenance: parsed.hasMaintenance,
           hasCarWash: parsed.hasCarWash,
