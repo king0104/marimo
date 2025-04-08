@@ -1,9 +1,11 @@
 package com.ssafy.marimo.car.controller;
 
 import com.ssafy.marimo.car.dto.request.PatchCarRequest;
+import com.ssafy.marimo.car.dto.request.PatchCarTotalDistanceRequest;
 import com.ssafy.marimo.car.dto.response.GetCarResponse;
 import com.ssafy.marimo.car.dto.request.PostCarRequest;
 import com.ssafy.marimo.car.dto.response.PatchCarResponse;
+import com.ssafy.marimo.car.dto.response.PatchCarTotalDistanceResponse;
 import com.ssafy.marimo.car.dto.response.PostCarResponse;
 import com.ssafy.marimo.car.service.CarService;
 import com.ssafy.marimo.common.annotation.CurrentMemberId;
@@ -52,6 +54,18 @@ public class CarController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(patchCarResponse);
+    }
+
+    @PatchMapping("/{carId}/total-distance")
+    public ResponseEntity<PatchCarTotalDistanceResponse> patchTotalDistance(
+            @Valid @RequestBody PatchCarTotalDistanceRequest patchCarTotalDistanceRequest,
+            @PathVariable("carId") @DecryptedId Integer carId
+    ) {
+        PatchCarTotalDistanceResponse patchCarTotalDistanceResponse = carService.patchTotalDistance(
+                patchCarTotalDistanceRequest, carId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(patchCarTotalDistanceResponse);
     }
 
 }
