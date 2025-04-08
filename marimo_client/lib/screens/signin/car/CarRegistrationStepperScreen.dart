@@ -3,9 +3,11 @@ import 'package:marimo_client/main.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:marimo_client/providers/car_provider.dart';
+import 'package:marimo_client/providers/card_provider.dart';
 import 'package:marimo_client/providers/member/auth_provider.dart';
 import 'package:marimo_client/screens/signin/car/CarNicknameScreen.dart';
 import 'package:marimo_client/services/car/car_registration_service.dart';
+import 'package:marimo_client/services/card/card_service.dart';
 import 'package:marimo_client/services/user/user_service.dart';
 import 'package:marimo_client/utils/toast.dart';
 import 'package:provider/provider.dart';
@@ -35,15 +37,14 @@ class _CarRegistrationStepperScreenState
   bool isCarConfirmed = false;
   late PageController _pageController;
 
-  final List<Widget> _screens = [
+  List<Widget> get _screens => [
     CarNumberScreen(),
     CarVinScreen(),
     CarBrandScreen(),
     CarModelScreen(),
     CarAdditionalInfoScreen(),
     CarLastInspectionScreen(),
-    CardBrandScreen(),
-    CardSelectScreen(),
+    CardSelectScreen(userName: userName ?? '회원'), // 🔥 이제 userName 접근 가능
     CarNicknameScreen(),
   ];
 
@@ -197,10 +198,67 @@ class _CarRegistrationStepperScreenState
                     child: ElevatedButton(
                       onPressed: () async {
                         final isLastStep = _currentStep == _screens.length - 1;
+                        final provider =
+                            context.read<CarRegistrationProvider>();
 
                         if (_currentStep == 0 && !isCarConfirmed) {
+                          final isValid =
+                              context
+                                  .read<CarRegistrationProvider>()
+                                  .isPlateNumberValid;
+                          if (!isValid) {
+                            showToast(
+                              context,
+                              "올바른 차량 번호를 입력해주세요.",
+                              icon: Icons.error,
+                              type: 'error',
+                              position: 'top-down',
+                            );
+                            return;
+                          }
                           _showCarConfirmationSheet(); // ✅ 명의 확인 시트 띄우기
                           return; // ❗시트를 띄우고 여기서 중단
+                        }
+
+                        if (_currentStep == 1) {
+                          final isValid =
+                              context
+                                  .read<CarRegistrationProvider>()
+                                  .isVinValid;
+                          if (!isValid) {
+                            showToast(
+                              context,
+                              "올바른 차대번호를 입력해주세요.",
+                              icon: Icons.error,
+                              type: 'error',
+                              position: 'top-down',
+                            );
+                            return;
+                          }
+                        }
+
+                        if (_currentStep == 2 &&
+                            (provider.brand?.trim().isEmpty ?? true)) {
+                          showToast(
+                            context,
+                            "제조사를 선택해주세요.",
+                            icon: Icons.error,
+                            type: 'error',
+                            position: 'top-down',
+                          );
+                          return;
+                        }
+
+                        if (_currentStep == 3 &&
+                            (provider.modelName?.trim().isEmpty ?? true)) {
+                          showToast(
+                            context,
+                            "모델을 선택해주세요.",
+                            icon: Icons.error,
+                            type: 'error',
+                            position: 'top-down',
+                          );
+                          return;
                         }
 
                         if (isLastStep) {
@@ -222,6 +280,16 @@ class _CarRegistrationStepperScreenState
                             final token = authProvider.accessToken;
                             if (token == null)
                               throw Exception('AccessToken이 존재하지 않습니다.');
+
+                            // ✅ 선택한 카드 등록
+                            final selectedCard =
+                                context.read<CardProvider>().selectedCard;
+                            if (selectedCard != null) {
+                              await CardService.registerUserOilCard(
+                                accessToken: token,
+                                cardUniqueNo: selectedCard.cardUniqueNo,
+                              );
+                            }
 
                             // ✅ 차량 등록 및 carId 받아오기
                             await CarRegistrationService.registerCar(

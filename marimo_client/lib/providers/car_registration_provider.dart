@@ -9,6 +9,9 @@ class CarRegistrationProvider with ChangeNotifier {
   String? fuelType;
   DateTime? lastCheckedDate;
 
+  bool isPlateNumberValid = false;
+  bool isVinValid = false;
+
   final fuelDisplayToEnum = {
     '휘발유': 'NORMAL_GASOLINE',
     '고급휘발유': 'PREMIUM_GASOLINE',
@@ -32,12 +35,21 @@ class CarRegistrationProvider with ChangeNotifier {
   }
 
   void setPlateNumber(String value) {
-    plateNumber = value;
+    plateNumber = value.trim();
+
+    // 차량 번호 유효성 검사
+    final regex = RegExp(r'^\d{2,3}[가-힣]\d{4}$');
+    isPlateNumberValid = regex.hasMatch(plateNumber ?? '');
+
     notifyListeners();
   }
 
   void setVin(String value) {
-    vehicleIdentificationNumber = value;
+    vehicleIdentificationNumber = value.trim();
+
+    final vinRegex = RegExp(r'^[A-HJ-NPR-Z0-9]{17}$');
+    isVinValid = vinRegex.hasMatch(vehicleIdentificationNumber ?? '');
+
     notifyListeners();
   }
 

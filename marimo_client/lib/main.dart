@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:marimo_client/providers/card_provider.dart';
 import 'package:marimo_client/providers/map/category_provider.dart';
 import 'package:marimo_client/providers/map/filter.provider.dart';
 import 'package:marimo_client/providers/map/location_provider.dart';
@@ -75,6 +76,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ObdAnalysisProvider()),
         ChangeNotifierProvider(create: (_) => HomeAnimationProvider()),
         ChangeNotifierProvider(create: (_) => CarRegistrationProvider()),
+        ChangeNotifierProvider(create: (_) => CardProvider()),
       ],
       child: ScreenUtilInit(
         designSize: const Size(360, 800),

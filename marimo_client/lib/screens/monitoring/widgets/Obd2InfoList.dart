@@ -198,32 +198,35 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
                   } else if (notification is ScrollEndNotification) {
                     setState(() => isListScrolling = false);
                   }
-                  return false;
+                  return true; // 이벤트 전파 방지
                 },
-                child:
-                    isDtcEmpty
-                        ? _buildNoDtcWidget()
-                        : ListView.builder(
-                          padding: EdgeInsets.only(bottom: 32.h),
-                          itemCount:
-                              showDtcInfo
-                                  ? dtcCodes.length
-                                  : statusItems.length,
-                          itemBuilder:
-                              (context, index) => Padding(
-                                padding: EdgeInsets.symmetric(vertical: 4.h),
-                                child:
-                                    showDtcInfo
-                                        ? _buildDtcCard(index)
-                                        : StatusInfoCard(
-                                          icon: statusItems[index].icon,
-                                          title: statusItems[index].title,
-                                          description:
-                                              statusItems[index].description,
-                                          status: statusItems[index].status,
-                                        ),
-                              ),
-                        ),
+                child: GestureDetector(
+                  onVerticalDragUpdate: (_) {},
+                  child:
+                      isDtcEmpty
+                          ? _buildNoDtcWidget()
+                          : ListView.builder(
+                            padding: EdgeInsets.only(bottom: 32.h),
+                            itemCount:
+                                showDtcInfo
+                                    ? dtcCodes.length
+                                    : statusItems.length,
+                            itemBuilder:
+                                (context, index) => Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 4.h),
+                                  child:
+                                      showDtcInfo
+                                          ? _buildDtcCard(index)
+                                          : StatusInfoCard(
+                                            icon: statusItems[index].icon,
+                                            title: statusItems[index].title,
+                                            description:
+                                                statusItems[index].description,
+                                            status: statusItems[index].status,
+                                          ),
+                                ),
+                          ),
+                ),
               ),
             ),
           ],

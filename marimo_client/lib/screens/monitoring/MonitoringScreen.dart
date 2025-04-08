@@ -46,7 +46,7 @@ class _MonitoringScreenState extends State<MonitoringScreen>
                     width: double.infinity,
                     height: 200.h,
                     child: Image.asset(
-                      'assets/images/cars/sonata_top.png',
+                      'assets/images/cars/prius_top.png',
                       fit: BoxFit.cover,
                     ),
                   ),
