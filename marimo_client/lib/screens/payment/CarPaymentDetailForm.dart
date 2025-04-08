@@ -18,10 +18,14 @@ class CarPaymentDetailForm extends StatefulWidget {
   final String selectedCategory;
   final int amount;
 
+  // ✅ 저장 로직은 외부에서 주입하도록 옵션화
+  final Future<void> Function()? onSave;
+
   const CarPaymentDetailForm({
     super.key,
     required this.selectedCategory,
     required this.amount,
+    this.onSave,
   });
 
   @override
@@ -44,6 +48,13 @@ class _CarPaymentDetailFormState extends State<CarPaymentDetailForm> {
 
   void _saveAction() async {
     print('✅ 저장 버튼 눌림');
+
+    // 외부에서 onSave 콜백이 주어진 경우 → 그것만 실행
+    if (widget.onSave != null) {
+      await widget.onSave!();
+      _toggleEditMode();
+      return;
+    }
 
     final carProvider = context.read<CarProvider>();
     final carPaymentProvider = context.read<CarPaymentProvider>();

@@ -60,31 +60,44 @@ class CarPaymentService {
     }
   }
 
+  // ✅ 조회
   static Future<List<CarPaymentEntry>> fetchPaymentsByMonth({
+    required String carId,
     required int year,
     required int month,
     required String accessToken,
   }) async {
-    final url = Uri.parse('$baseUrl/api/v1/payments?year=$year&month=$month');
+    final url = Uri.parse(
+      '$baseUrl/api/v1/payments/cars/$carId?year=$year&month=$month',
+    );
     final headers = buildHeaders(token: accessToken);
 
     final response = await http.get(url, headers: headers);
 
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
+    // print('📡 응답 JSON: ${utf8.decode(response.bodyBytes)}');
 
-      return data.map((item) {
-        return CarPaymentEntry(
-          paymentId: item['id'].toString(),
-          category: item['category'],
-          amount: item['price'],
-          date: DateTime.parse(item['paymentDate']),
-          details: item,
-        );
-      }).toList();
+    if (response.statusCode == 200) {
+      // JSON 응답을 Map으로 파싱
+      final Map<String, dynamic> responseData = jsonDecode(
+        utf8.decode(response.bodyBytes),
+      );
+
+      // 'payments' 키에서 실제 결제 목록을 가져옴
+      final List<dynamic> paymentsList = responseData['payments'] ?? [];
+
+      // 각 결제 항목을 CarPaymentEntry 객체로 변환
+      final entries =
+          paymentsList.map((item) => CarPaymentEntry.fromJson(item)).toList();
+
+      return entries;
     } else {
-      final message = utf8.decode(response.bodyBytes);
-      throw Exception('전체 차계부 조회 실패: $message');
+      print('📡 최종 요청 URL: $url');
+      print('📡 요청 헤더: $headers');
+      print('❌ 전체 차계부 조회 실패 응답 코드: ${response.statusCode}');
+      print('❌ 응답 내용: ${utf8.decode(response.bodyBytes)}');
+      print('🔐 accessToken: $accessToken');
+
+      throw Exception('전체 차계부 조회 실패: ${utf8.decode(response.bodyBytes)}');
     }
   }
 }
