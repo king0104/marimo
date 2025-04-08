@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/theme.dart';
 
 void showToast(
@@ -45,8 +46,8 @@ void showToast(
       return Positioned(
         top: isTopDown ? 40 : null,
         bottom: isTopDown ? null : 110,
-        left: MediaQuery.of(context).size.width * 0.075,
-        right: MediaQuery.of(context).size.width * 0.075,
+        left: 20.w,
+        right: 20.w,
         child: FadeTransition(
           opacity: fadeInAnimation,
           child: ScaleTransition(

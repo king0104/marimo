@@ -41,12 +41,18 @@ class CarModelScreen extends StatelessWidget {
       "팰리세이드": "assets/images/cars/palisade.png",
     };
 
+    final Map<String, String> toyotaModelImageMap = {
+      "프리우스": "assets/images/cars/prius.png",
+    };
+
     Map<String, String> getModelImageMapByBrand(String? brand) {
       switch (brand) {
         case "현대":
           return hyundaiModelImageMap;
         case "기아":
           return kiaModelImageMap;
+        case "토요타":
+          return toyotaModelImageMap;
         default:
           return {};
       }
@@ -56,72 +62,76 @@ class CarModelScreen extends StatelessWidget {
     final String? imagePath = modelImageMap[selectedModel];
 
     return Scaffold(
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return Stack(
-            children: [
-              if (imagePath != null)
-                Positioned(
-                  bottom: 0.h,
-                  right: -380.w,
-                  child: SizedBox(
-                    width: 770.w,
-                    height: 420.h,
-                    child: Opacity(
-                      opacity: 0.2,
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        transitionBuilder: (
-                          Widget child,
-                          Animation<double> animation,
-                        ) {
-                          return SlideTransition(
-                            position: Tween<Offset>(
-                              begin: const Offset(1.0, 0.0),
-                              end: Offset.zero,
-                            ).animate(animation),
-                            child: child,
-                          );
-                        },
-                        child: Image.asset(
-                          imagePath,
-                          key: ValueKey(imagePath),
-                          fit: BoxFit.contain,
-                          alignment: Alignment.bottomRight,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.w),
-                child: SafeArea(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(height: 40.h),
-                        const CustomTitleText(
-                          text: "모델을 선택해주세요.",
-                          highlight: "모델",
-                        ),
-                        SizedBox(height: 12.h),
-                        CarModelSelector(
-                          models: modelImageMap.keys.toList(),
-                          initiallySelectedModel: selectedModel,
-                          onSelected: (model) {
-                            provider.setModelName(model);
-                          },
-                        ),
-                        SizedBox(height: 80.h),
-                      ],
+      body: Stack(
+        children: [
+          if (imagePath != null)
+            Positioned(
+              bottom: 0.h,
+              right: -380.w,
+              child: SizedBox(
+                width: 770.w,
+                height: 420.h,
+                child: Opacity(
+                  opacity: 0.2,
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    transitionBuilder: (
+                      Widget child,
+                      Animation<double> animation,
+                    ) {
+                      return SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(1.0, 0.0),
+                          end: Offset.zero,
+                        ).animate(animation),
+                        child: child,
+                      );
+                    },
+                    child: Image.asset(
+                      imagePath,
+                      key: ValueKey(imagePath),
+                      fit: BoxFit.contain,
+                      alignment: Alignment.bottomRight,
                     ),
                   ),
                 ),
               ),
+            ),
+          Column(
+            children: [
+              SafeArea(
+                child: Padding(
+                  padding: EdgeInsets.only(top: 40.h, left: 20.w, right: 20.w),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: const CustomTitleText(
+                      text: "모델을 선택해주세요.",
+                      highlight: "모델",
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20.w),
+                  child: ListView(
+                    children: [
+                      SizedBox(height: 12.h),
+                      CarModelSelector(
+                        models: modelImageMap.keys.toList(),
+                        initiallySelectedModel: selectedModel,
+                        onSelected: (model) {
+                          provider.setModelName(model);
+                        },
+                      ),
+                      SizedBox(height: 80.h),
+                    ],
+                  ),
+                ),
+              ),
             ],
-          );
-        },
+          ),
+        ],
       ),
     );
   }
