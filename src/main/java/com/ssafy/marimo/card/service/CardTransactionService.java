@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -21,6 +22,7 @@ public class CardTransactionService {
 //            unless = "#result == null"
 //    )
     @ExecutionTimeLog
+    @Transactional
     public FintechCardTransactionResponse getCardTransactions(
             String cardNo, String cvc, String startDate, String endDate) {
 
