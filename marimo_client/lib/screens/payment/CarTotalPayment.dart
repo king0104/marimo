@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:marimo_client/providers/car_payment_provider.dart';
+import 'package:marimo_client/providers/car_provider.dart';
+import 'package:marimo_client/providers/member/auth_provider.dart';
 import 'package:marimo_client/commons/AppBar.dart';
 import 'package:marimo_client/screens/payment/widgets/total/CarMonthlyPayment.dart';
 import 'package:marimo_client/screens/payment/widgets/total/CarPaymentItemList.dart';
@@ -26,6 +28,20 @@ class _CarTotalPaymentState extends State<CarTotalPayment>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    Future.microtask(() async {
+      final provider = context.read<CarPaymentProvider>();
+      final authProvider = context.read<AuthProvider>();
+      final carProvider = context.read<CarProvider>();
+
+      final accessToken = authProvider.accessToken;
+
+      if (accessToken != null && accessToken.isNotEmpty) {
+        await provider.fetchPaymentsForSelectedMonth(
+          accessToken: accessToken,
+          carId: carProvider.cars.first.id,
+        );
+      }
+    });
   }
 
   @override

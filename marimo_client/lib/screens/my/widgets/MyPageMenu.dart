@@ -19,7 +19,7 @@ class _MyPageMenuState extends State<MyPageMenu> {
   void _handleInsuranceTap(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final carProvider = Provider.of<CarProvider>(context, listen: false);
-    
+
     final carId = carProvider.firstCarId;
     final accessToken = authProvider.accessToken;
 
@@ -59,10 +59,13 @@ class _MyPageMenuState extends State<MyPageMenu> {
           title: '마일리지 특약 최적화',
           subtitle: '주행거리를 바탕으로 최적의 혜택 거리를 알려드립니다',
           gradient: LinearGradient(
-                    colors: [Color(0x2587FF).withOpacity(0.3), Color(0x2587FF).withOpacity(0.95)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+            colors: [
+              Color(0x2587FF).withOpacity(0.3),
+              Color(0x2587FF).withOpacity(0.95),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
           onTap: () => _handleInsuranceTap(context),
         ),
         SizedBox(height: 24.h),
@@ -84,12 +87,15 @@ class _MyPageMenuState extends State<MyPageMenu> {
             end: Alignment.bottomRight,
           ),
           onTap: () {
+            // ✅ 올바른 방식: 기존 provider를 value로 넘김
+            final provider = context.read<CarPaymentProvider>();
+
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder:
-                    (context) => ChangeNotifierProvider(
-                      create: (_) => CarPaymentProvider(),
-                      child: CarTotalPayment(),
+                    (_) => ChangeNotifierProvider.value(
+                      value: provider,
+                      child: const CarTotalPayment(),
                     ),
               ),
             );
@@ -134,7 +140,7 @@ class _MyPageMenuState extends State<MyPageMenu> {
                 iconPath,
                 width: 24.w,
                 height: 24.w,
-                fit: BoxFit.cover
+                fit: BoxFit.cover,
               ),
             ),
             SizedBox(width: 16.w),
@@ -152,19 +158,12 @@ class _MyPageMenuState extends State<MyPageMenu> {
                   SizedBox(height: 4.h),
                   Text(
                     subtitle,
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 12.sp, color: Colors.grey[600]),
                   ),
                 ],
               ),
             ),
-            Icon(
-              Icons.chevron_right,
-              color: Colors.grey[400],
-              size: 24.w,
-            ),
+            Icon(Icons.chevron_right, color: Colors.grey[400], size: 24.w),
           ],
         ),
       ),

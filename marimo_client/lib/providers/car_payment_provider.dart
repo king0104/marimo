@@ -17,8 +17,8 @@ class CarPaymentProvider with ChangeNotifier {
   Map<String, int> get categoryTotals {
     final Map<String, int> totals = {'주유': 0, '정비': 0, '세차': 0};
     for (final entry in _entries) {
-      if (totals.containsKey(entry.category)) {
-        totals[entry.category] = totals[entry.category]! + entry.amount;
+      if (totals.containsKey(entry.categoryKr)) {
+        totals[entry.categoryKr] = totals[entry.categoryKr]! + entry.amount;
       }
     }
     return totals;
@@ -71,8 +71,8 @@ class CarPaymentProvider with ChangeNotifier {
   Map<String, int> get categoryTotalsForSelectedMonth {
     final Map<String, int> totals = {'주유': 0, '정비': 0, '세차': 0};
     for (final entry in filteredEntries) {
-      if (totals.containsKey(entry.category)) {
-        totals[entry.category] = totals[entry.category]! + entry.amount;
+      if (totals.containsKey(entry.categoryKr)) {
+        totals[entry.categoryKr] = totals[entry.categoryKr]! + entry.amount;
       }
     }
     return totals;
@@ -299,6 +299,7 @@ class CarPaymentProvider with ChangeNotifier {
     await prefs.remove('lastPaymentId');
   }
 
+  // 전체 차계부 조회
   Future<void> fetchPaymentsForSelectedMonth({
     required String accessToken,
     required String carId,
@@ -330,6 +331,18 @@ class CarPaymentProvider with ChangeNotifier {
     if (_hasFetchedInitial) return;
     _hasFetchedInitial = true;
 
+    await fetchPaymentsForSelectedMonth(accessToken: accessToken, carId: carId);
+  }
+
+  Future<void> updateMonthAndFetch({
+    required int month,
+    required int year,
+    required String accessToken,
+    required String carId,
+  }) async {
+    _selectedMonth = month;
+    _selectedYear = year;
+    notifyListeners();
     await fetchPaymentsForSelectedMonth(accessToken: accessToken, carId: carId);
   }
 }
