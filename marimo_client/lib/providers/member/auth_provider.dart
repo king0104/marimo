@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:marimo_client/mocks/obd_sample.dart';
 import 'package:marimo_client/services/user/user_service.dart';
+import 'package:marimo_client/services/car/obd_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthProvider extends ChangeNotifier {
   String? _accessToken;
@@ -13,7 +16,7 @@ class AuthProvider extends ChangeNotifier {
   // 로그인 성공 시 accessToken 설정 및 사용자 이름 로드
   void setAccessToken(String token) {
     _accessToken = token;
-    _loadUserName();  // 토큰 설정 시 자동으로 사용자 이름 로드
+    _loadUserName(); // 토큰 설정 시 자동으로 사용자 이름 로드
     notifyListeners();
   }
 
@@ -22,10 +25,28 @@ class AuthProvider extends ChangeNotifier {
     if (_accessToken == null) return;
 
     try {
-      final name = await UserService.getUserName(
-        accessToken: _accessToken!,
-      );
+      final name = await UserService.getUserName(accessToken: _accessToken!);
       _userName = name;
+
+      // ✅ 이름 확인 후 샘플 데이터 삽입
+      if (name == 'marimo') {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('last_obd_data');
+        await preloadSampleObdDataIfNeeded();
+
+        final distance = parseDistanceSinceDtcCleared();
+        if (distance != null) {
+          await ObdService.sendTotalDistance(
+            carId: '12', // 또는 실제 carId 사용
+            totalDistance: distance,
+            accessToken: _accessToken!,
+          );
+          print('📨 샘플 주행거리 전송 완료: $distance km');
+        }
+
+        print('🌱 marimo 사용자: 샘플 OBD + 거리 삽입 완료');
+      }
+
       notifyListeners();
     } catch (e) {
       print('사용자 이름 로드 실패: $e');
@@ -39,4 +60,3 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 }
-

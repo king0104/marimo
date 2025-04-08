@@ -16,11 +16,28 @@ class CarImageWidget extends StatelessWidget {
 
     // 모델명-이미지 맵핑
     final modelImageMap = {
-      "팰리세이드": "assets/images/cars/palisade.png",
+      "모닝": "assets/images/cars/morning.png",
+      "레이": "assets/images/cars/ray.png",
+      "K3": "assets/images/cars/k3.png",
+      "K5": "assets/images/cars/k5.png",
+      "K7": "assets/images/cars/k7.png",
+      "K9": "assets/images/cars/k9.png",
+      "셀토스": "assets/images/cars/seltos.png",
+      "니로": "assets/images/cars/niro.png",
+      "스포티지": "assets/images/cars/sportage.png",
+      "쏘렌토": "assets/images/cars/sorento.png",
+      "모하비": "assets/images/cars/mohave.png",
       "아반떼": "assets/images/cars/avante.png",
       "쏘나타": "assets/images/cars/sonata.png",
       "그랜저": "assets/images/cars/grandeur.png",
+      "에쿠스": "assets/images/cars/equus.png",
+      "제네시스": "assets/images/cars/genesis.png",
       "베뉴": "assets/images/cars/venue.png",
+      "코나": "assets/images/cars/kona.png",
+      "투싼": "assets/images/cars/tucson.png",
+      "산타페": "assets/images/cars/santafe.png",
+      "팰리세이드": "assets/images/cars/palisade.png",
+      "프리우스": "assets/images/cars/prius.png",
     };
 
     final imagePath = modelImageMap[modelName];
