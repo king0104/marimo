@@ -97,7 +97,7 @@ public class GasStationService {
                 log.info("💳 [카드 정보] cardNo={}, monthlyRequirement={}", card.getCardNo(), monthlyRequirement);
 
                 String estimated = cardTransactionService.getCardTransactions(card.getCardNo(), card.getCvc(),
-                        "20250401", "20250404").getRec().getEstimatedBalance();
+                        "20250401", "20250408").getRec().getEstimatedBalance();
                 Integer estimatedBalance = Integer.parseInt(estimated);
                 isOilCardMonthlyRequirementSatisfied = (monthlyRequirement <= estimatedBalance);
                 log.info("📈 [실적 확인] estimatedBalance={}, 만족 여부={}", estimatedBalance, isOilCardMonthlyRequirementSatisfied);
