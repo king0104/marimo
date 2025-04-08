@@ -1,4 +1,4 @@
-package com.ssafy.marimo.navigation;
+package com.ssafy.marimo.navigation.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -6,18 +6,21 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDateTime;
-import org.hibernate.annotations.Filter;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "gas_station")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class GasStation {
+public class
+GasStation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+    @Column(nullable = false, unique = true, length = 50)
+    private String uniId;
 
     @Column(nullable = true)
     private String name;
@@ -35,10 +38,10 @@ public class GasStation {
     private String phone;
 
     @Column(nullable = true)
-    private Float latitude;
+    private Double latitude;
 
     @Column(nullable = true)
-    private Float longitude;
+    private Double longitude;
 
     @Column(nullable = true)
     private Boolean hasLpg;
@@ -71,6 +74,13 @@ public class GasStation {
     private Float lpgPrice;
 
     @Column(nullable = true)
+    private Float kerosenePrice; // 등유 (자동차부탄) 가격
+
+    @Column(nullable = true)
     private LocalDateTime standardTime;
 
+    // ✅ 정적 생성 메서드 추가
+    public static GasStation createEmpty() {
+        return new GasStation(); // 내부에서 protected 생성자 접근 가능
+    }
 }

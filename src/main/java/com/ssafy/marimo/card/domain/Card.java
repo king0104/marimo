@@ -26,6 +26,9 @@ public class Card extends BaseTimeEntity {
     @Column(nullable = false, unique = true)
     private String cardUniqueNo;
 
+    @Column(nullable = false)
+    private String cardNo;
+
     @Column(nullable = false, length = 100)
     private String name;
 
@@ -43,5 +46,8 @@ public class Card extends BaseTimeEntity {
 
     @Column(nullable = true)
     private Integer annualFeeGlobal;
+
+    @Column(nullable = false)
+    private String cvc;
 
 }

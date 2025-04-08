@@ -9,15 +9,15 @@ public record GetRepairPaymentResponse(
         LocalDateTime paymentDate,
         String location,
         String memo,
-        String repairPart
+        String repairParts
 ) {
-    public static GetRepairPaymentResponse of(Integer price, LocalDateTime paymentDate, String location, String memo, String repairPart) {
+    public static GetRepairPaymentResponse of(Integer price, LocalDateTime paymentDate, String location, String memo, String repairParts) {
         return GetRepairPaymentResponse.builder()
                 .price(price)
                 .paymentDate(paymentDate)
                 .location(location)
                 .memo(memo)
-                .repairPart(repairPart)
+                .repairParts(repairParts)
                 .build();
     }
 }

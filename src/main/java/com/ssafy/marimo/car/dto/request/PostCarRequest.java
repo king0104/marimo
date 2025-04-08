@@ -1,6 +1,7 @@
-package com.ssafy.marimo.car.dto;
+package com.ssafy.marimo.car.dto.request;
 
 import com.ssafy.marimo.car.domain.FuelType;
+import java.time.LocalDateTime;
 
 public record PostCarRequest(
     String nickname,
@@ -8,6 +9,7 @@ public record PostCarRequest(
     String modelName,
     String plateNumber,
     String vehicleIdentificationNumber,
-    FuelType fuelType
+    FuelType fuelType,
+    LocalDateTime lastCheckedDate
 ) {
 }

@@ -10,6 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Filter;
@@ -32,34 +33,25 @@ public class Obd2 {
     @JoinColumn(name = "car_id", nullable = false)
     private Car car;
 
-    @Column(nullable = true, length = 17)
-    private String vehicle_identification_number;
+    @Column(nullable = false)
+    private String pid;
 
-    @Column(nullable = true)
-    private Integer engineRpm;
+    @Column(nullable = false)
+    private String code;
 
-    @Column(nullable = true)
-    private Integer speed;
+    // 정적 팩토리 메서드
+    public static Obd2 create(Car car, String pid, String code) {
+        return Obd2.builder()
+                .car(car)
+                .pid(pid)
+                .code(code)
+                .build();
+    }
 
-    @Column(nullable = true)
-    private Float throttle_position;
-
-    @Column(nullable = true)
-    private Float massAirFlow;
-
-    @Column(nullable = true)
-    private Float intakeAirTemperature;
-
-    @Column(nullable = true)
-    private Float coolantTemperature;
-
-    @Column(nullable = true)
-    private Float fuelTotal;
-
-    @Column(nullable = true)
-    private Float fuelRemain;
-
-    @Column(nullable = true)
-    private Float oxygenSensorVoltage;
-
+    @Builder
+    private Obd2(Car car, String pid, String code) {
+        this.car = car;
+        this.pid = pid;
+        this.code = code;
+    }
 }

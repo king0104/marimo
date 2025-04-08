@@ -1,4 +1,4 @@
-package com.ssafy.marimo.navigation;
+package com.ssafy.marimo.navigation.domain;
 
 import com.ssafy.marimo.common.auditing.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDateTime;
-import org.hibernate.annotations.Filter;
 
 @Getter
 @Setter

@@ -8,6 +8,6 @@ public record PostRepairPaymentRequest(
         LocalDateTime paymentDate,
         String location,
         String memo,
-        String repairPart
+        String repairParts
 ) {
 }

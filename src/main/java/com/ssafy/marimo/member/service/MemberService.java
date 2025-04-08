@@ -8,6 +8,7 @@ import com.ssafy.marimo.member.domain.Member;
 import com.ssafy.marimo.member.domain.OauthProvider;
 import com.ssafy.marimo.member.dto.request.PostMemberFormRequest;
 import com.ssafy.marimo.member.dto.request.PostMemberLoginRequest;
+import com.ssafy.marimo.member.dto.response.GetMemberNameResponse;
 import com.ssafy.marimo.member.dto.response.PostMemberFormResponse;
 import com.ssafy.marimo.member.dto.response.PostMemberLoginResponse;
 import com.ssafy.marimo.member.repository.MemberRepository;
@@ -59,5 +60,13 @@ public class MemberService {
         return PostMemberLoginResponse.of(idEncryptionUtil.encrypt(member.getId()));
     }
 
+    public GetMemberNameResponse getName(Integer memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundException(ErrorStatus.MEMBER_NOT_FOUND.getErrorCode()));
+
+        return GetMemberNameResponse.of(
+                member.getName()
+        );
+    }
 
 }

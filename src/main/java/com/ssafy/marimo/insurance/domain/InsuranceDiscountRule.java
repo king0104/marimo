@@ -1,4 +1,4 @@
-package com.ssafy.marimo.car.domain;
+package com.ssafy.marimo.insurance.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,32 +12,27 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Filter;
-import org.hibernate.annotations.FilterDef;
-import org.hibernate.annotations.ParamDef;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SoftDelete;
-import org.hibernate.annotations.SoftDeleteType;
-import org.hibernate.annotations.Where;
 
 @Getter
 @Entity
-@Table(name = "obd2_dtc")
+@Table(name = "insurance_discount_rule")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Obd2Dtc {
-
+public class InsuranceDiscountRule {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "obd2_id", nullable = false)
-    private Obd2 obd2;
+    @JoinColumn(name = "insurance_id", nullable = false)
+    private Insurance insurance;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dtc_id", nullable = false)
-    private Dtc dtc;
+    @Column(nullable = false)
+    private Integer discountFromKm;
 
+    @Column(nullable = false)
+    private Integer discountToKm;
+
+    @Column(nullable = false)
+    private Float discountRate;
 
 }

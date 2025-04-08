@@ -34,6 +34,7 @@ public class OilPaymentService {
                 OilPayment.create(
                         car,
                         postOilPaymentRequest.price(),
+                        postOilPaymentRequest.paymentDate(),
                         postOilPaymentRequest.location(),
                         postOilPaymentRequest.memo(),
                         postOilPaymentRequest.fuelType()
