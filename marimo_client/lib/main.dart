@@ -49,6 +49,7 @@ void main() async {
   // ✅ CarPaymentProvider 초기화 및 진단일 로드
   final carPaymentProvider = CarPaymentProvider();
   await carPaymentProvider.loadTireDiagnosisDate(); // ✅ 진단일 불러오기
+  await carPaymentProvider.loadLastPaymentId();
 
   // 전역 시스템 UI 스타일 설정
   SystemChrome.setSystemUIOverlayStyle(

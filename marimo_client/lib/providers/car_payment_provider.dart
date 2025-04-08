@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:marimo_client/models/payment/car_payment_entry.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:marimo_client/services/payment/car_payment_service.dart';
 
 class CarPaymentProvider with ChangeNotifier {
   final List<CarPaymentEntry> _entries = [];
@@ -266,6 +267,53 @@ class CarPaymentProvider with ChangeNotifier {
     if (saved != null) {
       _tireDiagnosisDate = DateTime.tryParse(saved);
       notifyListeners();
+    }
+  }
+
+  // ✅ paymentId 추가
+  String? _lastPaymentId;
+  String? get lastPaymentId => _lastPaymentId;
+
+  Future<void> setLastPaymentId(String id) async {
+    _lastPaymentId = id;
+    notifyListeners();
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('lastPaymentId', id); // ✅ 로컬에 저장
+  }
+
+  Future<void> loadLastPaymentId() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getString('lastPaymentId');
+    if (saved != null) {
+      _lastPaymentId = saved;
+      notifyListeners();
+    }
+  }
+
+  Future<void> clearLastPaymentId() async {
+    _lastPaymentId = null;
+    notifyListeners();
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('lastPaymentId');
+  }
+
+  Future<void> fetchPaymentsForSelectedMonth(String accessToken) async {
+    try {
+      final payments = await CarPaymentService.fetchPaymentsByMonth(
+        year: _selectedYear,
+        month: _selectedMonth,
+        accessToken: accessToken,
+      );
+
+      _entries.clear();
+      _entries.addAll(payments);
+      notifyListeners();
+
+      print('📥 전체 차계부 조회 완료: ${payments.length}건');
+    } catch (e) {
+      print('❌ 전체 차계부 조회 실패: $e');
     }
   }
 }
