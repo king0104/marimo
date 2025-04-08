@@ -37,14 +37,6 @@ spring:
             enable: true
       auth-code-expiration-millis: 1800000
 
-  data:
-    redis:
-      host: ${REDIS_HOST}
-      port: ${REDIS_PORT}
-
-  cache:
-    type: redis
-
 encrypt:
   secret:
     key: ${ENCRYPT_SECRET_KEY}
