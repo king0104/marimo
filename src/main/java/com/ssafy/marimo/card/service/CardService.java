@@ -75,7 +75,7 @@ public class CardService {
                     .orElseThrow(() -> new NotFoundException(ErrorStatus.CARD_NOT_FOUND.getErrorCode()));
 
             // 3. 주유 관련 혜택 조회
-            List<CardBenefit> cardBenefits = cardBenefitRepository.findWithDetailsByCardIdAndCategory(card.getId(), CATEGORY_GAS);
+            List<CardBenefit> cardBenefits = cardBenefitRepository.findByCardIdAndCategory(card.getId(), CATEGORY_GAS);
 
             StringBuilder cardDescription = new StringBuilder();
             for (CardBenefit benefit : cardBenefits) {
