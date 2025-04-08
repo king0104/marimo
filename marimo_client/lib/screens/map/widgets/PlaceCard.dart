@@ -168,23 +168,21 @@ class PlaceCard extends StatelessWidget {
                     ElevatedButton.icon(
                       onPressed: () async {
                         final destination = Location(
-                          name: place.name,
+                          name: _sanitizeName(place.name), // 🔄 여기만 바꿈
                           x: place.lng.toString(), // 경도
                           y: place.lat.toString(), // 위도
                         );
 
                         print(
-                          '📍 목적지 위치 - x: ${place.lng}, y: ${place.lat}, 목적지: ${place.name}',
+                          '📍 [카카오내비 요청] name: ${destination.name}, x: ${destination.x}, y: ${destination.y}',
                         );
 
                         // 카카오내비 설치 여부
-                        final result =
-                            await NaviApi.instance.isKakaoNaviInstalled();
-
-                        if (result) {
-                          print('카카오내비 앱으로 길안내 가능');
+                        if (await NaviApi.instance.isKakaoNaviInstalled()) {
+                          print('카카오내비 설치 여부 따지고 일단 들어감');
                           await NaviApi.instance.navigate(
                             destination: destination,
+                            option: NaviOption(coordType: CoordType.wgs84),
                           );
                         } else {
                           print('카카오내비 미설치');
@@ -246,5 +244,10 @@ class PlaceCard extends StatelessWidget {
     if (!place.isOilCardRegistered) return '카드 미등록';
     if (!place.isOilCardMonthlyRequirementSatisfied) return '전월 실적 부족';
     return null;
+  }
+
+  // ✅ 추가됨: 목적지 이름에서 특수문자 제거
+  String _sanitizeName(String name) {
+    return name.replaceAll(RegExp(r'[^\uAC00-\uD7A3a-zA-Z0-9\s]'), '').trim();
   }
 }
