@@ -38,7 +38,6 @@ public class GasStationService {
 
     private static final String CATEGORY_GAS = "GAS";
 
-
     @ExecutionTimeLog
     public void clearAllStations() {
         gasStationRepository.deleteAll();
