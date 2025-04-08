@@ -25,18 +25,15 @@ class PlaceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-
       child: Stack(
-        // ✅ 변경됨: 상태 라벨 표시를 위해 Stack으로 감쌈
         children: [
-          // ✅ 기존 카드 UI
           AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeInOut,
             margin: const EdgeInsets.only(right: 12),
             padding: const EdgeInsets.all(12),
             width: screenWidth * 0.83,
-            height: 160.h,
+            constraints: BoxConstraints(minHeight: 160.h),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(14),
@@ -51,32 +48,59 @@ class PlaceCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ✅ 1순위
+                // ✅ 변경됨: 1순위 + 상태라벨 + 연료종류
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 20.w,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.black,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        '${rank}순위',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
+                    // 왼쪽: 순위 + 상태 라벨
+                    Row(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 20.w,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.black,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            '${rank}순위',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 6),
+                        if (_getStatusLabel(place) != null)
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16.w,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: Colors.black,
+                                width: 0.4,
+                              ),
+                            ),
+                            child: Text(
+                              _getStatusLabel(place)!,
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
-
-                    // 오른쪽: 연료 종류
                     Text(
-                      place
-                          .oilType, // 🔄 기존: place.oilType ?? '휘발유' → 불필요한 null-safe 제거
+                      place.oilType ?? '일반 휘발유',
                       style: TextStyle(
                         fontSize: 14.sp,
                         color: Colors.grey[600],
@@ -103,7 +127,7 @@ class PlaceCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '${place.discountedPrice}원' ?? '',
+                      '${place.discountedPrice}원',
                       style: TextStyle(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.bold,
@@ -114,57 +138,43 @@ class PlaceCard extends StatelessWidget {
 
                 const SizedBox(height: 4),
 
-                // ✅ 상태 라벨 (ex. 카드 미등록, 전월 실적 부족)
-                if (_getStatusLabel(place) != null)
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 6),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.black, width: 1),
-                    ),
-                    child: Text(
-                      _getStatusLabel(place)!,
-                      style: TextStyle(
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
+                // ✅ 부가 정보 태그 + 취소선 가격 (한 줄에 정렬)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 왼쪽: 부가 정보 태그들
+                    Expanded(
+                      child: Wrap(
+                        spacing: 6,
+                        runSpacing: 4,
+                        children: [
+                          if (place.hasSelfService) _buildTag("셀프"),
+                          if (place.hasCarWash) _buildTag("세차"),
+                          if (place.hasMaintenance) _buildTag("경정비"),
+                          if (place.hasCvs) _buildTag("편의점"),
+                          _buildTag("24시"),
+                        ],
                       ),
                     ),
-                  ),
 
-                // ✅ 부가 정보 태그 영역
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 4,
-                  children: [
-                    if (place.hasSelfService) _buildTag("셀프"),
-                    if (place.hasCarWash) _buildTag("세차"),
-                    if (place.hasMaintenance) _buildTag("경정비"),
-                    if (place.hasCvs) _buildTag("편의점"),
-                    _buildTag("24시"), // 이건 지금 고정으로 넣었어. 필요하면 조건부로 수정 가능
+                    // 오른쪽: 취소선 가격 텍스트
+                    if (place.isOilCardRegistered &&
+                        place
+                            .isOilCardMonthlyRequirementSatisfied) // place.price != place.discountedPrice
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: Text(
+                          '${place.price}원',
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            color: Colors.grey,
+                            decoration: TextDecoration.lineThrough,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
-
-                // ✅ 할인된 경우: 취소선 가격 아래에 표시 (변경된 부분)
-                if (place.isOilCardRegistered &&
-                    place.isOilCardMonthlyRequirementSatisfied &&
-                    place.price != place.discountedPrice)
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      '${place.price}원',
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        color: Colors.grey,
-                        decoration: TextDecoration.lineThrough,
-                      ),
-                    ),
-                  ),
 
                 const Spacer(),
 
@@ -183,29 +193,24 @@ class PlaceCard extends StatelessWidget {
                     ElevatedButton.icon(
                       onPressed: () async {
                         final destination = Location(
-                          name: _sanitizeName(place.name), // 🔄 여기만 바꿈
-                          x: place.lng.toString(), // 경도
-                          y: place.lat.toString(), // 위도
+                          name: _sanitizeName(place.name),
+                          x: place.lng.toString(),
+                          y: place.lat.toString(),
                         );
 
                         print(
                           '📍 [카카오내비 요청] name: ${destination.name}, x: ${destination.x}, y: ${destination.y}',
                         );
 
-                        // 카카오내비 설치 여부
                         if (await NaviApi.instance.isKakaoNaviInstalled()) {
-                          print('카카오내비 설치 여부 따지고 일단 들어감');
                           await NaviApi.instance.navigate(
                             destination: destination,
                             option: NaviOption(coordType: CoordType.wgs84),
                           );
                         } else {
-                          print('카카오내비 미설치');
-                          // 카카오내비 설치 페이지로 이동
                           launchBrowserTab(Uri.parse(NaviApi.webNaviInstall));
                         }
                       },
-
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF3B82F6),
                         foregroundColor: Colors.white,
