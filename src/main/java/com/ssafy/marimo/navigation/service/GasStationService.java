@@ -154,12 +154,9 @@ public class GasStationService {
         if (isOilCardRegistered && isOilCardMonthlyRequirementSatisfied) {
             Card card = memberCard.get().getCard(); // 이 코드 수정 필요 (null 체크 해줘야함)
 
-            List<CardBenefit> cardBenefits = cardBenefitRepository.findByCardIdAndCategory(card.getId(), CATEGORY_GAS);
+            List<CardBenefit> cardBenefits = cardBenefitRepository.findWithDetailsByCardIdAndCategory(card.getId(), CATEGORY_GAS);
             for (CardBenefit benefit : cardBenefits) {
-                List<CardBenefitDetail> cardBenefitDetails =
-                        cardBenefitDetailRepository.findByCardBenefitId(benefit.getId());
-
-                for (CardBenefitDetail cardBenefitDetail : cardBenefitDetails) {
+                for (CardBenefitDetail cardBenefitDetail : benefit.getDetails()) {
                     // 카드 혜택 적용하기
                     if (cardBenefitDetail.getAppliesToAllBrands()) {
                         discountedPrice = applyCardBenefit(price, cardBenefitDetail.getDiscountValue(),
