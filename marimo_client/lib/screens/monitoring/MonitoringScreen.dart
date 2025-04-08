@@ -29,8 +29,13 @@ class _MonitoringScreenState extends State<MonitoringScreen>
 
     final upperHeight = 200.h + 16.h + 48.h + 16.h;
 
-    String getTopImageAsset(String brand, String model) {
-      final Map<String, String> kiaModelTopImageMap = {
+    if (car != null) {
+      print(car.brandId);
+      print(car.modelName);
+    }
+
+    String getTopImageAsset(String model) {
+      final Map<String, String> modelTopImageMap = {
         "모닝": "assets/images/cars/morning_top.png",
         "레이": "assets/images/cars/ray_top.png",
         "K3": "assets/images/cars/k3_top.png",
@@ -42,9 +47,6 @@ class _MonitoringScreenState extends State<MonitoringScreen>
         "스포티지": "assets/images/cars/sportage_top.png",
         "쏘렌토": "assets/images/cars/sorento_top.png",
         "모하비": "assets/images/cars/mohave_top.png",
-      };
-
-      final Map<String, String> hyundaiModelTopImageMap = {
         "아반떼": "assets/images/cars/avante_top.png",
         "쏘나타": "assets/images/cars/sonata_top.png",
         "그랜저": "assets/images/cars/grandeur_top.png",
@@ -55,29 +57,27 @@ class _MonitoringScreenState extends State<MonitoringScreen>
         "투싼": "assets/images/cars/tucson_top.png",
         "산타페": "assets/images/cars/santafe_top.png",
         "팰리세이드": "assets/images/cars/palisade_top.png",
-      };
-
-      final Map<String, String> toyotaModelTopImageMap = {
         "프리우스": "assets/images/cars/prius_top.png",
       };
 
       const fallback = "assets/images/cars/sonata_top.png";
 
-      switch (brand.toLowerCase()) {
-        case "kia":
-          return kiaModelTopImageMap[model] ?? fallback;
-        case "hyundai":
-          return hyundaiModelTopImageMap[model] ?? fallback;
-        case "toyota":
-          return toyotaModelTopImageMap[model] ?? fallback;
-        default:
-          return fallback;
+      final normalizedModel = model.trim().toLowerCase();
+
+      for (final entry in modelTopImageMap.entries) {
+        if (normalizedModel.contains(entry.key.toLowerCase())) {
+          print('✅ 매칭됨: ${entry.key} → ${entry.value}');
+          return entry.value;
+        }
       }
+
+      print('⚠️ fallback 사용됨: $normalizedModel');
+      return fallback;
     }
 
     final topImage =
         car != null
-            ? getTopImageAsset(car.brandId ?? '', car.modelName ?? '')
+            ? getTopImageAsset(car.modelName ?? '')
             : 'assets/images/cars/sonata_top.png';
 
     return Scaffold(

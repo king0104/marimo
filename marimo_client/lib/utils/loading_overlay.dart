@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:marimo_client/theme.dart';
 
 OverlayEntry? _loadingOverlayEntry;
 void showLoadingOverlay(BuildContext context, {String? message}) {
@@ -25,15 +26,12 @@ void showLoadingOverlay(BuildContext context, {String? message}) {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const CircularProgressIndicator(color: Colors.white),
+                    const CircularProgressIndicator(color: white),
                     if (message != null) ...[
                       const SizedBox(height: 12),
                       Text(
                         message,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                        ),
+                        style: const TextStyle(color: white, fontSize: 16),
                       ),
                     ],
                   ],
