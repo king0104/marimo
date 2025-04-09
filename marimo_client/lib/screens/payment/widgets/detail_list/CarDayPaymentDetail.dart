@@ -15,16 +15,23 @@ class CarDayPaymentDetail extends StatelessWidget {
       (provider) => provider.filteredEntries,
     );
 
-    /// ⏱ 그룹핑 한 번만
+    // ✅ 1. 날짜 + 시각까지 포함해서 정렬
+    final sortedEntries = [...entries]
+      ..sort((a, b) => b.date.compareTo(a.date));
+
+    // ✅ 2. 그룹핑은 여전히 날짜 단위 (시각 제외)
     final Map<DateTime, List<CarPaymentEntry>> groupedByDate = {};
-    for (final entry in entries) {
-      final date = DateTime(entry.date.year, entry.date.month, entry.date.day);
-      groupedByDate.putIfAbsent(date, () => []).add(entry);
+    for (final entry in sortedEntries) {
+      final dateOnly = DateTime(
+        entry.date.year,
+        entry.date.month,
+        entry.date.day,
+      );
+      groupedByDate.putIfAbsent(dateOnly, () => []).add(entry);
     }
 
-    /// ⏱ 정렬도 한 번만
-    final sortedDates =
-        groupedByDate.keys.toList()..sort((a, b) => b.compareTo(a));
+    // ✅ 3. 키만 정렬할 필요 없음: 이미 entry 순서대로 그룹핑됨
+    final sortedDates = groupedByDate.keys.toList();
 
     return ListView.builder(
       cacheExtent: 1000, // ✅ 미리 렌더링 범위
