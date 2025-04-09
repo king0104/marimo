@@ -15,6 +15,7 @@ class CarDetailFormItemList extends StatefulWidget {
   final int amount;
   final bool isEditMode;
   final VoidCallback? onSaveComplete;
+  final Map<String, dynamic>? detailData;
 
   const CarDetailFormItemList({
     Key? key,
@@ -22,6 +23,7 @@ class CarDetailFormItemList extends StatefulWidget {
     required this.amount,
     this.isEditMode = true, // 기본값 true
     this.onSaveComplete,
+    this.detailData,
   }) : super(key: key);
 
   @override
