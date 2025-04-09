@@ -1,8 +1,8 @@
 package com.ssafy.marimo.navigation.controller;
 
 import com.ssafy.marimo.common.annotation.CurrentMemberId;
-import com.ssafy.marimo.common.annotation.ExecutionTimeLog;
 import com.ssafy.marimo.navigation.dto.request.GetRepairShopRequest;
+import com.ssafy.marimo.navigation.dto.response.GetCarWashShopResponse;
 import com.ssafy.marimo.navigation.dto.response.GetRepairShopResponse;
 import com.ssafy.marimo.navigation.service.RepairShopService;
 import jakarta.validation.constraints.NotNull;
@@ -17,19 +17,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/maps")
 @RequiredArgsConstructor
-public class RepairShopController {
+@RequestMapping("/api/v1/maps")
+public class CarWashShopController {
 
     private final RepairShopService repairShopService;
 
-    @ExecutionTimeLog
-    @GetMapping("/recommend/repair")
-    public ResponseEntity<List<GetRepairShopResponse>> getRepairShops(
-            @RequestParam @NotNull Double latitude,
-            @RequestParam @NotNull Double longitude,
-            @CurrentMemberId Integer memberId
-    ) {
-        return ResponseEntity.ok(repairShopService.getRepairShops(latitude, longitude, memberId));
-    }
+//    @GetMapping("/recommnend/wash")
+//    public ResponseEntity<List<GetCarWashShopResponse>> getRepairShops(
+//            @RequestParam @NotNull Double latitude,
+//            @RequestParam @NotNull Double longitude,
+//            @CurrentMemberId Integer memberId
+//    ) {
+//        return ResponseEntity.ok(repairShopService.getRepairShops(latitude, longitude, memberId));
+//    }
+
 }

@@ -14,9 +14,7 @@ public class RepairShopService {
 
     private final RepairShopRepository repairShopRepository;
 
-    public List<GetRepairShopResponse> getRepairShops(GetRepairShopRequest req, Integer memberId) {
-        double latitude = req.latitude();
-        double longitude = req.longitude();
+    public List<GetRepairShopResponse> getRepairShops(double latitude, double longitude, Integer memberId) {
 
         int radiusMeter = 5000;
 
