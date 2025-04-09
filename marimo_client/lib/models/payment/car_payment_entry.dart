@@ -38,4 +38,18 @@ class CarPaymentEntry {
         return category;
     }
   }
+
+  // 영문 카테고리 변환 getter
+  String get categoryEng {
+    switch (categoryKr) {
+      case '주유':
+        return 'OIL';
+      case '정비':
+        return 'REPAIR';
+      case '세차':
+        return 'WASH';
+      default:
+        return category.toUpperCase();
+    }
+  }
 }

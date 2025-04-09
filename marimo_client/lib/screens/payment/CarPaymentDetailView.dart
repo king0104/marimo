@@ -1,6 +1,9 @@
 // CarPaymentDetailView.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
+import 'package:marimo_client/services/payment/car_payment_service.dart';
+import 'package:marimo_client/providers/member/auth_provider.dart';
 import 'package:marimo_client/models/payment/car_payment_entry.dart';
 import 'package:marimo_client/commons/CustomAppHeader.dart';
 import 'widgets/detail_form/CategoryAndAmount.dart';
@@ -30,8 +33,32 @@ class _CarPaymentDetailViewState extends State<CarPaymentDetailView> {
     });
   }
 
-  void _deleteEntry() {
-    // TODO: 삭제 로직 구현 필요
+  void _deleteEntry() async {
+    final paymentId = widget.entry.paymentId;
+    final category = widget.entry.categoryEng; // 'OIL', 'REPAIR', 'WASH'
+
+    final accessToken = context.read<AuthProvider>().accessToken;
+
+    try {
+      await CarPaymentService.deletePayment(
+        paymentId: paymentId,
+        category: category,
+        accessToken: accessToken!,
+      );
+
+      // 삭제 성공 후 이전 페이지로 이동 (리스트 리프레시 고려)
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const CarPaymentDetailList()),
+        );
+      }
+    } catch (e) {
+      print('❌ 삭제 오류: $e');
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('삭제에 실패했습니다. 다시 시도해주세요.')));
+    }
   }
 
   @override

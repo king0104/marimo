@@ -23,6 +23,11 @@ class CarDayPaymentItemList extends StatelessWidget {
     return Column(
       children:
           entries.map((entry) {
+            // print('🛠 paymentId: ${entry.paymentId}');
+            // print('🛠 entry.category: ${entry.category}'); // 영문 (예: OIL)
+            // print('🛠 entry.categoryKr: ${entry.categoryKr}'); // 한글 (예: 주유)
+            // print('🛠 entry.details: ${entry.details}'); // 전체 JSON 확인
+
             return Padding(
               padding: EdgeInsets.only(left: 6.w, right: 6.w, bottom: 20.h),
               child: CarDayPaymentItem(
@@ -32,10 +37,15 @@ class CarDayPaymentItemList extends StatelessWidget {
                 paymentId: entry.paymentId,
                 onTap: () async {
                   final accessToken = context.read<AuthProvider>().accessToken;
+                  final actualCategory =
+                      entry.category; // 'OIL', 'REPAIR', 'WASH'
+                  print('📍 paymentId: ${entry.paymentId}');
+                  print('📍 실제 category: $actualCategory');
+
                   try {
                     final detail = await CarPaymentService.fetchPaymentDetail(
                       paymentId: entry.paymentId,
-                      category: entry.categoryKr,
+                      category: entry.category,
                       accessToken: accessToken!,
                     );
                     Navigator.push(
@@ -50,6 +60,9 @@ class CarDayPaymentItemList extends StatelessWidget {
                     );
                   } catch (e) {
                     print('❌ 상세 조회 실패: $e');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('상세 내역을 불러오지 못했습니다.')),
+                    );
                   }
                 },
               ),

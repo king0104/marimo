@@ -165,14 +165,14 @@ class CarPaymentService {
     required String accessToken,
   }) async {
     String endpoint;
-    switch (category) {
-      case '주유':
+    switch (category.toUpperCase()) {
+      case 'OIL':
         endpoint = '/api/v1/payments/$paymentId/oil';
         break;
-      case '정비':
+      case 'REPAIR':
         endpoint = '/api/v1/payments/$paymentId/repair';
         break;
-      case '세차':
+      case 'WASH':
         endpoint = '/api/v1/payments/$paymentId/wash';
         break;
       default:
@@ -182,13 +182,56 @@ class CarPaymentService {
     final url = Uri.parse('$baseUrl$endpoint');
     final headers = buildHeaders(token: accessToken);
 
+    print('🧾 [상세 조회 요청]');
+    print('🔗 URL: $url');
+    print('🪪 accessToken: $accessToken');
+    print('📦 headers: $headers');
+    print('📌 category: $category');
+
     final response = await http.get(url, headers: headers);
 
     if (response.statusCode == 200) {
       final decoded = jsonDecode(utf8.decode(response.bodyBytes));
       return decoded;
     } else {
+      print('❌ 서버 응답 상태 코드: ${response.statusCode}');
+      print('❌ 서버 응답 본문: ${utf8.decode(response.bodyBytes)}');
       throw Exception('상세 조회 실패: ${utf8.decode(response.bodyBytes)}');
+    }
+  }
+
+  // 삭제
+  static Future<void> deletePayment({
+    required String paymentId,
+    required String category,
+    required String accessToken,
+  }) async {
+    String endpoint;
+    switch (category.toUpperCase()) {
+      case 'OIL':
+        endpoint = '/api/v1/payments/oil/$paymentId';
+        break;
+      case 'REPAIR':
+        endpoint = '/api/v1/payments/repair/$paymentId';
+        break;
+      case 'WASH':
+        endpoint = '/api/v1/payments/wash/$paymentId';
+        break;
+      default:
+        throw Exception('알 수 없는 카테고리: $category');
+    }
+
+    final url = Uri.parse('$baseUrl$endpoint');
+    final headers = buildHeaders(token: accessToken);
+
+    final response = await http.delete(url, headers: headers);
+
+    if (response.statusCode == 200) {
+      print('🗑️ 삭제 성공: $paymentId');
+    } else {
+      print('❌ 삭제 실패 상태코드: ${response.statusCode}');
+      print('❌ 삭제 실패 응답: ${utf8.decode(response.bodyBytes)}');
+      throw Exception('삭제 실패: ${utf8.decode(response.bodyBytes)}');
     }
   }
 }
