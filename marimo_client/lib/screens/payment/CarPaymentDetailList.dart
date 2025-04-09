@@ -46,7 +46,10 @@ class _CarDetailPaymentState extends State<CarPaymentDetailList>
       appBar: CustomAppHeader(
         title: '내역 보기',
         onBackPressed: () {
-          Navigator.pop(context); // ✅ 최상위 Provider context 유지
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const CarTotalPayment()),
+          );
         },
       ),
       body: Padding(
