@@ -66,7 +66,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => FilterProvider()),
         ChangeNotifierProvider(create: (_) => LocationProvider()),
         ChangeNotifierProvider(create: (_) => StationCardsProvider()),
-        ChangeNotifierProvider(create: (_) => CarPaymentProvider()),
+        ChangeNotifierProvider.value(value: carPaymentProvider),
         ChangeNotifierProvider(create: (_) => ObdPollingProvider()),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ChangeNotifierProvider(create: (_) => ObdAnalysisProvider()),
