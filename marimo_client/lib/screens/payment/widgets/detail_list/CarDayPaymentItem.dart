@@ -11,12 +11,16 @@ class CarDayPaymentItem extends StatelessWidget {
   final String category;
   final int amount;
   final String? subText;
+  final String paymentId;
+  final VoidCallback onTap;
 
   const CarDayPaymentItem({
     super.key,
     required this.category,
     required this.amount,
     this.subText,
+    required this.paymentId,
+    required this.onTap,
   });
 
   Widget _getCategoryIcon(String category) {
@@ -78,10 +82,13 @@ class CarDayPaymentItem extends StatelessWidget {
           ),
         ),
         SizedBox(width: 9.w), // ✅ "원"과 아이콘 사이 여백
-        SvgPicture.asset(
-          'assets/images/icons/icon_detail.svg',
-          width: 6.w,
-          height: 10.h,
+        GestureDetector(
+          onTap: onTap,
+          child: SvgPicture.asset(
+            'assets/images/icons/icon_detail.svg',
+            width: 6.w,
+            height: 10.h,
+          ),
         ),
       ],
     );
