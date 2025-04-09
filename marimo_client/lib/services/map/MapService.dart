@@ -2,22 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:marimo_client/models/map/gas_station_place.dart'; // ✅ Place 모델 import
+import 'package:marimo_client/models/map/gas_station_place.dart';
+import 'package:marimo_client/models/map/repair_shop_place.dart';
 import 'package:marimo_client/screens/map/utils/map_utils.dart';
 
 class MapService {
   /// 현재 위치 가져오기
   Future<NLatLng> fetchCurrentLatLng() async {
-    // final position = await Geolocator.getCurrentPosition(
-    //   desiredAccuracy: LocationAccuracy.high,
-    // );
-    // return NLatLng(position.latitude, position.longitude);
-
-    // 실제 위치 대신 역삼역 좌표 반환
-    return NLatLng(37.500612, 127.036431);
+    final position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+    return NLatLng(position.latitude, position.longitude);
   }
 
-  /// 현재 위치 마커 추가 (고정된 이미지 사용)
+  /// 현재 위치 마커 추가
   Future<void> addCurrentLocationMarker({
     required NaverMapController controller,
     required String id,
@@ -39,7 +37,7 @@ class MapService {
     await controller.addOverlay(marker);
   }
 
-  /// 공통 마커 추가 함수 (마커 타입과 선택 여부만 받음)
+  /// Place 마커 생성
   Future<void> _addTypedMarker({
     required NaverMapController controller,
     required Place place,
@@ -47,9 +45,7 @@ class MapService {
     void Function()? onTap,
   }) async {
     final markerIcon = await NOverlayImage.fromAssetImage(
-      isSelected
-          ? 'assets/images/markers/marker_gas_selected.png'
-          : 'assets/images/markers/marker_gas_default.png',
+      _getMarkerAssetPath(type: 'gas', isSelected: isSelected),
     );
 
     final marker = NMarker(
@@ -60,38 +56,35 @@ class MapService {
     );
 
     if (onTap != null) {
-      marker.setOnTapListener((overlay) {
-        print('👉 마커 클릭됨: ${place.id}');
-        onTap();
-      });
+      marker.setOnTapListener((overlay) => onTap());
     }
 
     await controller.addOverlay(marker);
   }
 
-  /// 마커 삭제 (단일)
-  Future<void> removeMarker({
+  /// Repair 마커 생성
+  Future<void> _addTypedRepairMarker({
     required NaverMapController controller,
-    required String id,
+    required RepairShopPlace place,
+    required bool isSelected,
+    void Function()? onTap,
   }) async {
-    try {
-      await controller.deleteOverlay(
-        NOverlayInfo(type: NOverlayType.marker, id: id),
-      );
-      print('🗑 마커 제거됨: $id');
-    } catch (e) {
-      print('⚠️ 마커 제거 실패 (id: $id) → $e');
-    }
-  }
+    final markerIcon = await NOverlayImage.fromAssetImage(
+      _getMarkerAssetPath(type: 'repair', isSelected: isSelected),
+    );
 
-  /// 다수 마커 삭제
-  Future<void> removeMarkersByIds({
-    required NaverMapController controller,
-    required List<String> ids,
-  }) async {
-    for (final id in ids) {
-      await removeMarker(controller: controller, id: id);
+    final marker = NMarker(
+      id: place.id.toString(),
+      position: NLatLng(place.lat, place.lng),
+      icon: markerIcon,
+      caption: NOverlayCaption(text: place.name),
+    );
+
+    if (onTap != null) {
+      marker.setOnTapListener((overlay) => onTap());
     }
+
+    await controller.addOverlay(marker);
   }
 
   /// Place 리스트 기반 마커 추가
@@ -100,7 +93,6 @@ class MapService {
     required List<Place> places,
     void Function(String markerId)? onMarkerTap,
   }) async {
-    // 모든 마커 생성 Future를 한 번에 실행
     final futures = places.map((place) {
       return _addTypedMarker(
         controller: controller,
@@ -110,17 +102,36 @@ class MapService {
       );
     });
 
-    await Future.wait(futures); // 🔥 병렬 실행
+    await Future.wait(futures);
   }
 
-  /// 마커 강조
+  /// Repair 리스트 기반 마커 추가
+  Future<void> addRepairMarkers({
+    required NaverMapController controller,
+    required List<RepairShopPlace> places,
+    void Function(String markerId)? onMarkerTap,
+  }) async {
+    final futures = places.map((place) {
+      return _addTypedRepairMarker(
+        controller: controller,
+        place: place,
+        isSelected: false,
+        onTap:
+            onMarkerTap != null ? () => onMarkerTap(place.id.toString()) : null,
+      );
+    });
+
+    await Future.wait(futures);
+  }
+
+  /// 마커 강조 (주유소)
   Future<void> highlightMarker({
     required NaverMapController controller,
     required Place place,
     void Function()? onTap,
   }) async {
     await removeMarker(controller: controller, id: place.id);
-    await Future.delayed(const Duration(milliseconds: 30)); // 안전한 제거 대기
+    await Future.delayed(const Duration(milliseconds: 30));
     await _addTypedMarker(
       controller: controller,
       place: place,
@@ -129,20 +140,76 @@ class MapService {
     );
   }
 
-  /// 마커 강조 해제
+  /// 마커 강조 (정비소)
+  Future<void> highlightRepairMarker({
+    required NaverMapController controller,
+    required RepairShopPlace place,
+    void Function()? onTap,
+  }) async {
+    await removeMarker(controller: controller, id: place.id.toString());
+    await Future.delayed(const Duration(milliseconds: 30));
+    await _addTypedRepairMarker(
+      controller: controller,
+      place: place,
+      isSelected: true,
+      onTap: onTap,
+    );
+  }
+
+  /// 마커 리셋 (주유소)
   Future<void> resetMarker({
     required NaverMapController controller,
     required Place place,
     void Function()? onTap,
   }) async {
     await removeMarker(controller: controller, id: place.id);
-    await Future.delayed(const Duration(milliseconds: 30)); // 안전한 제거 대기
+    await Future.delayed(const Duration(milliseconds: 30));
     await _addTypedMarker(
       controller: controller,
       place: place,
       isSelected: false,
       onTap: onTap,
     );
+  }
+
+  /// 마커 리셋 (정비소)
+  Future<void> resetRepairMarker({
+    required NaverMapController controller,
+    required RepairShopPlace place,
+    void Function()? onTap,
+  }) async {
+    await removeMarker(controller: controller, id: place.id.toString());
+    await Future.delayed(const Duration(milliseconds: 30));
+    await _addTypedRepairMarker(
+      controller: controller,
+      place: place,
+      isSelected: false,
+      onTap: onTap,
+    );
+  }
+
+  /// 마커 삭제
+  Future<void> removeMarker({
+    required NaverMapController controller,
+    required String id,
+  }) async {
+    try {
+      await controller.deleteOverlay(
+        NOverlayInfo(type: NOverlayType.marker, id: id),
+      );
+    } catch (e) {
+      debugPrint("⚠️ 마커 제거 실패 (id: $id): $e");
+    }
+  }
+
+  /// 여러 마커 삭제
+  Future<void> removeMarkersByIds({
+    required NaverMapController controller,
+    required List<String> ids,
+  }) async {
+    for (final id in ids) {
+      await removeMarker(controller: controller, id: id);
+    }
   }
 
   /// 카메라 이동
@@ -156,7 +223,16 @@ class MapService {
     );
   }
 
-  /// 안전한 카메라 이동: 범위 벗어나면 서울로 이동 + 메시지 출력
+  /// 현재 위치 오버레이
+  void setCurrentLocationOverlay({
+    required NaverMapController controller,
+    required NLatLng position,
+  }) {
+    final overlay = controller.getLocationOverlay();
+    overlay.setPosition(position);
+  }
+
+  /// 카메라 안전 이동
   Future<void> safeMoveCamera({
     required BuildContext context,
     required NaverMapController controller,
@@ -168,8 +244,7 @@ class MapService {
     } else {
       await moveCamera(
         controller: controller,
-        target: NLatLng(37.5665, 126.9780),
-        zoom: zoom,
+        target: const NLatLng(37.5665, 126.9780),
       );
       ScaffoldMessenger.of(
         context,
@@ -177,10 +252,10 @@ class MapService {
     }
   }
 
-  /// 각 카테고리 당 마커가 한 눈에 들어오게
+  /// 마커 전체 중앙 정렬
   Future<void> centerMarkersWithZoom({
     required NaverMapController controller,
-    required List<Place> places,
+    required List<dynamic> places, // Place or RepairShopPlace
   }) async {
     if (places.isEmpty) return;
 
@@ -198,19 +273,9 @@ class MapService {
     );
 
     final bounds = NLatLngBounds(southWest: southWest, northEast: northEast);
-
     await controller.updateCamera(
       NCameraUpdate.fitBounds(bounds, padding: const EdgeInsets.all(80)),
     );
-  }
-
-  /// 현재 위치 오버레이
-  void setCurrentLocationOverlay({
-    required NaverMapController controller,
-    required NLatLng position,
-  }) {
-    final overlay = controller.getLocationOverlay();
-    overlay.setPosition(position);
   }
 
   /// 마커 이미지 경로 계산
