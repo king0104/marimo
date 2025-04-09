@@ -104,6 +104,58 @@ class CarPaymentService {
     }
   }
 
+  /// ✅ 현재 달 + 전월 데이터를 함께 조회하는 메서드
+  static Future<Map<String, List<CarPaymentEntry>>>
+  fetchCurrentAndPreviousMonth({
+    required String carId,
+    required int selectedYear,
+    required int selectedMonth,
+    required String accessToken,
+  }) async {
+    // 전월 계산
+    int prevMonth = selectedMonth - 1;
+    int prevYear = selectedYear;
+    if (prevMonth == 0) {
+      prevMonth = 12;
+      prevYear--;
+    }
+
+    final headers = buildHeaders(token: accessToken);
+
+    final currentUrl = Uri.parse(
+      '$baseUrl/api/v1/payments/cars/$carId?year=$selectedYear&month=$selectedMonth',
+    );
+    final previousUrl = Uri.parse(
+      '$baseUrl/api/v1/payments/cars/$carId?year=$prevYear&month=$prevMonth',
+    );
+
+    final currentResponse = await http.get(currentUrl, headers: headers);
+    final prevResponse = await http.get(previousUrl, headers: headers);
+
+    if (currentResponse.statusCode == 200 && prevResponse.statusCode == 200) {
+      final currentData = jsonDecode(utf8.decode(currentResponse.bodyBytes));
+      final prevData = jsonDecode(utf8.decode(prevResponse.bodyBytes));
+
+      final currentList =
+          (currentData['payments'] ?? [])
+              .map<CarPaymentEntry>((item) => CarPaymentEntry.fromJson(item))
+              .toList();
+
+      final prevList =
+          (prevData['payments'] ?? [])
+              .map<CarPaymentEntry>((item) => CarPaymentEntry.fromJson(item))
+              .toList();
+
+      return {'current': currentList, 'previous': prevList};
+    } else {
+      throw Exception(
+        '현재/전월 데이터 조회 실패\n'
+        '현재 응답: ${utf8.decode(currentResponse.bodyBytes)}\n'
+        '전월 응답: ${utf8.decode(prevResponse.bodyBytes)}',
+      );
+    }
+  }
+
   // 개별 내역 조회
   static Future<Map<String, dynamic>> fetchPaymentDetail({
     required String paymentId,

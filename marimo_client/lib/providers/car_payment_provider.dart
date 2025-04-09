@@ -91,36 +91,16 @@ class CarPaymentProvider with ChangeNotifier {
     });
   }
 
-  // ✅ 이전 달 대비 증감액 계산
-  int get previousMonthDifference {
-    // 이전 달 계산
-    int prevMonth = _selectedMonth - 1;
-    int prevYear = _selectedYear;
+  // ✅ 전월 데이터 저장용 추가
+  List<CarPaymentEntry> _previousMonthEntries = [];
+  List<CarPaymentEntry> get previousMonthEntries =>
+      List.unmodifiable(_previousMonthEntries);
 
-    // 1월인 경우 이전 달은 작년 12월
-    if (prevMonth == 0) {
-      prevMonth = 12;
-      prevYear--;
-    }
+  int get previousMonthTotal =>
+      _previousMonthEntries.fold(0, (total, entry) => total + entry.amount);
 
-    // 이전 달 데이터 필터링
-    final prevMonthEntries =
-        _entries
-            .where(
-              (entry) =>
-                  entry.date.year == prevYear && entry.date.month == prevMonth,
-            )
-            .toList();
-
-    // 이전 달 총액 계산
-    final prevMonthTotal = prevMonthEntries.fold(
-      0,
-      (total, entry) => total + entry.amount,
-    );
-
-    // 현재 달 총액과의 차이 반환
-    return totalAmountForSelectedMonth - prevMonthTotal;
-  }
+  int get previousMonthDifference =>
+      totalAmountForSelectedMonth - previousMonthTotal;
 
   // 선택된 카테고리 상태
   String? _selectedCategory = '주유'; // ← 기본값 설정
@@ -134,7 +114,6 @@ class CarPaymentProvider with ChangeNotifier {
 
   // ✅ 선택된 날짜 상태 (추가)
   DateTime _selectedDate = DateTime.now();
-
   DateTime get selectedDate => _selectedDate;
 
   void setSelectedDate(DateTime date) {
@@ -152,7 +131,6 @@ class CarPaymentProvider with ChangeNotifier {
   }
 
   bool _isFromPlusButton = false;
-
   bool get isFromPlusButton => _isFromPlusButton;
 
   void markAsFromPlusButton(bool value) {
@@ -161,7 +139,6 @@ class CarPaymentProvider with ChangeNotifier {
 
   // ✅ 선택된 정비 부품 목록
   List<String> _selectedRepairItems = [];
-
   List<String> get selectedRepairItems => _selectedRepairItems;
 
   void setSelectedRepairItems(List<String> items) {
@@ -305,18 +282,23 @@ class CarPaymentProvider with ChangeNotifier {
     required String carId,
   }) async {
     try {
-      final payments = await CarPaymentService.fetchPaymentsByMonth(
+      final result = await CarPaymentService.fetchCurrentAndPreviousMonth(
         carId: carId,
-        year: _selectedYear,
-        month: _selectedMonth,
+        selectedYear: _selectedYear,
+        selectedMonth: _selectedMonth,
         accessToken: accessToken,
       );
 
       _entries.clear();
-      _entries.addAll(payments);
+      _entries.addAll(result['current'] ?? []);
+
+      _previousMonthEntries.clear();
+      _previousMonthEntries.addAll(result['previous'] ?? []);
+
       notifyListeners();
 
-      print('📥 전체 차계부 조회 완료: ${payments.length}건');
+      print('📥 현재 월 차계부 조회 완료: ${_entries.length}건');
+      print('📥 전월 차계부 조회 완료: ${_previousMonthEntries.length}건');
     } catch (e) {
       print('❌ 전체 차계부 조회 실패: $e');
     }
