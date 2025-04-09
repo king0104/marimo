@@ -53,26 +53,42 @@ class CarDetailFormItemListState extends State<CarDetailFormItemList> {
     super.didChangeDependencies();
     // Provider의 현재 상태로 각 컨트롤러 초기화 (편집 모드라면)
     final provider = Provider.of<CarPaymentProvider>(context);
+
     // 날짜: provider에 값이 있으면 적용 (날짜는 기본적으로 항상 있음)
     _selectedDate = provider.selectedDate;
     _dateController.text = DateFormat('yyyy년 M월 d일').format(_selectedDate);
+
     // 장소
     if (_placeController.text.isEmpty && provider.location.isNotEmpty) {
       _placeController.text = provider.location;
     }
+
     // 메모
     if (_memoController.text.isEmpty && provider.memo.isNotEmpty) {
       _memoController.text = provider.memo;
     }
     // 유형: 주유면 fuelType, 정비면 selectedRepairItems
+    // ✅ detailData 있을 경우에도 초기화
     if (widget.category == '주유') {
-      if (_typeController.text.isEmpty && provider.fuelType.isNotEmpty) {
-        _typeController.text = provider.fuelType;
+      if (_typeController.text.isEmpty) {
+        final fuel = widget.detailData?['fuelType'] ?? provider.fuelType;
+        if (fuel is String && fuel.isNotEmpty) {
+          _typeController.text = fuel;
+        }
       }
     } else if (widget.category == '정비') {
-      if (_typeController.text.isEmpty &&
-          provider.selectedRepairItems.isNotEmpty) {
-        _typeController.text = provider.selectedRepairItems.join(', ');
+      if (_typeController.text.isEmpty) {
+        final repairParts = widget.detailData?['repairParts'];
+        if (repairParts != null) {
+          if (repairParts is List) {
+            // 혹시라도 List로 들어온 경우
+            _typeController.text = repairParts.join(', ');
+          } else if (repairParts is String) {
+            _typeController.text = repairParts;
+          }
+        } else if (provider.selectedRepairItems.isNotEmpty) {
+          _typeController.text = provider.selectedRepairItems.join(', ');
+        }
       }
     }
   }
@@ -268,19 +284,25 @@ class CarDetailFormItemListState extends State<CarDetailFormItemList> {
   // Provider에 입력값들을 저장하는 함수 (저장 시 호출)
   void saveInputsToProvider() {
     final provider = Provider.of<CarPaymentProvider>(context, listen: false);
+    provider.setSelectedCategory(widget.category);
     provider.setSelectedAmount(widget.amount);
     provider.setSelectedDate(_selectedDate);
     provider.setLocation(_placeController.text);
     provider.setMemo(_memoController.text);
+
     if (widget.category == '주유') {
       provider.setFuelType(_typeController.text);
+      print('📌 유종: ${_typeController.text}');
+    } else if (widget.category == '정비') {
+      final parts =
+          _typeController.text.split(', ').where((e) => e.isNotEmpty).toList();
+      provider.setSelectedRepairItems(parts);
+      print('📌 부품: ${parts}');
     }
+
     print('📝 saveInputsToProvider 호출됨');
     print('📌 장소: ${_placeController.text}');
     print('📌 메모: ${_memoController.text}');
-    if (widget.category == '주유') {
-      print('📌 유종: ${_typeController.text}');
-    }
   }
 
   @override

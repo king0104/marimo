@@ -15,6 +15,7 @@ class CarPaymentService {
     required CarPaymentProvider provider,
     required String carId,
     required String accessToken,
+    required String category,
   }) async {
     final category = provider.selectedCategory ?? '주유';
 
@@ -38,6 +39,7 @@ class CarPaymentService {
 
     final bodyMap = provider.toJsonForDB(
       carId: carId,
+      category: category,
       location: provider.location.isNotEmpty ? provider.location : null,
       memo: provider.memo.isNotEmpty ? provider.memo : null,
       fuelType: category == '주유' ? provider.fuelType : null,

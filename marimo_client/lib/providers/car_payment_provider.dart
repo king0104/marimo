@@ -212,7 +212,7 @@ class CarPaymentProvider with ChangeNotifier {
         return {
           ...baseJson,
           if (repairParts != null && repairParts.isNotEmpty)
-            "repairParts": repairParts, // ✅ 복수형 유지
+            "repairParts": repairParts.join(', '), // ✅ 복수형 유지
         };
       default:
         return baseJson;
