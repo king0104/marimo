@@ -1,9 +1,8 @@
 package com.ssafy.marimo.navigation.dto.response;
 
-
 import lombok.Builder;
 
-public record GetRepairShopResponse (
+public record GetCarWashShopResponse(
         Integer id,
         String name,         // 자동차정비업체명
         String type,         // 자동차정비업체종류
@@ -17,9 +16,9 @@ public record GetRepairShopResponse (
         String phone         // 전화번호
 ) {
     @Builder
-    public GetRepairShopResponse {}
+    public GetCarWashShopResponse {}
 
-    public static GetRepairShopResponse create(
+    public static GetCarWashShopResponse create(
             Integer id,
             String name,
             String type,
@@ -32,7 +31,7 @@ public record GetRepairShopResponse (
             String closeTime,
             String phone
     ) {
-        return GetRepairShopResponse.builder()
+        return GetCarWashShopResponse.builder()
                 .id(id)
                 .name(name)
                 .type(type)
