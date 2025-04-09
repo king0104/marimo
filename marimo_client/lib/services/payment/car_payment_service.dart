@@ -200,6 +200,46 @@ class CarPaymentService {
     }
   }
 
+  // 수정
+  static Future<void> updatePayment({
+    required String paymentId,
+    required String category, // 'OIL', 'REPAIR', 'WASH'
+    required String accessToken,
+    required Map<String, dynamic> updateData,
+  }) async {
+    String endpoint;
+    switch (category.toUpperCase()) {
+      case 'OIL':
+        endpoint = '/api/v1/payments/oil/$paymentId';
+        break;
+      case 'REPAIR':
+        endpoint = '/api/v1/payments/repair/$paymentId';
+        break;
+      case 'WASH':
+        endpoint = '/api/v1/payments/wash/$paymentId';
+        break;
+      default:
+        throw Exception('알 수 없는 카테고리: $category');
+    }
+
+    final url = Uri.parse('$baseUrl$endpoint');
+    final headers = buildHeaders(token: accessToken);
+
+    final response = await http.put(
+      url,
+      headers: headers,
+      body: jsonEncode(updateData),
+    );
+
+    if (response.statusCode == 200) {
+      print('✅ 수정 성공: $paymentId');
+    } else {
+      print('❌ 수정 실패 상태코드: ${response.statusCode}');
+      print('❌ 응답: ${utf8.decode(response.bodyBytes)}');
+      throw Exception('수정 실패: ${utf8.decode(response.bodyBytes)}');
+    }
+  }
+
   // 삭제
   static Future<void> deletePayment({
     required String paymentId,
