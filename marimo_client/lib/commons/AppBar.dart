@@ -8,7 +8,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:marimo_client/theme.dart';
 
 class CommonAppBar extends StatefulWidget implements PreferredSizeWidget {
-  const CommonAppBar({super.key});
+  final Widget? leading;
+  const CommonAppBar({super.key, this.leading});
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -264,19 +265,21 @@ class _CommonAppBarState extends State<CommonAppBar> {
       ),
       elevation: 0,
       leadingWidth: 70.w,
-      leading: Padding(
-        padding: EdgeInsets.only(left: 0.w, top: 19.h, bottom: 19.h),
-        child: SizedBox(
-          width: 36.w,
-          height: 22.h,
-          child: SvgPicture.asset(
-            'assets/images/icons/logo_app_bar.svg',
-            width: 36.w,
-            height: 22.h,
-            fit: BoxFit.contain,
+      leading:
+          widget.leading ??
+          Padding(
+            padding: EdgeInsets.only(left: 0.w, top: 19.h, bottom: 19.h),
+            child: SizedBox(
+              width: 36.w,
+              height: 22.h,
+              child: SvgPicture.asset(
+                'assets/images/icons/logo_app_bar.svg',
+                width: 36.w,
+                height: 22.h,
+                fit: BoxFit.contain,
+              ),
+            ),
           ),
-        ),
-      ),
       actions: [
         IconButton(
           icon: SvgPicture.asset(
