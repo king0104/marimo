@@ -12,7 +12,7 @@ class MapSearchService {
     required String accessToken,
     required double latitude,
     required double longitude,
-    int radius = 3,
+    int? radius,
     List<String>? brandList, // ✅ 수정
     String? oilType, // ✅ 수정
     bool? hasSelfService,
@@ -64,10 +64,30 @@ class MapSearchService {
   }
 
   /// 정비소 추천 목록 조회 (추후 구현)
+  /// 정비소 추천 목록 조회
   static Future<List<Map<String, dynamic>>> getRepairShops({
     required String accessToken,
+    required double latitude,
+    required double longitude,
   }) async {
-    throw UnimplementedError('정비소 추천 API는 아직 준비 중입니다.');
+    final url = Uri.parse(
+      '$baseUrl/api/v1/maps/recommend/repair'
+      '?latitude=$latitude&longitude=$longitude',
+    );
+
+    final headers = buildHeaders(token: accessToken);
+
+    final response = await http.get(url, headers: headers);
+
+    if (response.statusCode == 200) {
+      final decoded = utf8.decode(response.bodyBytes);
+      final List<Map<String, dynamic>> result =
+          (jsonDecode(decoded) as List).cast<Map<String, dynamic>>();
+      print("✅ 정비소 추천 목록 응답: $result");
+      return result;
+    } else {
+      throw Exception("정비소 API 실패: ${response.statusCode} - ${response.body}");
+    }
   }
 
   /// 세차장 추천 목록 조회 (추후 구현)
