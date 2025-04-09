@@ -77,6 +77,7 @@ class _CarPaymentDetailFormState extends State<CarPaymentDetailForm> {
         provider: carPaymentProvider,
         carId: carId,
         accessToken: accessToken,
+        category: widget.selectedCategory,
       );
 
       // ✅ CarPaymentEntry 생성해서 Provider에 추가
