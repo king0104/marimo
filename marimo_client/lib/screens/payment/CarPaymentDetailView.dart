@@ -41,8 +41,12 @@ class _CarPaymentDetailViewState extends State<CarPaymentDetailView> {
       appBar: CustomAppHeader(
         title: '',
         onBackPressed: () {
-          Navigator.pop(context);
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const CarPaymentDetailList()),
+          );
         },
+
         actions: [
           TextButton(
             onPressed: _toggleEditMode,
