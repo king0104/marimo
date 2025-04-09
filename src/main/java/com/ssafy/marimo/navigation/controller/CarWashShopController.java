@@ -25,7 +25,7 @@ public class CarWashShopController {
 
     private final CarWashShopService carWashShopService;
 
-    @GetMapping("/recommnend/wash")
+    @GetMapping("/recommend/wash")
     public ResponseEntity<List<GetCarWashShopResponse>> getCarWashShops(
             @RequestParam @NotNull Double latitude,
             @RequestParam @NotNull Double longitude,
