@@ -13,6 +13,7 @@ import 'package:marimo_client/screens/payment/CarPaymentDetailList.dart';
 import 'package:marimo_client/services/payment/car_payment_service.dart';
 import 'package:marimo_client/models/payment/car_payment_entry.dart';
 import 'package:marimo_client/screens/payment/widgets/detail_form/CarDetailFormItemList.dart';
+import 'package:marimo_client/screens/payment/CarPaymentDetailView.dart'; // ✅ View 화면 import
 
 class CarPaymentDetailForm extends StatefulWidget {
   final String selectedCategory;
@@ -34,13 +35,6 @@ class CarPaymentDetailForm extends StatefulWidget {
 
 class _CarPaymentDetailFormState extends State<CarPaymentDetailForm> {
   final GlobalKey<CarDetailFormItemListState> _formItemKey = GlobalKey();
-  bool _isEditMode = true;
-
-  void _toggleEditMode() {
-    setState(() {
-      _isEditMode = !_isEditMode;
-    });
-  }
 
   void _deleteEntry() {
     // TODO: 삭제 로직 필요 시 여기에 작성
@@ -52,7 +46,6 @@ class _CarPaymentDetailFormState extends State<CarPaymentDetailForm> {
     // 외부에서 onSave 콜백이 주어진 경우 → 그것만 실행
     if (widget.onSave != null) {
       await widget.onSave!();
-      _toggleEditMode();
       return;
     }
 
@@ -81,31 +74,38 @@ class _CarPaymentDetailFormState extends State<CarPaymentDetailForm> {
 
     try {
       final paymentId = await CarPaymentService.savePayment(
-        // ✅ 수정: paymentId 반환받음
         provider: carPaymentProvider,
         carId: carId,
         accessToken: accessToken,
       );
 
       // ✅ CarPaymentEntry 생성해서 Provider에 추가
-      carPaymentProvider.addEntry(
-        CarPaymentEntry(
-          paymentId: paymentId,
-          category: carPaymentProvider.selectedCategory ?? '주유',
-          amount: carPaymentProvider.selectedAmount,
-          date: carPaymentProvider.selectedDate,
-          details: {
-            "location": carPaymentProvider.location,
-            "memo": carPaymentProvider.memo,
-            "fuelType": carPaymentProvider.fuelType,
-            "repairParts": carPaymentProvider.selectedRepairItems,
-          },
-        ),
+      final entry = CarPaymentEntry(
+        paymentId: paymentId,
+        category: carPaymentProvider.selectedCategory ?? '주유',
+        amount: carPaymentProvider.selectedAmount,
+        date: carPaymentProvider.selectedDate,
+        details: {
+          "location": carPaymentProvider.location,
+          "memo": carPaymentProvider.memo,
+          "fuelType": carPaymentProvider.fuelType,
+          "repairParts": carPaymentProvider.selectedRepairItems,
+        },
       );
+      carPaymentProvider.addEntry(entry);
 
       print('🎉 저장 및 Provider 반영 완료');
-      _toggleEditMode();
       carPaymentProvider.resetInput();
+
+      // ✅ 저장 성공 후 View 페이지로 이동
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder:
+              (_) =>
+                  CarPaymentDetailView(entry: entry, detailData: entry.details),
+        ),
+      );
     } catch (e, stack) {
       print('❌ 저장 중 오류 발생: $e');
       print('🪜 스택 트레이스: $stack');
@@ -119,47 +119,9 @@ class _CarPaymentDetailFormState extends State<CarPaymentDetailForm> {
       appBar: CustomAppHeader(
         title: '',
         onBackPressed: () {
-          if (_isEditMode) {
-            Navigator.pop(context); // 일반 뒤로가기
-          } else {
-            final provider = Provider.of<CarPaymentProvider>(
-              context,
-              listen: false,
-            );
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => CarPaymentDetailList()),
-            );
-          }
+          Navigator.pop(context);
         },
-        actions:
-            _isEditMode
-                ? []
-                : [
-                  TextButton(
-                    onPressed: _toggleEditMode,
-                    child: Text(
-                      '수정',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w300,
-                      ),
-                    ),
-                  ),
-                  // SizedBox(width: 30.w),
-                  TextButton(
-                    onPressed: _deleteEntry,
-                    child: Text(
-                      '삭제',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w300,
-                      ),
-                    ),
-                  ),
-                ],
+        actions: [], // ✅ _isEditMode 제거로 비워둠
       ),
       body: Column(
         children: [
@@ -169,7 +131,7 @@ class _CarPaymentDetailFormState extends State<CarPaymentDetailForm> {
             child: CategoryAndAmount(
               category: widget.selectedCategory,
               amount: widget.amount,
-              isEditMode: _isEditMode,
+              isEditMode: true, // ✅ 항상 true로 고정
             ),
           ),
           SizedBox(height: 60.h),
@@ -180,18 +142,17 @@ class _CarPaymentDetailFormState extends State<CarPaymentDetailForm> {
                 key: _formItemKey,
                 category: widget.selectedCategory,
                 amount: widget.amount,
-                isEditMode: _isEditMode,
-                onSaveComplete: _toggleEditMode,
+                isEditMode: true, // ✅ 항상 true로 고정
+                onSaveComplete: () {}, // ✅ 편집 모드 토글 제거
               ),
             ),
           ),
 
-          // ✅ 저장 버튼 추가 위치
-          if (_isEditMode)
-            Padding(
-              padding: EdgeInsets.only(left: 20.w, right: 20.w),
-              child: CarDetailFormSaveButton(onPressed: _saveAction),
-            ),
+          // ✅ 저장 버튼 항상 렌더링
+          Padding(
+            padding: EdgeInsets.only(left: 20.w, right: 20.w),
+            child: CarDetailFormSaveButton(onPressed: _saveAction),
+          ),
         ],
       ),
     );

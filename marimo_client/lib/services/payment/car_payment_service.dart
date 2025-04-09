@@ -10,6 +10,7 @@ class CarPaymentService {
   static final String baseUrl =
       dotenv.env['API_BASE_URL'] ?? 'http://j12a605.p.ssafy.io:8080';
 
+  // 저장
   static Future<String> savePayment({
     required CarPaymentProvider provider,
     required String carId,
@@ -55,6 +56,8 @@ class CarPaymentService {
       print("✅ 결제 내역 저장 성공: paymentId = $paymentId");
       return paymentId; // ✅ 반환
     } else {
+      print('🔴 서버 응답 코드: ${response.statusCode}');
+      print('🔴 서버 응답 본문: ${utf8.decode(response.bodyBytes)}');
       final errorMessage = utf8.decode(response.bodyBytes);
       throw Exception("결제 저장 실패: $errorMessage");
     }
@@ -98,6 +101,40 @@ class CarPaymentService {
       print('🔐 accessToken: $accessToken');
 
       throw Exception('전체 차계부 조회 실패: ${utf8.decode(response.bodyBytes)}');
+    }
+  }
+
+  // 개별 내역 조회
+  static Future<Map<String, dynamic>> fetchPaymentDetail({
+    required String paymentId,
+    required String category,
+    required String accessToken,
+  }) async {
+    String endpoint;
+    switch (category) {
+      case '주유':
+        endpoint = '/api/v1/payments/$paymentId/oil';
+        break;
+      case '정비':
+        endpoint = '/api/v1/payments/$paymentId/repair';
+        break;
+      case '세차':
+        endpoint = '/api/v1/payments/$paymentId/wash';
+        break;
+      default:
+        throw Exception('알 수 없는 카테고리: $category');
+    }
+
+    final url = Uri.parse('$baseUrl$endpoint');
+    final headers = buildHeaders(token: accessToken);
+
+    final response = await http.get(url, headers: headers);
+
+    if (response.statusCode == 200) {
+      final decoded = jsonDecode(utf8.decode(response.bodyBytes));
+      return decoded;
+    } else {
+      throw Exception('상세 조회 실패: ${utf8.decode(response.bodyBytes)}');
     }
   }
 }
