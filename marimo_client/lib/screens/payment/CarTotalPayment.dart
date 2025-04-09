@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:marimo_client/theme.dart';
 import 'package:marimo_client/providers/car_payment_provider.dart';
 import 'package:marimo_client/providers/car_provider.dart';
 import 'package:marimo_client/providers/member/auth_provider.dart';
@@ -64,7 +66,18 @@ class _CarTotalPaymentState extends State<CarTotalPayment>
     super.build(context); // AutomaticKeepAliveClientMixin 필수 호출
 
     return Scaffold(
-      appBar: const CommonAppBar(),
+      appBar: CommonAppBar(
+        leading: IconButton(
+          onPressed: () => Navigator.of(context).pop(),
+          icon: SvgPicture.asset(
+            'assets/images/icons/icon_back.svg',
+            width: 18.w,
+            height: 18.w,
+            color: iconColor,
+          ),
+        ),
+      ),
+
       backgroundColor: Colors.white,
       body: Stack(
         children: [
