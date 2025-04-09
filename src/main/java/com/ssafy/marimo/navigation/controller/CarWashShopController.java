@@ -1,9 +1,11 @@
 package com.ssafy.marimo.navigation.controller;
 
 import com.ssafy.marimo.common.annotation.CurrentMemberId;
+import com.ssafy.marimo.navigation.domain.CarWashShop;
 import com.ssafy.marimo.navigation.dto.request.GetRepairShopRequest;
 import com.ssafy.marimo.navigation.dto.response.GetCarWashShopResponse;
 import com.ssafy.marimo.navigation.dto.response.GetRepairShopResponse;
+import com.ssafy.marimo.navigation.service.CarWashShopService;
 import com.ssafy.marimo.navigation.service.RepairShopService;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
@@ -21,15 +23,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/maps")
 public class CarWashShopController {
 
-    private final RepairShopService repairShopService;
+    private final CarWashShopService carWashShopService;
 
-//    @GetMapping("/recommnend/wash")
-//    public ResponseEntity<List<GetCarWashShopResponse>> getRepairShops(
-//            @RequestParam @NotNull Double latitude,
-//            @RequestParam @NotNull Double longitude,
-//            @CurrentMemberId Integer memberId
-//    ) {
-//        return ResponseEntity.ok(repairShopService.getRepairShops(latitude, longitude, memberId));
-//    }
+    @GetMapping("/recommend/wash")
+    public ResponseEntity<List<GetCarWashShopResponse>> getCarWashShops(
+            @RequestParam @NotNull Double latitude,
+            @RequestParam @NotNull Double longitude,
+            @CurrentMemberId Integer memberId
+    ) {
+        return ResponseEntity.ok(carWashShopService.getCarWashShops(latitude, longitude, memberId));
+    }
 
 }
