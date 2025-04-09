@@ -18,8 +18,7 @@ public class RepairShopService {
         double latitude = req.latitude();
         double longitude = req.longitude();
 
-        Integer radiusKm = req.radius();
-        int radiusMeter = (radiusKm == null) ? 5000 : (radiusKm == 0 ? Integer.MAX_VALUE : radiusKm * 1000);
+        int radiusMeter = 5000;
 
         List<RepairShop> shops = repairShopRepository.findNearestRepairShops(latitude, longitude, radiusMeter);
 

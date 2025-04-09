@@ -9,6 +9,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,7 +23,7 @@ public class RepairShopController {
     private final RepairShopService repairShopService;
 
     @ExecutionTimeLog
-    @PostMapping("/recommend/repair") // 수정 필요
+    @GetMapping("/recommend/repair") // 수정 필요
     public ResponseEntity<List<GetRepairShopResponse>> getRepairShops(
             @Validated @RequestBody GetRepairShopRequest request,
             @CurrentMemberId Integer memberId
