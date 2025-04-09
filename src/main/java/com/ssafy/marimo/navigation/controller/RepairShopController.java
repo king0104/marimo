@@ -22,7 +22,7 @@ public class RepairShopController {
     private final RepairShopService repairShopService;
 
     @ExecutionTimeLog
-    @PostMapping("/recommend/repair")
+    @PostMapping("/recommend/repair") // 수정 필요
     public ResponseEntity<List<GetRepairShopResponse>> getRepairShops(
             @Validated @RequestBody GetRepairShopRequest request,
             @CurrentMemberId Integer memberId

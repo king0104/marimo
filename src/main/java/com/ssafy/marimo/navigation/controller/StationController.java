@@ -38,9 +38,4 @@ public class StationController {
         opinetStationSyncService.syncByStationName("주유소");
         return ResponseEntity.ok().build();
     }
-
-
-
-
-
 }
