@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 
 public record GetRepairShopRequest(
         @NotNull Double latitude,
-        @NotNull Double longitude,
-        @Nullable Integer radius
+        @NotNull Double longitude
 ) {
 }
