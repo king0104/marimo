@@ -1,0 +1,58 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+    import: optional:file:dev.env[.properties]
+
+  datasource:
+    driver-class-name: ${DB_DRIVER_CLASS_NAME}
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+
+
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        show_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+        storage_engine: innodb
+
+
+  jwt:
+    secret: ${JWT_SECRET_KEY}
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${GMAIL_SMTP_ID}
+    password: ${GMAIL_SMTP_PASSWORD}
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+      auth-code-expiration-millis: 1800000
+
+encrypt:
+  secret:
+    key: ${ENCRYPT_SECRET_KEY}
+
+
+ssafy:
+  api:
+    key: ${SSAFY_API_KEY}
+  user:
+    key: ${SSAFY_USER_KEY}
+
+logging:
+  level:
+    org.springframework.cache: DEBUG
+    org.springframework.data.redis: DEBUG
+    io.lettuce.core: DEBUG
