@@ -182,11 +182,11 @@ Google Gemma 3 모델을 모바일 온디바이스에 탑재하여, 간단한 �
 실제 업데이트 되는 유가 정보를 오피넷 유가 API를 통해 업데이트합니다.
 
 #### ERD
-<img src="image/ERD.png" alt="ERD" width="300">
+<img src="image/ERD.png" alt="ERD" width="800">
 
 ### 아키텍처
 
-<img src="image/Service%20Architecture.jpg" alt="Service Architecture" width="300">
+<img src="image/Service%20Architecture.jpg" alt="Service Architecture" width="800">
 
 ## 👨‍👩‍👧‍👦 팀원 소개
 
