@@ -1,6 +1,7 @@
 // CarPaymentDetailForm.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:marimo_client/theme.dart';
 import 'package:provider/provider.dart';
 import 'package:marimo_client/providers/car_provider.dart';
 import 'package:marimo_client/providers/car_payment_provider.dart';
@@ -116,7 +117,7 @@ class _CarPaymentDetailFormState extends State<CarPaymentDetailForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: backgroundColor,
       appBar: CustomAppHeader(
         title: '',
         onBackPressed: () {

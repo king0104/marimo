@@ -1,6 +1,7 @@
 // CarPaymentDetailList.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:marimo_client/theme.dart';
 import 'package:provider/provider.dart';
 import 'package:marimo_client/providers/car_payment_provider.dart';
 import 'package:marimo_client/screens/payment/widgets/detail_list/CarMonthlyPaymentReadOnly.dart';
@@ -42,7 +43,7 @@ class _CarDetailPaymentState extends State<CarPaymentDetailList>
     // final selectedMonth = provider.selectedMonth;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: backgroundColor,
       appBar: CustomAppHeader(
         title: '내역 보기',
         onBackPressed: () {
