@@ -16,6 +16,7 @@ class CarDetailFormItemList extends StatefulWidget {
   final bool isEditMode;
   final VoidCallback? onSaveComplete;
   final Map<String, dynamic>? detailData;
+  final DateTime? initialDate; // 👈 nullable로 선언
 
   const CarDetailFormItemList({
     Key? key,
@@ -24,6 +25,7 @@ class CarDetailFormItemList extends StatefulWidget {
     this.isEditMode = true, // 기본값 true
     this.onSaveComplete,
     this.detailData,
+    this.initialDate,
   }) : super(key: key);
 
   @override
@@ -44,7 +46,7 @@ class CarDetailFormItemListState extends State<CarDetailFormItemList> {
   void initState() {
     super.initState();
     // 기본값으로 현재 날짜 설정
-    _selectedDate = DateTime.now();
+    _selectedDate = widget.initialDate ?? DateTime.now();
     _dateController.text = DateFormat('yyyy년 M월 d일').format(_selectedDate);
   }
 
@@ -54,9 +56,11 @@ class CarDetailFormItemListState extends State<CarDetailFormItemList> {
     // Provider의 현재 상태로 각 컨트롤러 초기화 (편집 모드라면)
     final provider = Provider.of<CarPaymentProvider>(context);
 
-    // 날짜: provider에 값이 있으면 적용 (날짜는 기본적으로 항상 있음)
-    _selectedDate = provider.selectedDate;
-    _dateController.text = DateFormat('yyyy년 M월 d일').format(_selectedDate);
+    if (widget.initialDate == null) {
+      // 날짜: provider에 값이 있으면 적용 (날짜는 기본적으로 항상 있음)
+      _selectedDate = provider.selectedDate;
+      _dateController.text = DateFormat('yyyy년 M월 d일').format(_selectedDate);
+    }
 
     // 장소
     if (_placeController.text.isEmpty && provider.location.isNotEmpty) {
