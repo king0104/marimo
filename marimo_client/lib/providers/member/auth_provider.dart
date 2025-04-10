@@ -97,6 +97,7 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       final name = await UserService.getUserName(accessToken: _accessToken!);
+      print('👤 현재 사용자 이름: $name');
       _userName = name;
 
       if (name == 'marimo') {
@@ -106,15 +107,33 @@ class AuthProvider extends ChangeNotifier {
 
         final distance = parseDistanceSinceDtcCleared();
         if (distance != null) {
-          await ObdService.sendTotalDistance(
-            carId: '12',
-            totalDistance: distance,
-            accessToken: _accessToken!,
-          );
-          print('📨 샘플 주행거리 전송 완료: $distance km');
+          try {
+            await ObdService.sendTotalDistance(
+              carId: '12',
+              totalDistance: distance,
+              accessToken: _accessToken!,
+            );
+            print('📨 샘플 주행거리 전송 완료: $distance km');
+          } catch (e) {
+            print('❌ 주행거리 전송 실패: $e');
+          }
         }
 
-        print('🌱 marimo 사용자: 샘플 OBD + 거리 삽입 완료');
+        // ✅ 주행거리 전송과 무관하게 DTC는 항상 저장되도록
+        final sampleDtcCodes = [
+          'P2430',
+          'C0300',
+          'B0024',
+          'C3EA0',
+          'P3007',
+          'U2902',
+          'P07EB',
+          'P0243',
+        ];
+        await prefs.setStringList('stored_dtc_codes', sampleDtcCodes);
+        print('💾 샘플 DTC 코드 삽입 완료: $sampleDtcCodes');
+
+        print('🌱 marimo 사용자: 샘플 OBD + 거리 + DTC 삽입 완료');
       }
     } catch (e) {
       print('❌ 사용자 이름 로드 실패: $e');
