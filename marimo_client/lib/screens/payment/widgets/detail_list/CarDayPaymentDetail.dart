@@ -17,7 +17,7 @@ class CarDayPaymentDetail extends StatelessWidget {
 
     // ✅ 1. 날짜 + 시각까지 포함해서 정렬
     final sortedEntries = [...entries]
-      ..sort((a, b) => b.date.compareTo(a.date));
+      ..sort((a, b) => b.date.compareTo(a.date)); // ✅ 항목 역순 정렬
 
     // ✅ 2. 그룹핑은 여전히 날짜 단위 (시각 제외)
     final Map<DateTime, List<CarPaymentEntry>> groupedByDate = {};
@@ -27,7 +27,9 @@ class CarDayPaymentDetail extends StatelessWidget {
         entry.date.month,
         entry.date.day,
       );
-      groupedByDate.putIfAbsent(dateOnly, () => []).add(entry);
+      groupedByDate
+          .putIfAbsent(dateOnly, () => [])
+          .insert(0, entry); // ✅ 최신 항목 먼저 넣기
     }
 
     // ✅ 3. 키만 정렬할 필요 없음: 이미 entry 순서대로 그룹핑됨
