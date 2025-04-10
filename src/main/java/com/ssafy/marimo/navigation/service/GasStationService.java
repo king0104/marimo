@@ -137,6 +137,7 @@ public class GasStationService {
 
         List<PostGasStationRecommendResponse> candidates = filteredStations.stream()
                 .filter(s -> isValidOilType(req.oilType(), s))
+                .filter(s -> isValidOilPrice(s))
                 .map(s -> toRecommendResponse(s, req, radiusMeter, isOilCardRegistered, isOilCardMonthlyRequirementSatisfied, memberCard, cardBenefitDetails))
                 .filter(Objects::nonNull)
                 .sorted(Comparator.comparing(PostGasStationRecommendResponse::distance))
@@ -166,7 +167,7 @@ public class GasStationService {
         // [수정] cardBenefitRepository 호출 제거, cardBenefitDetails 사용
         if (isOilCardRegistered && isOilCardMonthlyRequirementSatisfied && cardBenefitDetails != null) {
             for (CardBenefitDetail cardBenefitDetail : cardBenefitDetails) {
-                if (cardBenefitDetail.getAppliesToAllBrands()
+                if (price != null || cardBenefitDetail.getAppliesToAllBrands()
                         || cardBenefitDetail.getGasStationBrand().name().equals(s.getBrand())) {
 
                     discountedPrice = applyCardBenefit(price,
@@ -260,6 +261,7 @@ public class GasStationService {
             default -> false;
         };
     }
+
 
 
 
