@@ -100,7 +100,7 @@ public class CarService {
     public PatchCarTotalDistanceResponse patchTotalDistance(PatchCarTotalDistanceRequest patchCarTotalDistanceRequest,
                                                             Integer carId) {
         Car car = carRepository.findById(carId)
-                .orElseThrow(() -> new NotFoundException(ErrorStatus.CARD_NOT_FOUND.getErrorCode()));
+                .orElseThrow(() -> new NotFoundException(ErrorStatus.CAR_NOT_FOUND.getErrorCode()));
 
         car.updateTotalDistance(patchCarTotalDistanceRequest.totalDistance());
 
