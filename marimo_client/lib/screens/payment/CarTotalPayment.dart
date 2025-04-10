@@ -72,10 +72,13 @@ class _CarTotalPaymentState extends State<CarTotalPayment>
           onPressed: () {
             // NavigationProvider 인스턴스를 가져와서 MyScreen 인덱스로 설정
             final navProvider = context.read<NavigationProvider>();
-            navProvider.setIndex(4); // MyScreen은 탭 인덱스 4번에 있음
-
-            // 현재 화면을 닫고 MainScreen으로 돌아감
-            Navigator.of(context).pop();
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              '/',
+              (route) => false,
+            ).then((_) {
+              navProvider.setIndex(4); // 마이 탭 인덱스
+            });
           },
           icon: SvgPicture.asset(
             'assets/images/icons/icon_back.svg',

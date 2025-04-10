@@ -10,6 +10,7 @@ import 'package:marimo_client/commons/CustomAppHeader.dart';
 import 'widgets/detail_form/CategoryAndAmount.dart';
 import 'widgets/detail_form/CarDetailFormItemList.dart';
 import 'package:marimo_client/screens/payment/CarPaymentDetailList.dart';
+import 'package:marimo_client/theme.dart';
 
 class CarPaymentDetailView extends StatefulWidget {
   final CarPaymentEntry entry;
@@ -102,7 +103,7 @@ class _CarPaymentDetailViewState extends State<CarPaymentDetailView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: backgroundColor,
       appBar: CustomAppHeader(
         title: '',
         onBackPressed: () {
