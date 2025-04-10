@@ -100,7 +100,7 @@ class AuthProvider extends ChangeNotifier {
       final name = await UserService.getUserName(accessToken: _accessToken!);
       _userName = name;
 
-      if (name == 'marimo') {
+      if (name == '차미정') {
         final prefs = await SharedPreferences.getInstance();
         await prefs.remove('last_obd_data');
         await preloadSampleObdDataIfNeeded();
