@@ -16,7 +16,7 @@ class InsuranceException implements Exception {
 }
 
 class InsuranceService {
-  static final String baseUrl = 
+  static final String baseUrl =
       dotenv.env['API_BASE_URL'] ?? 'http://j12a605.p.ssafy.io:8080';
 
   static Future<String> registerInsurance({
@@ -30,8 +30,8 @@ class InsuranceService {
     required int insurancePremium,
   }) async {
     final url = Uri.parse('$baseUrl/api/v1/car-insurances/cars/$carId');
-    final headers = buildHeaders(token: accessToken);
-    
+    final headers = await buildHeaders(token: accessToken);
+
     final body = jsonEncode({
       'insuranceCompanyName': insuranceCompanyName.toLowerCase(),
       'startDate': startDate,
@@ -66,15 +66,19 @@ class InsuranceService {
     return "${parts[0]}-${parts[1].padLeft(2, '0')}-${parts[2].padLeft(2, '0')}T$time";
   }
 
-  static Future<Map<String, dynamic>> getInsuranceInfo(String carId, String accessToken) async {
+  static Future<Map<String, dynamic>> getInsuranceInfo(
+    String carId,
+    String accessToken,
+  ) async {
     final url = Uri.parse('$baseUrl/api/v1/car-insurances/cars/$carId');
-    final headers = buildHeaders(token: accessToken);
+    final headers = await buildHeaders(token: accessToken);
 
     print('📡 [REQUEST] GET $url');
     print('🧾 Headers: $headers');
 
     try {
-      final response = await http.get(url, headers: headers)
+      final response = await http
+          .get(url, headers: headers)
           .timeout(const Duration(seconds: 10));
 
       print('📩 [RESPONSE] Status Code: ${response.statusCode}');
@@ -118,9 +122,12 @@ class InsuranceService {
     return company['logo'];
   }
 
-  static Future<void> deleteInsurance(String carInsuranceId, String accessToken) async {
+  static Future<void> deleteInsurance(
+    String carInsuranceId,
+    String accessToken,
+  ) async {
     final url = Uri.parse('$baseUrl/api/v1/car-insurances/$carInsuranceId');
-    final headers = buildHeaders(token: accessToken);
+    final headers = await buildHeaders(token: accessToken);
 
     try {
       final response = await http.delete(url, headers: headers);

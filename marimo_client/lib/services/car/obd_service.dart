@@ -29,7 +29,7 @@ class ObdService {
     required ObdPollingProvider provider,
   }) async {
     final url = Uri.parse('$baseUrl/api/v1/obd2/cars/$carId');
-    final headers = buildHeaders(token: accessToken);
+    final headers = await buildHeaders(token: accessToken);
 
     final formattedData = formatObdData(provider.responses);
     final timestamp = DateFormat("yyyy-MM-ddTHH:mm:ss").format(DateTime.now());
@@ -60,7 +60,7 @@ class ObdService {
     required String accessToken,
   }) async {
     final url = Uri.parse('$baseUrl/api/v1/cars/$carId/total-distance');
-    final headers = buildHeaders(token: accessToken);
+    final headers = await buildHeaders(token: accessToken);
 
     final body = jsonEncode({'totalDistance': totalDistance});
 

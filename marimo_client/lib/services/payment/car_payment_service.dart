@@ -35,7 +35,7 @@ class CarPaymentService {
     }
 
     final url = Uri.parse('$baseUrl$endpoint');
-    final headers = buildHeaders(token: accessToken);
+    final headers = await buildHeaders(token: accessToken);
 
     final bodyMap = provider.toJsonForDB(
       carId: carId,
@@ -75,7 +75,7 @@ class CarPaymentService {
     final url = Uri.parse(
       '$baseUrl/api/v1/payments/cars/$carId?year=$year&month=$month',
     );
-    final headers = buildHeaders(token: accessToken);
+    final headers = await buildHeaders(token: accessToken);
 
     final response = await http.get(url, headers: headers);
 
@@ -122,7 +122,7 @@ class CarPaymentService {
       prevYear--;
     }
 
-    final headers = buildHeaders(token: accessToken);
+    final headers = await buildHeaders(token: accessToken);
 
     final currentUrl = Uri.parse(
       '$baseUrl/api/v1/payments/cars/$carId?year=$selectedYear&month=$selectedMonth',
@@ -180,7 +180,7 @@ class CarPaymentService {
     }
 
     final url = Uri.parse('$baseUrl$endpoint');
-    final headers = buildHeaders(token: accessToken);
+    final headers = await buildHeaders(token: accessToken);
 
     print('🧾 [상세 조회 요청]');
     print('🔗 URL: $url');
@@ -223,7 +223,7 @@ class CarPaymentService {
     }
 
     final url = Uri.parse('$baseUrl$endpoint');
-    final headers = buildHeaders(token: accessToken);
+    final headers = await buildHeaders(token: accessToken);
 
     final response = await http.put(
       url,
@@ -262,7 +262,7 @@ class CarPaymentService {
     }
 
     final url = Uri.parse('$baseUrl$endpoint');
-    final headers = buildHeaders(token: accessToken);
+    final headers = await buildHeaders(token: accessToken);
 
     final response = await http.delete(url, headers: headers);
 

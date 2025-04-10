@@ -21,7 +21,7 @@ class MapSearchService {
     bool? hasCvs,
   }) async {
     final url = Uri.parse('$baseUrl/api/v1/maps/recommend/gas');
-    final headers = buildHeaders(token: accessToken);
+    final headers = await buildHeaders(token: accessToken);
 
     final body = jsonEncode({
       "latitude": 37.500612, // latitude,
@@ -75,7 +75,7 @@ class MapSearchService {
       '?latitude=$latitude&longitude=$longitude',
     );
 
-    final headers = buildHeaders(token: accessToken);
+    final headers = await buildHeaders(token: accessToken);
 
     final response = await http.get(url, headers: headers);
 

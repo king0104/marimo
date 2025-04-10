@@ -15,7 +15,7 @@ class CarRegistrationService {
     required String accessToken,
   }) async {
     final url = Uri.parse('$baseUrl/api/v1/cars');
-    final headers = buildHeaders(token: accessToken);
+    final headers = await buildHeaders(token: accessToken);
     final body = jsonEncode(provider.toJson());
 
     print('📡 [REQUEST] POST $url');

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:marimo_client/mocks/obd_sample.dart';
 import 'package:marimo_client/providers/card_provider.dart';
 import 'package:marimo_client/providers/map/category_provider.dart';
@@ -41,6 +42,10 @@ import 'commons/BottomNavigationBar.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // final storage = FlutterSecureStorage();
+  // await storage.delete(key: 'accessToken'); // ✅ accessToken 삭제
+  // print('🧹 accessToken 삭제 완료!');
+
   await requestBluetoothPermissions();
   await dotenv.load(fileName: ".env");
 
@@ -51,6 +56,17 @@ void main() async {
     onAuthFailed: (ex) => print("네이버 지도 인증 오류: $ex"),
   );
 
+  final authProvider = AuthProvider();
+  await authProvider.loadTokenFromStorage(); // 자동 로그인 시도
+  print('🌟 AuthProvider 초기화 완료, 자동 로그인 여부: ${authProvider.isLoggedIn}');
+
+  final carProvider = CarProvider();
+  if (authProvider.isLoggedIn) {
+    await carProvider.fetchCarsFromServer(
+      authProvider.accessToken!,
+    ); // ✅ 이걸로 변경
+  }
+
   final carPaymentProvider = CarPaymentProvider();
   await carPaymentProvider.loadTireDiagnosisDate();
   await carPaymentProvider.loadLastPaymentId();
@@ -60,19 +76,20 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => CarProvider()),
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => CategoryProvider()),
+        // ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider.value(value: carProvider),
+        ChangeNotifierProvider.value(value: authProvider),
+        ChangeNotifierProvider.value(value: carPaymentProvider),
+        ChangeNotifierProvider(create: (_) => CardProvider()),
         ChangeNotifierProvider(create: (_) => FilterProvider()),
+        ChangeNotifierProvider(create: (_) => CategoryProvider()),
         ChangeNotifierProvider(create: (_) => LocationProvider()),
         ChangeNotifierProvider(create: (_) => StationCardsProvider()),
-        ChangeNotifierProvider.value(value: carPaymentProvider),
         ChangeNotifierProvider(create: (_) => ObdPollingProvider()),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ChangeNotifierProvider(create: (_) => ObdAnalysisProvider()),
         ChangeNotifierProvider(create: (_) => HomeAnimationProvider()),
         ChangeNotifierProvider(create: (_) => CarRegistrationProvider()),
-        ChangeNotifierProvider(create: (_) => CardProvider()),
       ],
       child: ScreenUtilInit(
         designSize: const Size(360, 800),
