@@ -36,10 +36,7 @@ class CarPaymentDetailForm extends StatefulWidget {
 
 class _CarPaymentDetailFormState extends State<CarPaymentDetailForm> {
   final GlobalKey<CarDetailFormItemListState> _formItemKey = GlobalKey();
-
-  void _deleteEntry() {
-    // TODO: 삭제 로직 필요 시 여기에 작성
-  }
+  bool _isSaved = false; // ✅ 저장 여부 상태 추가
 
   void _saveAction() async {
     print('✅ 저장 버튼 눌림');
@@ -97,6 +94,8 @@ class _CarPaymentDetailFormState extends State<CarPaymentDetailForm> {
       carPaymentProvider.addEntry(entry);
 
       print('🎉 저장 및 Provider 반영 완료');
+
+      _isSaved = true; // ✅ 저장 완료 표시
       carPaymentProvider.resetInput();
 
       // ✅ 저장 성공 후 View 페이지로 이동
@@ -118,47 +117,55 @@ class _CarPaymentDetailFormState extends State<CarPaymentDetailForm> {
   Widget build(BuildContext context) {
     final carPaymentProvider = Provider.of<CarPaymentProvider>(context);
 
-    return Scaffold(
-      backgroundColor: backgroundColor,
-      appBar: CustomAppHeader(
-        title: '',
-        onBackPressed: () {
-          Navigator.pop(context);
-        },
-        actions: [], // ✅ _isEditMode 제거로 비워둠
-      ),
-      body: Column(
-        children: [
-          // CategoryAndAmount 컴포넌트를 상단에 렌더링
-          Padding(
-            padding: EdgeInsets.only(left: 20.w, right: 20.w, top: 16.h),
-            child: CategoryAndAmount(
-              category: widget.selectedCategory,
-              amount: widget.amount,
-              isEditMode: true, // ✅ 항상 true로 고정
-            ),
-          ),
-          SizedBox(height: 60.h),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.w),
-              child: CarDetailFormItemList(
-                key: _formItemKey,
+    return WillPopScope(
+      onWillPop: () async {
+        if (_isSaved) {
+          carPaymentProvider.resetInput(); // ✅ 저장된 경우에만 초기화
+        }
+        return true;
+      },
+      child: Scaffold(
+        backgroundColor: backgroundColor,
+        appBar: CustomAppHeader(
+          title: '',
+          onBackPressed: () {
+            if (_isSaved) {
+              carPaymentProvider.resetInput(); // ✅ 저장된 경우에만 초기화
+            }
+            Navigator.pop(context);
+          },
+          actions: [],
+        ),
+        body: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(left: 20.w, right: 20.w, top: 16.h),
+              child: CategoryAndAmount(
                 category: widget.selectedCategory,
                 amount: widget.amount,
-                initialDate: carPaymentProvider.selectedDate,
-                isEditMode: true, // ✅ 항상 true로 고정
-                onSaveComplete: () {}, // ✅ 편집 모드 토글 제거
+                isEditMode: true,
               ),
             ),
-          ),
-
-          // ✅ 저장 버튼 항상 렌더링
-          Padding(
-            padding: EdgeInsets.only(left: 20.w, right: 20.w),
-            child: CarDetailFormSaveButton(onPressed: _saveAction),
-          ),
-        ],
+            SizedBox(height: 60.h),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.w),
+                child: CarDetailFormItemList(
+                  key: _formItemKey,
+                  category: widget.selectedCategory,
+                  amount: widget.amount,
+                  initialDate: carPaymentProvider.selectedDate,
+                  isEditMode: true,
+                  onSaveComplete: () {},
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: 20.w, right: 20.w),
+              child: CarDetailFormSaveButton(onPressed: _saveAction),
+            ),
+          ],
+        ),
       ),
     );
   }
