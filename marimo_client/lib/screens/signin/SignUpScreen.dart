@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:marimo_client/providers/member/signup_provider.dart';
 import 'package:marimo_client/screens/signin/SignInScreen.dart';
-import 'package:marimo_client/screens/signin/car/RegisterCarScreen.dart';
 import 'package:marimo_client/screens/signin/widgets/sign_up/SignUpInput.dart';
 import 'package:marimo_client/screens/signin/widgets/sign_up/SignUpInputWithButton.dart';
 import 'package:marimo_client/screens/signin/widgets/CustomTitleText.dart';
@@ -162,7 +161,13 @@ class _SignUpScreenBodyState extends State<SignUpScreenBody> {
       _debounce = Timer(const Duration(milliseconds: 300), () async {
         await signUpProvider.verifyEmail(emailController.text.trim(), trimmed);
         if (signUpProvider.isEmailVerified) {
-          showToast(context, "이메일 인증 완료", icon: Icons.check, type: 'success');
+          showToast(
+            context,
+            "이메일 인증 완료",
+            icon: Icons.check,
+            type: 'success',
+            position: "top-down",
+          );
           setState(() {
             currentStep = 5;
           });
@@ -396,6 +401,8 @@ class _SignUpScreenBodyState extends State<SignUpScreenBody> {
                   password: passwordController.text.trim(),
                 );
                 if (success) {
+                  // 백엔드에서 새 회원 정보가 완전히 반영될 수 있도록 2초 정도 대기
+                  await Future.delayed(const Duration(seconds: 2));
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (_) => const SignInScreen()),

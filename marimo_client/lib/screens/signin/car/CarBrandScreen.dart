@@ -16,9 +16,26 @@ class CarBrandScreen extends StatelessWidget {
     });
 
     final manufacturers = [
-      {"name": "현대", "logo": "assets/images/logo/logo_hyundai.png"},
-      {"name": "기아", "logo": "assets/images/logo/logo_kia.png"},
-      {"name": "KGM", "logo": "assets/images/logo/logo_kgm.png"},
+      {
+        "name": "현대",
+        "logo": "assets/images/logo/logo_hyundai.png",
+        "enabled": true,
+      },
+      {
+        "name": "기아",
+        "logo": "assets/images/logo/logo_kia.png",
+        "enabled": true,
+      },
+      {
+        "name": "토요타",
+        "logo": "assets/images/logo/logo_toyota.png",
+        "enabled": true,
+      },
+      {
+        "name": "KGM",
+        "logo": "assets/images/logo/logo_kgm.png",
+        "enabled": false,
+      },
     ];
 
     final selectedBrand = Provider.of<CarRegistrationProvider>(context).brand;

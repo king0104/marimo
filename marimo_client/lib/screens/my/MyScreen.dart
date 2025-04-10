@@ -16,11 +16,11 @@ class MyScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 20.h),
-            const MyPageHeader(),  // 마이 페이지 상단
+            const MyPageHeader(), // 마이 페이지 상단
             SizedBox(height: 20.h),
-            const ScoreGauge(),    // 봉봉이 점수 게이지
+            const ScoreGauge(), // 봉봉이 점수 게이지
             SizedBox(height: 20.h),
-            const MyPageMenu(),     // 메뉴 리스트
+            const MyPageMenu(), // 메뉴 리스트
             SizedBox(height: 120),
           ],
         ),

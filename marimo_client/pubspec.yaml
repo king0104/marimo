@@ -10,6 +10,9 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # kakao api
+  kakao_flutter_sdk: ^1.4.1 # ✅ 이거 하나면 전체 지원됨 (navi 포함)
+
   # 📦 Core
   provider: ^6.1.2
   http: ^1.3.0
@@ -28,6 +31,7 @@ dependencies:
   table_calendar: ^3.2.0
   smooth_page_indicator: ^1.0.0
   intl: ^0.20.0
+  animated_digit: ^3.2.3
 
   # 📍 지도 & 3D
   flutter_naver_map: ^1.3.0
@@ -49,10 +53,14 @@ dependencies:
   speech_to_text: ^7.0.0
   flutter_tts: ^4.2.2
   openai_dart: ^0.4.5
+  flutter_gemma: ^0.8.4
 
   # AI
   tflite_flutter: ^0.11.0
   shared_preferences: ^2.5.3
+  flutter_launcher_icons: ^0.14.3
+  flutter_markdown: ^0.7.7
+  flutter_secure_storage: ^9.2.4
 
 dev_dependencies:
   flutter_test:
@@ -119,7 +127,5 @@ flutter:
     - assets/models/uberBlack.dae.glb
     - assets/models/generic_sedan.glb
     - assets/models/uberXL.glb
-    - assets/ai/tire_model.tflite
-    - assets/ai/tire_wear_model.tflite
-    - assets/ai/tire_wear_model3.tflite
-    - assets/ai/model.tflite
+    - assets/ai/tire_depth_model.tflite
+    - assets/ai/gemma3-1B-it-int4.task

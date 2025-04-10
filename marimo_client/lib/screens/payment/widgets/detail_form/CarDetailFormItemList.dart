@@ -1,10 +1,8 @@
-// CarDetailFormItemList.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:marimo_client/providers/car_payment_provider.dart';
-import 'package:marimo_client/models/payment/car_payment_entry.dart';
 import 'CarDetailFormItem.dart';
 import 'CarDetailFormSaveButton.dart';
 import 'CarDetailFormMemo.dart';
@@ -15,18 +13,26 @@ import 'CarDetailFormRepairList.dart';
 class CarDetailFormItemList extends StatefulWidget {
   final String category;
   final int amount;
+  final bool isEditMode;
+  final VoidCallback? onSaveComplete;
+  final Map<String, dynamic>? detailData;
+  final DateTime? initialDate; // 👈 nullable로 선언
 
   const CarDetailFormItemList({
     Key? key,
     required this.category,
     required this.amount,
+    this.isEditMode = true, // 기본값 true
+    this.onSaveComplete,
+    this.detailData,
+    this.initialDate,
   }) : super(key: key);
 
   @override
-  State<CarDetailFormItemList> createState() => _CarDetailFormItemListState();
+  State<CarDetailFormItemList> createState() => CarDetailFormItemListState();
 }
 
-class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
+class CarDetailFormItemListState extends State<CarDetailFormItemList> {
   final _formKey = GlobalKey<FormState>();
   final _dateController = TextEditingController();
   final _placeController = TextEditingController(); // 주유소/정비소/세차장
@@ -35,26 +41,60 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
   final LayerLink _dropdownLink = LayerLink(); // 드롭다운 포지션 고정용
 
   late DateTime _selectedDate;
-  late CarPaymentProvider _provider;
 
   @override
   void initState() {
     super.initState();
-
-    // initState에서는 Provider.of를 바로 사용할 수 없으므로
-    // WidgetsBinding.instance.addPostFrameCallback를 사용
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _provider = Provider.of<CarPaymentProvider>(context, listen: false);
-      setState(() {
-        // 프로바이더에서 선택된 날짜를 가져옴
-        _selectedDate = _provider.selectedDate;
-        _dateController.text = DateFormat('yyyy년 M월 d일').format(_selectedDate);
-      });
-    });
-
-    // 기본값으로 현재 날짜 설정 (프로바이더 초기화 전에 필요)
-    _selectedDate = DateTime.now();
+    // 기본값으로 현재 날짜 설정
+    _selectedDate = widget.initialDate ?? DateTime.now();
     _dateController.text = DateFormat('yyyy년 M월 d일').format(_selectedDate);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Provider의 현재 상태로 각 컨트롤러 초기화 (편집 모드라면)
+    final provider = Provider.of<CarPaymentProvider>(context);
+
+    if (widget.initialDate == null) {
+      // 날짜: provider에 값이 있으면 적용 (날짜는 기본적으로 항상 있음)
+      _selectedDate = provider.selectedDate;
+      _dateController.text = DateFormat('yyyy년 M월 d일').format(_selectedDate);
+    }
+
+    // 장소
+    if (_placeController.text.isEmpty && provider.location.isNotEmpty) {
+      _placeController.text = provider.location;
+    }
+
+    // 메모
+    if (_memoController.text.isEmpty && provider.memo.isNotEmpty) {
+      _memoController.text = provider.memo;
+    }
+    // 유형: 주유면 fuelType, 정비면 selectedRepairItems
+    // ✅ detailData 있을 경우에도 초기화
+    if (widget.category == '주유') {
+      if (_typeController.text.isEmpty) {
+        final fuel = widget.detailData?['fuelType'] ?? provider.fuelType;
+        if (fuel is String && fuel.isNotEmpty) {
+          _typeController.text = fuel;
+        }
+      }
+    } else if (widget.category == '정비') {
+      if (_typeController.text.isEmpty) {
+        final repairParts = widget.detailData?['repairParts'];
+        if (repairParts != null) {
+          if (repairParts is List) {
+            // 혹시라도 List로 들어온 경우
+            _typeController.text = repairParts.join(', ');
+          } else if (repairParts is String) {
+            _typeController.text = repairParts;
+          }
+        } else if (provider.selectedRepairItems.isNotEmpty) {
+          _typeController.text = provider.selectedRepairItems.join(', ');
+        }
+      }
+    }
   }
 
   @override
@@ -66,9 +106,9 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
     super.dispose();
   }
 
-  // 달력 팝업을 띄우는 함수
+  // 달력 팝업 띄우기 함수
   Future<void> _selectDate() async {
-    // 커스텀 달력 팝업 표시
+    if (!widget.isEditMode) return;
     await showCustomCalendarPopup(
       context: context,
       initialDate: _selectedDate,
@@ -78,25 +118,25 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
           _dateController.text = DateFormat(
             'yyyy년 M월 d일',
           ).format(_selectedDate);
-
-          // 프로바이더에 선택된 날짜 저장
-          _provider.setSelectedDate(_selectedDate);
         });
+        // Provider 업데이트
+        Provider.of<CarPaymentProvider>(
+          context,
+          listen: false,
+        ).setSelectedDate(_selectedDate);
       },
     );
   }
 
-  // 메모 페이지로 이동하는 함수
+  // 메모 페이지 이동 함수
   void _navigateToMemoPage() async {
-    // CarDetailFormMemo 페이지로 이동
+    if (!widget.isEditMode) return;
     final result = await Navigator.of(context).push(
       MaterialPageRoute(
         builder:
             (context) => CarDetailFormMemo(initialText: _memoController.text),
       ),
     );
-
-    // 결과가 반환되면 (메모가 입력되었으면) 메모 컨트롤러에 값 설정
     if (result != null && result is String) {
       setState(() {
         _memoController.text = result;
@@ -104,9 +144,10 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
     }
   }
 
+  // 드롭다운 목록 띄우기 함수 (예: 유종 선택)
   void _showDropdownForParts() async {
+    if (!widget.isEditMode) return;
     final List<String> partsList = ['일반 휘발유', '고급 휘발유', '경유', 'LPG'];
-
     await showDropdownList(
       context: context,
       items: partsList,
@@ -120,10 +161,11 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
       layerLink: _dropdownLink,
       width: 120,
       height: partsList.length * 40,
-      offset: Offset(200, 45), // 선택하기 아래로 띄우기 위해 Y 오프셋 지정
+      offset: Offset(200, 45),
     );
   }
 
+  // 정비 항목 선택 페이지 이동 함수
   void _navigateToRepairList() async {
     final List<String> repairList = [
       '엔진 오일',
@@ -134,55 +176,18 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
       '타이어 교체',
       '와이퍼',
     ];
-
     final result = await Navigator.of(context).push(
       MaterialPageRoute(
-        builder:
-            (context) => CarDetailFormRepairList(
-              selectedItem: _typeController.text,
-              repairItems: repairList,
-              onItemSelected: (String selected) {
-                setState(() {
-                  _typeController.text = selected;
-                });
-              },
-            ),
+        builder: (context) => CarDetailFormRepairList(repairItems: repairList),
       ),
     );
-
-    if (result != null && result is String) {
-      setState(() {
-        _typeController.text = result;
-      });
-    }
+    final provider = Provider.of<CarPaymentProvider>(context, listen: false);
+    setState(() {
+      _typeController.text = provider.selectedRepairItems.join(', ');
+    });
   }
 
-  void _saveAndNavigate() {
-    if (_formKey.currentState!.validate()) {
-      final provider = Provider.of<CarPaymentProvider>(context, listen: false);
-
-      // 새 데이터 생성
-      final entry = CarPaymentEntry(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        category: widget.category,
-        amount: widget.amount,
-        date: _selectedDate,
-        details: {
-          'place': _placeController.text,
-          'type': _typeController.text,
-          'memo': _memoController.text,
-        },
-      );
-
-      // 데이터 저장
-      provider.addEntry(entry);
-
-      // 이전 화면으로 돌아가기
-      Navigator.of(context).pop();
-    }
-  }
-
-  // 카테고리별 장소 필드명 반환
+  // 카테고리에 따른 장소 필드명 반환
   String _getPlaceFieldName() {
     switch (widget.category) {
       case '주유':
@@ -192,7 +197,7 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
     }
   }
 
-  // 카테고리별 타입 필드명 반환
+  // 카테고리에 따른 타입 필드명 반환
   String _getTypeFieldName() {
     switch (widget.category) {
       case '주유':
@@ -204,43 +209,45 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
     }
   }
 
-  // 카테고리별 타입 힌트 텍스트 반환
-  String _getTypeHintText() {
+  // 카테고리에 따른 타입 힌트 텍스트 반환 (Provider 사용)
+  String _getTypeHintText(CarPaymentProvider provider) {
+    final hasSelection = provider.selectedRepairItems.isNotEmpty;
     switch (widget.category) {
       case '주유':
         return '선택하기';
       case '정비':
-        return '선택하기';
+        return hasSelection ? provider.selectedRepairItems.join(', ') : '선택하기';
       default:
         return '';
     }
   }
 
-  // 카테고리별 폼 아이템 목록 생성
-  List<Widget> _buildFormItems() {
+  // 폼 아이템 목록 생성
+  List<Widget> _buildFormItems(CarPaymentProvider provider) {
     final items = <Widget>[];
 
-    // 1. 날짜 항목 (모든 카테고리 공통)
     items.add(
       CarDetailFormItem(
         title: '날짜',
         controller: _dateController,
         onTap: _selectDate,
-        isDateField: true, // 달력 아이콘 표시를 위해 true로 설정
+        isDateField: true,
+        enabled: widget.isEditMode,
+        showIconRight: widget.isEditMode,
       ),
     );
 
-    // 2. 장소 항목 (주유소/정비소/장소)
     items.add(
       CarDetailFormItem(
         title: _getPlaceFieldName(),
         controller: _placeController,
         hintText: '장소를 입력하세요',
         isRequired: true,
+        enabled: widget.isEditMode,
+        showIconRight: false,
       ),
     );
 
-    // 3. 유형 항목 (유종/부품/세차 유형) - 세차의 경우 부품 항목이 없음
     if (widget.category == '주유' || widget.category == '정비') {
       items.add(
         CompositedTransformTarget(
@@ -248,36 +255,62 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
           child: CarDetailFormItem(
             title: _getTypeFieldName(),
             controller: _typeController,
-            hintText: _getTypeHintText(),
+            hintText: _getTypeHintText(provider),
             onTap:
-                widget.category == '정비'
-                    ? _navigateToRepairList
-                    : _showDropdownForParts,
-            showIconRight: true,
+                widget.isEditMode
+                    ? (widget.category == '정비'
+                        ? _navigateToRepairList
+                        : _showDropdownForParts)
+                    : null,
+            showIconRight: widget.isEditMode,
             iconType: 'detail',
+            enabled: widget.isEditMode,
           ),
         ),
       );
     }
 
-    // 4. 메모 항목 (모든 카테고리 공통)
     items.add(
       CarDetailFormItem(
         title: '메모',
         controller: _memoController,
         hintText: '메모할 수 있어요 (최대 100자)',
-        onTap: _navigateToMemoPage,
+        onTap: widget.isEditMode ? _navigateToMemoPage : null,
         maxLength: 100,
-        showIconRight: true, // 오른쪽 화살표 아이콘 표시
+        showIconRight: widget.isEditMode,
+        enabled: widget.isEditMode,
       ),
     );
 
     return items;
   }
 
+  // Provider에 입력값들을 저장하는 함수 (저장 시 호출)
+  void saveInputsToProvider() {
+    final provider = Provider.of<CarPaymentProvider>(context, listen: false);
+    provider.setSelectedCategory(widget.category);
+    provider.setSelectedAmount(widget.amount);
+    provider.setSelectedDate(_selectedDate);
+    provider.setLocation(_placeController.text);
+    provider.setMemo(_memoController.text);
+
+    if (widget.category == '주유') {
+      provider.setFuelType(_typeController.text);
+      print('📌 유종: ${_typeController.text}');
+    } else if (widget.category == '정비') {
+      final parts =
+          _typeController.text.split(', ').where((e) => e.isNotEmpty).toList();
+      provider.setSelectedRepairItems(parts);
+      print('📌 부품: ${parts}');
+    }
+
+    print('📝 saveInputsToProvider 호출됨');
+    print('📌 장소: ${_placeController.text}');
+    print('📌 메모: ${_memoController.text}');
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Consumer를 사용하여 프로바이더의 변경 사항 감지
     return Consumer<CarPaymentProvider>(
       builder: (context, provider, child) {
         return Form(
@@ -288,13 +321,11 @@ class _CarDetailFormItemListState extends State<CarDetailFormItemList> {
                 child: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: _buildFormItems(),
+                    children: _buildFormItems(provider),
                   ),
                 ),
               ),
-
-              // 분리된 저장 버튼 컴포넌트 사용
-              CarDetailFormSaveButton(onPressed: _saveAndNavigate),
+              // 저장 버튼 등 추가 가능
             ],
           ),
         );

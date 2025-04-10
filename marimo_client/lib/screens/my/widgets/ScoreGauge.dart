@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:math';
+import 'package:provider/provider.dart';
+import 'package:marimo_client/providers/obd_polling_provider.dart';
+import 'package:marimo_client/utils/warning_storage.dart';
+import 'package:marimo_client/providers/navigation_provider.dart';
 
 class ScoreGauge extends StatefulWidget {
   const ScoreGauge({super.key});
@@ -12,7 +16,10 @@ class ScoreGauge extends StatefulWidget {
 class _ScoreGaugeState extends State<ScoreGauge> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _animation;
-  final double targetPercentage = 0.84; // 84점
+  double _targetPercentage = 0.0;
+  int _totalScore = 0;
+  int _dtcScore = 0;
+  int _warningScore = 0;
 
   @override
   void initState() {
@@ -21,10 +28,46 @@ class _ScoreGaugeState extends State<ScoreGauge> with SingleTickerProviderStateM
       vsync: this,
       duration: const Duration(seconds: 2),
     );
-    _animation = Tween<double>(begin: 0, end: targetPercentage).animate(
+    _animation = Tween<double>(begin: 0, end: _targetPercentage).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
     );
-    _animationController.forward();
+    _calculateScore();
+  }
+
+  Future<void> _calculateScore() async {
+    // DTC 코드 점수 계산 (20점 만점)
+    final dtcCount = await Provider.of<ObdPollingProvider>(context, listen: false).getStoredDtcCodeCount();
+    _dtcScore = dtcCount == 0 
+      ? 20  // 고장 카운트 0개: 20점
+      : dtcCount >= 10 
+        ? 0   // 고장 카운트 10개 이상: 0점
+        : 20 - (dtcCount * 2);  // 그 외: 카운트당 2점씩 감점
+    
+    // 경고 메시지 점수 계산 (80점 만점)
+    final warningCount = await WarningStorage.count();
+    _warningScore = warningCount == 0 ? 80 : max(0, 80 - (warningCount * 7));
+    
+    // 총 점수 계산
+    _totalScore = _dtcScore + _warningScore;
+    
+    // 애니메이션 목표값 설정 (0~1 사이 값으로 변환)
+    _targetPercentage = _totalScore / 100;
+    
+    // 애니메이션 재설정 및 시작
+    _animation = Tween<double>(begin: 0, end: _targetPercentage).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
+    );
+    
+    if (mounted) {
+      setState(() {});
+      _animationController.reset();
+      _animationController.forward();
+    }
+  }
+
+  void _navigateToMonitoringTab(BuildContext context) {
+    final navigationProvider = Provider.of<NavigationProvider>(context, listen: false);
+    navigationProvider.setIndex(1); // 모니터링 탭 인덱스로 설정
   }
 
   @override
@@ -79,9 +122,9 @@ class _ScoreGaugeState extends State<ScoreGauge> with SingleTickerProviderStateM
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                            '${(_animation.value * 100).toInt()}', // 애니메이션 적용
-                            style: TextStyle(fontSize: 32.sp, fontWeight: FontWeight.bold),
-                             ),
+                              '${(_animation.value * 100).toInt()}',
+                              style: TextStyle(fontSize: 32.sp, fontWeight: FontWeight.bold),
+                            ),
                             SizedBox(width: 4.w),
                             Padding(
                               padding: EdgeInsets.only(bottom: 8.h),
@@ -97,41 +140,67 @@ class _ScoreGaugeState extends State<ScoreGauge> with SingleTickerProviderStateM
                   ],
                 ),
               ),
+              SizedBox(height: 16.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildScoreItem('고장 코드 점수', _dtcScore),
+                  SizedBox(width: 16.w),
+                  _buildScoreItem('상태 주의 점수', _warningScore),
+                ],
+              ),
               SizedBox(height: 28.h),
-Center(
-  child: Container(
-    decoration: BoxDecoration(
-      color: const Color(0xFFF5F5F5),
-      borderRadius: BorderRadius.horizontal(
-        left: Radius.circular(24.r),
-        right: Radius.circular(24.r),
-      ),
-    ),
-    child: TextButton(
-      onPressed: () {},
-      style: TextButton.styleFrom(
-        padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 10.h),
-        minimumSize: Size(50.w, 20.h),
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        backgroundColor: Color(0xF5F5F5F5),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24.r),
-        ),
-      ),
-      child: Text(
-        '자세히 보기',
-        style: TextStyle(
-          fontSize: 14.sp,
-          color: Colors.grey[600],
-        ),
-      ),
-    ),
-  ),
-),
+              // if (_totalScore < 100) // 100점이 아닐 때만 버튼 표시
+                Center(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF5F5F5),
+                      borderRadius: BorderRadius.horizontal(
+                        left: Radius.circular(24.r),
+                        right: Radius.circular(24.r),
+                      ),
+                    ),
+                    child: TextButton(
+                      onPressed: () => _navigateToMonitoringTab(context),
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 10.h),
+                        minimumSize: Size(50.w, 20.h),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        backgroundColor: Color(0xF5F5F5F5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24.r),
+                        ),
+                      ),
+                      child: Text(
+                        '상태 확인하기',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         );
       },
+    );
+  }
+
+  Widget _buildScoreItem(String label, int score) {
+    return Column(
+      children: [
+        Text(
+          label,
+          style: TextStyle(fontSize: 12.sp, color: Colors.grey[600]),
+        ),
+        SizedBox(height: 4.h),
+        Text(
+          '${score}점',
+          style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
+        ),
+      ],
     );
   }
 }
@@ -198,7 +267,7 @@ class GaugePainter extends CustomPainter {
     final markerY = centerY + radius * sin(markerAngle);
 
     final outerMarkerPaint = Paint()
-      ..color = endColor.withOpacity(0.5) // 점수 색상의 50% 투명도 적용
+      ..color = endColor.withOpacity(0.5)
       ..style = PaintingStyle.fill;
     canvas.drawCircle(Offset(markerX, markerY), 16.w, outerMarkerPaint);
 

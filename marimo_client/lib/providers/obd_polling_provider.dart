@@ -2,30 +2,35 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:marimo_client/providers/car_provider.dart';
+import 'package:marimo_client/services/car/obd_service.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
-
+import 'package:marimo_client/providers/member/auth_provider.dart';
 import 'package:marimo_client/constants/obd_pids.dart';
 
 class ObdPollingProvider with ChangeNotifier {
-  BluetoothConnection? _connection; // Bluetooth 연결 객체 (bluetooth_serial)
-  StreamSubscription<Uint8List>? _inputSubscription; // Bluetooth 데이터 수신 구독
-  final Map<String, String> _pidResponses = {}; // 각 PID에 대한 응답 결과를 저장하는 Map
-  final List<String> _pollingPids = pollingPids; // 주기적으로 폴링할 PID 목록 (모드 01 기준)
+  BluetoothConnection? _connection;
+  StreamSubscription<Uint8List>? _inputSubscription;
+  DateTime? lastSuccessfulPollingTime;
 
-  bool isRunning = false; // 폴링 루프 실행 상태
-  bool isConnected = false; // 연결 상태
+  final Map<String, String> _pidResponses = {};
+  final List<String> _pollingPids = pollingPids;
+  List<String> _storedDtcCodes = [];
+  List<String> get storedDtcCodes => _storedDtcCodes;
 
-  Completer<String>? _commandCompleter; // 명령에 대한 응답을 기다리는 Completer
-  StringBuffer? _responseBuffer; // 명령 응답 버퍼
+  bool isRunning = false;
+  bool isConnected = false;
+  bool _isPollingInProgress = false;
 
-  /// connectAndStartPolling() - OBD 기기와 연결하고, 초기화 후 PID 폴링을 시작하는 함수
-  Future<void> connectAndStartPolling() async {
+  Completer<String>? _commandCompleter;
+  StringBuffer? _responseBuffer;
+
+  Future<void> connectAndStartPolling(BuildContext context) async {
     final bondedDevices =
-        await FlutterBluetoothSerial.instance
-            .getBondedDevices(); // 이미 페어링된 Bluetooth 기기 목록 가져오기
-
-    // 이름에 'OBD', 'ELM', 'VGATE' 등을 포함하는 기기 필터링
+        await FlutterBluetoothSerial.instance.getBondedDevices();
     final obdDevices =
         bondedDevices.where((device) {
           final name = device.name?.toUpperCase() ?? '';
@@ -34,57 +39,43 @@ class ObdPollingProvider with ChangeNotifier {
               name.contains('VGATE');
         }).toList();
 
-    // 만약 해당 기기가 없으면 예외 발생
     if (obdDevices.isEmpty) {
       throw Exception('OBD 기기를 찾을 수 없습니다');
     }
 
-    // 첫 번째 OBD 기기를 선택
     final target = obdDevices.first;
-    // 선택된 기기로 연결 시도
     await connect(target);
-    // 연결 후 OBD 초기화 명령 전송
     await _initializeObd();
-    // 초기화 완료되면 PID 폴링 시작
-    startPolling();
+    startPolling(context);
   }
 
-  /// 지정된 Bluetooth 기기에 연결하는 함수
   Future<void> connect(BluetoothDevice device) async {
     try {
-      // Bluetooth 기기 주소로 연결 시도
       _connection = await BluetoothConnection.toAddress(device.address);
       isConnected = _connection?.isConnected ?? false;
 
-      // 연결 실패 시 예외 발생
       if (!isConnected) {
         throw Exception('Bluetooth 연결 실패');
       }
 
-      // 기존 수신 구독 취소 (만약 있다면)
       _inputSubscription?.cancel();
-      // 새로운 데이터 수신 구독 시작, 수신 시 _handleResponse 호출
       _inputSubscription = _connection!.input!.listen(
         _handleResponse,
         onDone: () {
-          // 연결 종료 시 상태 업데이트
           isConnected = false;
           stopPolling();
         },
         onError: (error) {
-          // 오류 발생 시 상태 업데이트
           isConnected = false;
           stopPolling();
         },
       );
     } catch (e) {
       isConnected = false;
-      // 연결 실패시 예외를 다시 던져 호출자에게 전달
       rethrow;
     }
   }
 
-  /// 현재 Bluetooth 연결 해제 및 폴링 중지
   void disconnect() {
     isConnected = false;
     stopPolling();
@@ -93,116 +84,114 @@ class ObdPollingProvider with ChangeNotifier {
     _connection = null;
   }
 
-  /// OBD PID 폴링을 시작하는 함수
-  void startPolling() {
-    // 연결되어 있지 않거나 이미 실행 중이면 리턴
+  void startPolling(BuildContext context) {
     if (!isConnected || isRunning) return;
 
     isRunning = true;
     notifyListeners();
-
-    // 내부 폴링 루프 시작
-    _pollPids();
+    _pollPids(context); // ⬅️ context 넘김
   }
 
-  /// pollPids() - 내부적으로 PID들을 순차적으로 요청하는 폴링 루프
-  void _pollPids() async {
-    while (isRunning && isConnected) {
-      // 모든 PID에 대해 순차적으로 명령 전송
-      for (final pid in _pollingPids) {
-        if (!isRunning || !isConnected) break;
+  void _pollPids(BuildContext context) async {
+    if (_isPollingInProgress) {
+      debugPrint('⚠️ 이미 polling 중이므로 중복 실행 방지');
+      return;
+    }
+    _isPollingInProgress = true;
 
-        try {
-          // '01' 모드에 해당 PID 전송 및 응답 대기
-          final response = await _sendCommand('01$pid');
-          _pidResponses['01$pid'] = response;
-          await _saveResponsesToLocal();
-        } catch (_) {
-          // 예외 발생 시 응답 없음 처리
-          _pidResponses['01$pid'] = 'NO RESPONSE';
+    try {
+      while (isRunning && isConnected) {
+        for (final pid in _pollingPids) {
+          if (!isRunning || !isConnected) break;
+
+          try {
+            final response = await _sendCommand('01$pid');
+            _pidResponses['01$pid'] = response;
+            await _saveResponsesToLocal();
+          } catch (_) {
+            _pidResponses['01$pid'] = 'NO RESPONSE';
+          }
+          notifyListeners();
+          await Future.delayed(const Duration(milliseconds: 120));
         }
-        // 상태 업데이트 알림
-        notifyListeners();
-        // 각 PID 요청 간 약간의 딜레이 (120ms)
-        await Future.delayed(const Duration(milliseconds: 120));
+
+        await sendObdDataToServer(context);
+
+        lastSuccessfulPollingTime = DateTime.now();
+        await _saveResponsesToLocal(); // ⬅️ 여기서만 마지막 시각 저장
       }
+    } finally {
+      _isPollingInProgress = false;
     }
   }
 
-  /// stopPolling() - 폴링 중지를 위한 함수
   void stopPolling() {
     isRunning = false;
     notifyListeners();
   }
 
-  /// initializeObd() - OBD 초기화 명령들을 순차적으로 전송하는 함수
   Future<void> _initializeObd() async {
-    final cmds = [
-      'ATZ',
-      'ATE0',
-      'ATL0',
-      'ATS0',
-      'ATH1',
-      'ATSP0',
-    ]; // OBD 초기화를 위한 AT 명령 리스트
+    final cmds = ['ATZ', 'ATE0', 'ATL0', 'ATS0', 'ATH1', 'ATSP0'];
     for (final cmd in cmds) {
-      // 각 명령 전송 및 응답 대기
       await _sendCommand(cmd);
-      // 명령 간 100ms 딜레이
       await Future.delayed(const Duration(milliseconds: 100));
     }
   }
 
-  /// 지정된 명령(command)을 전송하고, 응답을 기다려 반환하는 함수
   Future<String> _sendCommand(String command) async {
-    if (!isConnected || _connection == null) {
-      throw Exception('Not connected');
+    if (!isConnected || _connection?.isConnected != true) {
+      throw Exception('Not connected to OBD');
     }
 
-    // 새 명령에 대해 Completer와 응답 버퍼 초기화
     _commandCompleter = Completer<String>();
     _responseBuffer = StringBuffer();
 
-    // 명령 전송 (명령 끝에 '\r' 추가)
-    _connection!.output.add(Uint8List.fromList('$command\r'.codeUnits));
-    await _connection!.output.allSent;
+    final output = _connection?.output;
+    if (output == null) {
+      throw Exception('❌ Bluetooth output stream is null');
+    }
 
-    // 2초 내에 응답이 오지 않으면 TimeoutException 발생
+    output.add(Uint8List.fromList('$command\r'.codeUnits));
+    await output.allSent;
+
     return _commandCompleter!.future.timeout(
-      const Duration(seconds: 2),
+      const Duration(seconds: 5),
       onTimeout: () => throw TimeoutException('응답 시간 초과'),
     );
   }
 
-  /// Bluetooth를 통해 들어오는 데이터를 처리하는 함수
   void _handleResponse(Uint8List data) {
     final response = String.fromCharCodes(data);
-    // 응답 버퍼와 Completer가 준비되어 있으면 데이터를 버퍼에 추가
     if (_responseBuffer != null && _commandCompleter != null) {
       _responseBuffer!.write(response);
-      // '>' 문자가 응답에 포함되면 응답 완료로 간주
+
       if (response.contains('>')) {
         final result = _responseBuffer!.toString().replaceAll('>', '').trim();
-        // Completer에 결과 전달
-        _commandCompleter!.complete(result);
-        // 사용 완료 후 변수 초기화
+
+        try {
+          _commandCompleter?.complete(result);
+        } catch (e) {
+          debugPrint('❌ 응답 처리 중 오류: $e');
+        }
+
         _commandCompleter = null;
         _responseBuffer = null;
       }
+    } else {
+      debugPrint(
+        '⚠️ 응답 처리할 준비가 안 됨: _commandCompleter or _responseBuffer가 null',
+      );
     }
   }
 
-  /// PID 응답 결과 Map에 접근할 수 있도록 Getter 제공
   Map<String, String> get responses => _pidResponses;
 
   @override
   void dispose() {
-    // Provider 종료 시 연결 해제
     disconnect();
     super.dispose();
   }
 
-  // saveResponsesToLocal() - 로컬에 응답 데이터 저장
   Future<void> _saveResponsesToLocal() async {
     final prefs = await SharedPreferences.getInstance();
 
@@ -215,10 +204,18 @@ class ObdPollingProvider with ChangeNotifier {
 
     final jsonString = jsonEncode(cleanedMap);
     await prefs.setString('last_obd_data', jsonString);
+
+    // ✅ 순회 완료 시간 저장
+    if (lastSuccessfulPollingTime != null) {
+      await prefs.setString(
+        'last_polling_time',
+        lastSuccessfulPollingTime!.toIso8601String(),
+      );
+      debugPrint('⏱️ 마지막 순회 시각 저장됨: $lastSuccessfulPollingTime');
+    }
   }
 
-  // loadResponsesFromLocal() - 로컬에서 응답 데이터 불러오기
-  Future<void> loadResponsesFromLocal() async {
+  Future<void> loadResponsesFromLocal(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     final jsonString = prefs.getString('last_obd_data');
     print('✅ 로컬에 저장된 OBD 데이터: $jsonString');
@@ -229,43 +226,65 @@ class ObdPollingProvider with ChangeNotifier {
       jsonMap.forEach((key, value) {
         _pidResponses[key] = value.toString();
       });
+      debugPrint('🟡 Provider 내부 상태: $_pidResponses');
       notifyListeners();
+    }
+
+    final savedTime = prefs.getString('last_polling_time');
+    if (savedTime != null) {
+      lastSuccessfulPollingTime = DateTime.tryParse(savedTime);
+      debugPrint('⏱️ 저장된 마지막 순회 시각 불러옴: $lastSuccessfulPollingTime');
     }
   }
 
-  // ✅ ObdPollingProvider에 DTC 코드 조회 함수 추가
   Future<List<String>> fetchStoredDtcCodes() async {
     if (!isConnected || _connection == null) {
+      debugPrint('❌ DTC 조회 실패: OBD 기기 연결 안 됨');
       throw Exception('OBD 기기에 연결되어 있지 않습니다');
     }
 
-    try {
-      final response = await _sendCommand('03'); // Mode 03: Stored DTCs
-      // 응답 파싱 로직 (단순화된 예시)
-      final lines =
-          response
-              .split(RegExp(r'[\r\n]+'))
-              .where((l) => l.trim().isNotEmpty)
-              .toList();
-      if (lines.isEmpty) return [];
+    final modes = ['03', '07', '02'];
+    final dtcCodes = <String>{};
 
-      final hexString = lines.join('').replaceAll(' ', '');
-      if (!hexString.startsWith('43')) return [];
+    for (final mode in modes) {
+      try {
+        debugPrint('📤 [$mode] DTC 명령 전송 중...');
+        final response = await _sendCommand(mode);
+        debugPrint('📥 [$mode] DTC 응답 수신 완료: $response');
 
-      final codeSection = hexString.substring(2); // "43" 이후의 DTC 섹션
-      final dtcCodes = <String>[];
+        final lines =
+            response
+                .split(RegExp(r'[\r\n]+'))
+                .where((l) => l.trim().isNotEmpty)
+                .toList();
+        final hexString = lines.join('').replaceAll(' ', '');
+        debugPrint('📦 [$mode] 클린된 응답: $hexString');
 
-      for (int i = 0; i + 4 <= codeSection.length; i += 4) {
-        final chunk = codeSection.substring(i, i + 4);
-        final code = _convertToDtcCode(chunk);
-        dtcCodes.add(code);
+        final section = extractDtcHexSection(hexString);
+        if (section == null) {
+          debugPrint('⚠️ [$mode] 유효한 DTC 코드 섹션 없음');
+          continue;
+        }
+
+        for (int i = 0; i + 4 <= section.length; i += 4) {
+          final chunk = section.substring(i, i + 4);
+          try {
+            final code = _convertToDtcCode(chunk);
+            dtcCodes.add(code);
+          } catch (e) {
+            debugPrint('❌ DTC 변환 실패 (chunk=$chunk): $e');
+          }
+        }
+      } catch (e, stack) {
+        debugPrint('❌ [$mode] DTC 조회 중 예외 발생: $e');
+        debugPrint('🪵 Stack: $stack');
       }
-
-      return dtcCodes;
-    } catch (e) {
-      debugPrint('DTC 조회 실패: \$e');
-      return [];
     }
+
+    final result = dtcCodes.toList();
+    debugPrint('✅ 최종 DTC 코드 목록 (중복 제거): $result');
+    await saveDtcCodesToLocal(result);
+    return result;
   }
 
   String _convertToDtcCode(String raw) {
@@ -277,6 +296,92 @@ class ObdPollingProvider with ChangeNotifier {
     final lastTwo =
         (firstByte & 0x0F).toRadixString(16).toUpperCase() + secondByte;
 
-    return '$type\$firstDigit\$lastTwo';
+    return '$type$firstDigit$lastTwo';
+  }
+
+  String? extractDtcHexSection(String raw) {
+    final cleaned = raw.replaceAll(RegExp(r'\s+'), '');
+    debugPrint("📦 클린된 응답: $cleaned");
+
+    final index = cleaned.indexOf('43');
+    if (index == -1) {
+      debugPrint("❌ 43(MODE 03) 헤더가 없음");
+      return null;
+    }
+
+    final codeSection = cleaned.substring(index + 2);
+    debugPrint("✅ DTC 코드 섹션 추출됨: $codeSection");
+
+    return codeSection;
+  }
+
+  Future<void> sendObdDataToServer(BuildContext context) async {
+    try {
+      final carProvider = Provider.of<CarProvider>(context, listen: false);
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+      final carId = carProvider.firstCarId;
+      final accessToken = authProvider.accessToken;
+
+      if (carId == null || accessToken == null) {
+        debugPrint('🚫 전송 실패: 차량 ID 또는 토큰이 없습니다');
+        return;
+      }
+
+      await ObdService.sendObdData(
+        carId: carId,
+        accessToken: accessToken,
+        provider: this,
+      );
+
+      debugPrint('✅ OBD 데이터 서버 전송 완료');
+
+      // ✅ 추가: 총 주행거리도 함께 전송
+      final hexDistance = responses['31']; // 31번 PID 값 (16진수)
+
+      if (hexDistance != null) {
+        try {
+          final distance = int.parse(hexDistance, radix: 16);
+          await ObdService.sendTotalDistance(
+            carId: carId,
+            totalDistance: distance,
+            accessToken: accessToken,
+          );
+          debugPrint('✅ 총 주행거리 전송 완료: $distance km');
+        } catch (e) {
+          debugPrint('❌ 주행거리 파싱/전송 실패: $e');
+        }
+      } else {
+        debugPrint('⚠️ PID 31 (총 주행거리) 값이 없습니다');
+      }
+    } catch (e) {
+      debugPrint('❌ OBD 데이터 전송 실패: $e');
+    }
+  }
+
+  String get formattedLastPollingTime {
+    if (lastSuccessfulPollingTime == null) return '없음';
+    return '${lastSuccessfulPollingTime!.toLocal()}';
+  }
+
+  Future<void> saveDtcCodesToLocal(List<String> codes) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('stored_dtc_codes', codes);
+    debugPrint('✅ DTC 코드 저장됨: $codes');
+  }
+
+  Future<List<String>> loadDtcCodesFromLocal() async {
+    final prefs = await SharedPreferences.getInstance();
+    final codes = prefs.getStringList('stored_dtc_codes') ?? [];
+    _storedDtcCodes = codes;
+    debugPrint('📥 로컬에서 불러온 DTC 코드: $codes');
+    notifyListeners(); // ✅ 필요 시
+    return codes;
+  }
+
+  Future<int> getStoredDtcCodeCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    final codes = prefs.getStringList('stored_dtc_codes') ?? [];
+    return codes.length;
   }
 }
