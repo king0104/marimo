@@ -8,7 +8,7 @@ import 'package:marimo_client/screens/signin/widgets/sign_in/LoginHero.dart';
 import 'package:marimo_client/screens/signin/widgets/sign_in/LoginInput.dart';
 import 'package:marimo_client/screens/signin/widgets/sign_in/LoginLinkRow.dart';
 import 'package:marimo_client/screens/signin/widgets/sign_in/LoginSlogan.dart';
-import 'package:marimo_client/screens/signin/widgets/sign_in/OauthButtons.dart';
+// import 'package:marimo_client/screens/signin/widgets/sign_in/OauthButtons.dart';
 import 'package:marimo_client/services/auth/auth_service.dart';
 import 'package:marimo_client/utils/toast.dart';
 import 'package:provider/provider.dart';
@@ -127,7 +127,13 @@ class _SignInScreenState extends State<SignInScreen>
       );
     } catch (error) {
       print("로그인 오류: $error");
-      showToast(context, "로그인을 다시 해주세요.", icon: Icons.error, type: 'error', position: 'top-down',);
+      showToast(
+        context,
+        "로그인을 다시 해주세요.",
+        icon: Icons.error,
+        type: 'error',
+        position: 'top-down',
+      );
     }
   }
 
@@ -165,14 +171,14 @@ class _SignInScreenState extends State<SignInScreen>
               ),
               SizedBox(height: 30.h),
               animated(4, LoginButton(text: "마리모 로그인", onPressed: _login)),
-              SizedBox(height: 30.h),
+              SizedBox(height: 4.h),
               animated(
                 5,
                 Column(
                   children: const [
                     LoginLinkRow(),
-                    SizedBox(height: 26),
-                    OauthButtons(),
+                    SizedBox(height: 100),
+                    // OauthButtons(),
                   ],
                 ),
               ),
