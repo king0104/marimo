@@ -12,7 +12,7 @@ class CarService {
   /// 차량 목록 조회
   static Future<List<CarModel>> getCars({required String accessToken}) async {
     final url = Uri.parse('$baseUrl/api/v1/cars');
-    final headers = buildHeaders(token: accessToken);
+    final headers = await buildHeaders(token: accessToken);
 
     print('📡 [REQUEST] GET $url');
     print('🧾 Headers: $headers');

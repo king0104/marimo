@@ -10,7 +10,7 @@ class UserService {
   /// 사용자 이름 조회
   static Future<String> getUserName({required String accessToken}) async {
     final url = Uri.parse('$baseUrl/api/v1/members/name');
-    final headers = buildHeaders(token: accessToken);
+    final headers = await buildHeaders(token: accessToken);
 
     print('📡 [REQUEST] GET $url');
     print('🧾 Headers: $headers');

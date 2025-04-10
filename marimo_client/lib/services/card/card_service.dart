@@ -37,7 +37,7 @@ class CardService {
   /// 주유 카드 목록 조회
   static Future<List<CardInfo>> getCards({required String accessToken}) async {
     final url = Uri.parse('$baseUrl/api/v1/cards');
-    final headers = buildHeaders(token: accessToken);
+    final headers = await buildHeaders(token: accessToken);
 
     print('📡 [REQUEST] GET $url');
     print('🧾 Headers: $headers');
@@ -63,7 +63,7 @@ class CardService {
     required String cardUniqueNo,
   }) async {
     final url = Uri.parse('$baseUrl/api/v1/cards/oil/me');
-    final headers = buildHeaders(token: accessToken);
+    final headers = await buildHeaders(token: accessToken);
 
     final body = jsonEncode({"cardUniqueNo": cardUniqueNo});
 
