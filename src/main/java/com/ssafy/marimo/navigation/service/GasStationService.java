@@ -137,7 +137,6 @@ public class GasStationService {
 
         List<PostGasStationRecommendResponse> candidates = filteredStations.stream()
                 .filter(s -> isValidOilType(req.oilType(), s))
-                .filter(s -> isValidOilPrice(s))
                 .map(s -> toRecommendResponse(s, req, radiusMeter, isOilCardRegistered, isOilCardMonthlyRequirementSatisfied, memberCard, cardBenefitDetails))
                 .filter(Objects::nonNull)
                 .sorted(Comparator.comparing(PostGasStationRecommendResponse::distance))
