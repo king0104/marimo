@@ -152,5 +152,9 @@ public class Car extends BaseTimeEntity {
         }
     }
 
+    public void updateTotalDistance(Integer totalDistance) {
+        this.totalDistance = totalDistance;
+    }
+
 
 }

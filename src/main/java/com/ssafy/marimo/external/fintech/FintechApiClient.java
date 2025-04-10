@@ -3,19 +3,23 @@ package com.ssafy.marimo.external.fintech;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ssafy.marimo.common.annotation.ExecutionTimeLog;
 import com.ssafy.marimo.exception.ExternalApiException;
 import com.ssafy.marimo.external.dto.FintechCardListResponse;
 import com.ssafy.marimo.external.dto.FintechCardTransactionResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class FintechApiClient {
@@ -57,6 +61,8 @@ public class FintechApiClient {
         }
     }
 
+    @ExecutionTimeLog
+    @Transactional
     public FintechCardTransactionResponse getCardTransactions(String cardNo, String cvc, String startDate, String endDate) {
         Map<String, Object> body = new HashMap<>();
         body.put("Header", headerProvider.generateHeader(
@@ -67,6 +73,8 @@ public class FintechApiClient {
         body.put("cvc", cvc);
         body.put("startDate", startDate);
         body.put("endDate", endDate);
+
+        log.info("📤 Sending card transaction request with cardNo={}, startDate={}, endDate={}", cardNo, startDate, endDate);
 
         try {
             return webClient.post()
