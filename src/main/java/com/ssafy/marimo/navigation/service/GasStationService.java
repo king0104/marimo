@@ -106,6 +106,7 @@ public class GasStationService {
             }
         }
 
+
         // 2. 외부 API 사용해서 전월실적 가져오기
 //        else {
 //            isOilCardRegistered = true;
@@ -158,8 +159,8 @@ public class GasStationService {
 
         Float price = determinePriceByOilType(s, req.oilType());
 
-        float discountedPrice = price;
-        float discountAmount = 0; // 현재 할인 없음
+        Float discountedPrice = price;
+        Float discountAmount = 0F; // 현재 할인 없음
 
         // 카드 혜택 적용
         // [수정] cardBenefitRepository 호출 제거, cardBenefitDetails 사용
