@@ -78,7 +78,7 @@ class _CarTotalPaymentState extends State<CarTotalPayment>
         ),
       ),
 
-      backgroundColor: Colors.white,
+      backgroundColor: backgroundColor,
       body: Stack(
         children: [
           Positioned(
