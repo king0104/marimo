@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:marimo_client/mocks/obd_sample.dart';
+import 'package:marimo_client/providers/car_provider.dart';
 import 'package:marimo_client/services/user/user_service.dart';
 import 'package:marimo_client/services/car/obd_service.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final secureStorage = FlutterSecureStorage();
@@ -18,11 +20,11 @@ class AuthProvider extends ChangeNotifier {
   bool get isLoggedIn => _accessToken != null && _accessToken!.isNotEmpty;
 
   // ✅ 앱 시작 시 호출
-  Future<void> loadTokenFromStorage() async {
+  Future<void> loadTokenFromStorage([BuildContext? context]) async {
     final token = await secureStorage.read(key: 'accessToken');
     if (token == null || token.isEmpty) return;
 
-    final isExpired = _isTokenExpired(token, debug: true); // ✅ 디버그용
+    final isExpired = _isTokenExpired(token, debug: true);
     if (isExpired) {
       print('⏰ 저장된 토큰 만료됨 → 자동 로그아웃 처리');
       await logout();
@@ -30,16 +32,15 @@ class AuthProvider extends ChangeNotifier {
     }
 
     _accessToken = token;
-    await _loadUserName();
+    await _loadUserName(context); // ✅ context 넘기되 null도 가능
     notifyListeners();
   }
 
   // ✅ 로그인 후 토큰 저장
-  void setAccessToken(String token) async {
+  void setAccessToken(String token, [BuildContext? context]) async {
     _accessToken = token;
     await secureStorage.write(key: 'accessToken', value: token);
 
-    // ✅ 디버깅용 로그
     final exp = _getTokenExp(token);
     if (exp != null) {
       final expiryDate = DateTime.fromMillisecondsSinceEpoch(exp * 1000);
@@ -47,7 +48,7 @@ class AuthProvider extends ChangeNotifier {
       print('⏳ 만료 시간: $expiryDate');
     }
 
-    await _loadUserName();
+    await _loadUserName(context);
     notifyListeners();
   }
 
@@ -92,12 +93,11 @@ class AuthProvider extends ChangeNotifier {
   }
 
   // ✅ 사용자 이름 불러오기
-  Future<void> _loadUserName() async {
+  Future<void> _loadUserName([BuildContext? context]) async {
     if (_accessToken == null) return;
 
     try {
       final name = await UserService.getUserName(accessToken: _accessToken!);
-      print('👤 현재 사용자 이름: $name');
       _userName = name;
 
       if (name == 'marimo') {
@@ -106,20 +106,25 @@ class AuthProvider extends ChangeNotifier {
         await preloadSampleObdDataIfNeeded();
 
         final distance = parseDistanceSinceDtcCleared();
-        if (distance != null) {
-          try {
+
+        if (distance != null && context != null) {
+          final carProvider = Provider.of<CarProvider>(context, listen: false);
+          final carId = carProvider.firstCarId;
+
+          if (carId != null) {
             await ObdService.sendTotalDistance(
-              carId: '12',
+              carId: carId,
               totalDistance: distance,
               accessToken: _accessToken!,
             );
             print('📨 샘플 주행거리 전송 완료: $distance km');
-          } catch (e) {
-            print('❌ 주행거리 전송 실패: $e');
+          } else {
+            print('🚫 차량 ID 없음 → 주행거리 전송 생략');
           }
+        } else {
+          print('⚠️ context 없음 → 주행거리 전송 생략');
         }
 
-        // ✅ 주행거리 전송과 무관하게 DTC는 항상 저장되도록
         final sampleDtcCodes = [
           'P2430',
           'C0300',
