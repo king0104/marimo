@@ -116,6 +116,8 @@ class _CarPaymentDetailFormState extends State<CarPaymentDetailForm> {
 
   @override
   Widget build(BuildContext context) {
+    final carPaymentProvider = Provider.of<CarPaymentProvider>(context);
+
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: CustomAppHeader(
@@ -144,6 +146,7 @@ class _CarPaymentDetailFormState extends State<CarPaymentDetailForm> {
                 key: _formItemKey,
                 category: widget.selectedCategory,
                 amount: widget.amount,
+                initialDate: carPaymentProvider.selectedDate,
                 isEditMode: true, // ✅ 항상 true로 고정
                 onSaveComplete: () {}, // ✅ 편집 모드 토글 제거
               ),
