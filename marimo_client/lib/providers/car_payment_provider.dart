@@ -223,6 +223,10 @@ class CarPaymentProvider with ChangeNotifier {
     _selectedAmount = 0;
     _selectedDate = DateTime.now();
     _selectedRepairItems = [];
+    _location = '';
+    _memo = '';
+    _fuelType = '';
+    _selectedCategory = '주유';
     notifyListeners();
   }
 

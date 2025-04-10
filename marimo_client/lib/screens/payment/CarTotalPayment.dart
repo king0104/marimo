@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:marimo_client/theme.dart';
 import 'package:marimo_client/providers/car_payment_provider.dart';
 import 'package:marimo_client/providers/car_provider.dart';
+import 'package:marimo_client/providers/navigation_provider.dart';
 import 'package:marimo_client/providers/member/auth_provider.dart';
 import 'package:marimo_client/commons/AppBar.dart';
 import 'package:marimo_client/screens/payment/widgets/total/CarMonthlyPayment.dart';
@@ -68,7 +69,14 @@ class _CarTotalPaymentState extends State<CarTotalPayment>
     return Scaffold(
       appBar: CommonAppBar(
         leading: IconButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            // NavigationProvider 인스턴스를 가져와서 MyScreen 인덱스로 설정
+            final navProvider = context.read<NavigationProvider>();
+            navProvider.setIndex(4); // MyScreen은 탭 인덱스 4번에 있음
+
+            // 현재 화면을 닫고 MainScreen으로 돌아감
+            Navigator.of(context).pop();
+          },
           icon: SvgPicture.asset(
             'assets/images/icons/icon_back.svg',
             width: 18.w,
