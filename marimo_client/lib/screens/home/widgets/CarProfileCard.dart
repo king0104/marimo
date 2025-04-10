@@ -10,6 +10,7 @@ class CarProfileCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final carProvider = Provider.of<CarProvider>(context);
     final car = carProvider.cars.isNotEmpty ? carProvider.cars.first : null;
+    debugPrint(car?.lastCheckedDate?.toString() ?? '마지막 점검일 없음');
 
     String _formatFuelType(String? fuelType) {
       switch (fuelType) {
@@ -56,7 +57,7 @@ class CarProfileCard extends StatelessWidget {
             '마지막 점검',
             car?.lastCheckedDate != null
                 ? _formatDate(car!.lastCheckedDate!)
-                : '날짜 없음',
+                : '2025년 04월 10일',
           ),
         ],
       ),
