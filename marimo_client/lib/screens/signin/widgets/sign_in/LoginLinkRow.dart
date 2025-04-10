@@ -14,7 +14,7 @@ class LoginLinkRow extends StatelessWidget {
         TextButton(
           onPressed: onFindPassword,
           child: const Text(
-            "비밀번호 찾기",
+            "",
             style: TextStyle(
               color: Color(0xFF000000),
               fontSize: 14,

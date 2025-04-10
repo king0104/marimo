@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:marimo_client/providers/car_provider.dart';
 import 'package:marimo_client/providers/home_animation_provider.dart';
+import 'package:marimo_client/providers/member/auth_provider.dart';
 import 'package:marimo_client/providers/obd_polling_provider.dart';
+import 'package:marimo_client/services/car/obd_service.dart';
+import 'package:marimo_client/utils/obd_response_parser.dart';
 import 'package:provider/provider.dart';
 import 'widgets/WeatherWidget.dart';
 import 'widgets/NotificationBadges.dart';
@@ -32,6 +36,8 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
+
+    _sendTotalDistanceOnce(); // ✅ 여기서 실행
 
     final shouldAnimate =
         Provider.of<HomeAnimationProvider>(
@@ -112,6 +118,45 @@ class _HomeScreenState extends State<HomeScreen>
         curve: const Interval(0.6, 1.0, curve: Curves.easeOutBack),
       ),
     );
+  }
+
+  Future<void> _sendTotalDistanceOnce() async {
+    try {
+      final obdProvider = Provider.of<ObdPollingProvider>(
+        context,
+        listen: false,
+      );
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final carProvider = Provider.of<CarProvider>(context, listen: false);
+
+      final token = authProvider.accessToken;
+      final carId = carProvider.firstCarId;
+
+      if (token == null || carId == null) {
+        debugPrint('🚫 주행거리 전송 생략: token 또는 carId 없음');
+        return;
+      }
+
+      final parsed = parseObdResponses(obdProvider.responses);
+      final distance = parsed.distanceSinceCodesCleared;
+
+      if (distance == null) {
+        debugPrint('❌ 파싱된 주행거리 없음');
+        return;
+      }
+
+      debugPrint('📦 파싱된 주행거리(km): $distance');
+
+      await ObdService.sendTotalDistance(
+        carId: carId,
+        totalDistance: distance,
+        accessToken: token,
+      );
+
+      debugPrint('📨 홈 진입 시 주행거리 전송 완료: $distance km');
+    } catch (e) {
+      debugPrint('❌ HomeScreen에서 주행거리 전송 실패: $e');
+    }
   }
 
   @override

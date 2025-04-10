@@ -42,6 +42,8 @@ class _MapScreenState extends State<MapScreen> {
   final MapService _mapService = MapService();
   NaverMapController? _mapController;
 
+  final ScrollController _cardScrollController = ScrollController();
+
   bool _isLoading = false;
   bool _hasSearched = false;
   int _radius = 3;
@@ -208,6 +210,7 @@ class _MapScreenState extends State<MapScreen> {
                 child: EmptyPlaceCard(screenWidth: screenWidth),
               )
               : ListView.builder(
+                controller: _cardScrollController,
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 itemCount: places.length,
@@ -384,6 +387,25 @@ class _MapScreenState extends State<MapScreen> {
     final prevId = _highlightedPlaceId;
     setState(() => _highlightedPlaceId = selectedPlaceId);
 
+    final index =
+        _selectedCategory == MapCategory.gas
+            ? _gasStationPlaces.indexWhere((p) => p.id == selectedPlaceId)
+            : _repairShopPlaces.indexWhere(
+              (p) => p.id.toString() == selectedPlaceId,
+            );
+
+    if (index != -1) {
+      final cardWidth =
+          MediaQuery.of(context).size.width * 0.83 + 12; // 카드 너비 + margin
+      final offset = index * cardWidth;
+
+      _cardScrollController.animateTo(
+        offset,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+
     if (_selectedCategory == MapCategory.gas) {
       final prev = _gasStationPlaces.firstWhereOrNull((p) => p.id == prevId);
       final next = _gasStationPlaces.firstWhereOrNull(
@@ -391,12 +413,17 @@ class _MapScreenState extends State<MapScreen> {
       );
 
       if (prev != null && prev.id != next?.id) {
-        await _mapService.resetMarker(controller: _mapController!, place: prev);
+        await _mapService.resetMarker(
+          controller: _mapController!,
+          place: prev,
+          onTap: () => _onMarkerTapped(prev.id),
+        );
       }
       if (next != null) {
         await _mapService.highlightMarker(
           controller: _mapController!,
           place: next,
+          onTap: () => _onMarkerTapped(next.id),
         );
         await _mapService.moveCamera(
           controller: _mapController!,

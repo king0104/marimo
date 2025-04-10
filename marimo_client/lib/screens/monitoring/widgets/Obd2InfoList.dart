@@ -21,6 +21,7 @@ class Obd2InfoList extends StatefulWidget {
 }
 
 class _Obd2InfoListState extends State<Obd2InfoList> {
+  bool isLoadingDtc = true;
   bool showDtcInfo = true;
   bool isExpanded = false;
   bool isListScrolling = false;
@@ -47,18 +48,15 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
     final provider = context.read<ObdPollingProvider>();
 
     try {
+      setState(() => isLoadingDtc = true); // ✅ 로딩 시작
       await Future.delayed(const Duration(seconds: 1));
 
       List<String> fetchedCodes;
 
       if (provider.isConnected) {
-        // OBD 연결되어 있으면 OBD에서 가져옴
         fetchedCodes = await provider.fetchStoredDtcCodes();
-        debugPrint('📥 OBD에서 받아온 DTC 목록: $fetchedCodes');
       } else {
-        // OBD 연결 안 되어 있으면 SharedPreferences에서 로드
         fetchedCodes = await provider.loadDtcCodesFromLocal();
-        debugPrint('📂 로컬 저장된 DTC 목록 로딩됨: $fetchedCodes');
       }
 
       setState(() {
@@ -66,6 +64,8 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
       });
     } catch (e) {
       debugPrint('❌ DTC 코드 로딩 실패: $e');
+    } finally {
+      setState(() => isLoadingDtc = false); // ✅ 로딩 끝
     }
   }
 
@@ -203,7 +203,11 @@ class _Obd2InfoListState extends State<Obd2InfoList> {
                 child: GestureDetector(
                   onVerticalDragUpdate: (_) {},
                   child:
-                      isDtcEmpty
+                      isLoadingDtc
+                          ? const Center(
+                            child: CircularProgressIndicator(color: brandColor),
+                          ) // ✅ 스피너
+                          : isDtcEmpty
                           ? _buildNoDtcWidget()
                           : ListView.builder(
                             padding: EdgeInsets.only(bottom: 32.h),

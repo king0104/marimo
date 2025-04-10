@@ -18,6 +18,8 @@ class ObdPollingProvider with ChangeNotifier {
 
   final Map<String, String> _pidResponses = {};
   final List<String> _pollingPids = pollingPids;
+  List<String> _storedDtcCodes = [];
+  List<String> get storedDtcCodes => _storedDtcCodes;
 
   bool isRunning = false;
   bool isConnected = false;
@@ -371,7 +373,9 @@ class ObdPollingProvider with ChangeNotifier {
   Future<List<String>> loadDtcCodesFromLocal() async {
     final prefs = await SharedPreferences.getInstance();
     final codes = prefs.getStringList('stored_dtc_codes') ?? [];
+    _storedDtcCodes = codes;
     debugPrint('📥 로컬에서 불러온 DTC 코드: $codes');
+    notifyListeners(); // ✅ 필요 시
     return codes;
   }
 

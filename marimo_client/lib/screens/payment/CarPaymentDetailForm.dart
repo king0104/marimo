@@ -1,6 +1,7 @@
 // CarPaymentDetailForm.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:marimo_client/theme.dart';
 import 'package:provider/provider.dart';
 import 'package:marimo_client/providers/car_provider.dart';
 import 'package:marimo_client/providers/car_payment_provider.dart';
@@ -115,8 +116,10 @@ class _CarPaymentDetailFormState extends State<CarPaymentDetailForm> {
 
   @override
   Widget build(BuildContext context) {
+    final carPaymentProvider = Provider.of<CarPaymentProvider>(context);
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: backgroundColor,
       appBar: CustomAppHeader(
         title: '',
         onBackPressed: () {
@@ -143,6 +146,7 @@ class _CarPaymentDetailFormState extends State<CarPaymentDetailForm> {
                 key: _formItemKey,
                 category: widget.selectedCategory,
                 amount: widget.amount,
+                initialDate: carPaymentProvider.selectedDate,
                 isEditMode: true, // ✅ 항상 true로 고정
                 onSaveComplete: () {}, // ✅ 편집 모드 토글 제거
               ),

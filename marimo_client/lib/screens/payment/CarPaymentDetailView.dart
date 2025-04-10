@@ -156,6 +156,7 @@ class _CarPaymentDetailViewState extends State<CarPaymentDetailView> {
                 amount: widget.entry.amount,
                 isEditMode: _isEditMode, // ✅ 수정된 부분
                 detailData: widget.detailData,
+                initialDate: widget.entry.date,
                 onSaveComplete: _toggleEditMode,
               ),
             ),
