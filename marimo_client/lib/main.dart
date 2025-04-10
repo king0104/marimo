@@ -151,6 +151,8 @@ class InitialRouter extends StatelessWidget {
         } else {
           return const MainScreen();
         }
+
+        return const SignInScreen();
       },
     );
   }

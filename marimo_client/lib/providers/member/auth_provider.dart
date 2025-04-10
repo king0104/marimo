@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:marimo_client/mocks/obd_sample.dart';
@@ -16,23 +17,81 @@ class AuthProvider extends ChangeNotifier {
 
   bool get isLoggedIn => _accessToken != null && _accessToken!.isNotEmpty;
 
-  // 앱 시작 시 호출 - 저장된 토큰 자동 불러오기
+  // ✅ 앱 시작 시 호출
   Future<void> loadTokenFromStorage() async {
     final token = await secureStorage.read(key: 'accessToken');
-    if (token != null && token.isNotEmpty) {
-      _accessToken = token;
-      await _loadUserName();
-      notifyListeners();
-    }
-  }
+    if (token == null || token.isEmpty) return;
 
-  void setAccessToken(String token) async {
+    final isExpired = _isTokenExpired(token, debug: true); // ✅ 디버그용
+    if (isExpired) {
+      print('⏰ 저장된 토큰 만료됨 → 자동 로그아웃 처리');
+      await logout();
+      return;
+    }
+
     _accessToken = token;
-    await secureStorage.write(key: 'accessToken', value: token);
     await _loadUserName();
     notifyListeners();
   }
 
+  // ✅ 로그인 후 토큰 저장
+  void setAccessToken(String token) async {
+    _accessToken = token;
+    await secureStorage.write(key: 'accessToken', value: token);
+
+    // ✅ 디버깅용 로그
+    final exp = _getTokenExp(token);
+    if (exp != null) {
+      final expiryDate = DateTime.fromMillisecondsSinceEpoch(exp * 1000);
+      print('🔐 accessToken 저장됨 (exp: $exp)');
+      print('⏳ 만료 시간: $expiryDate');
+    }
+
+    await _loadUserName();
+    notifyListeners();
+  }
+
+  // ✅ 토큰 만료 여부 판단
+  bool _isTokenExpired(String token, {bool debug = false}) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return true;
+
+      final payload = json.decode(
+        utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))),
+      );
+      final exp = payload['exp'];
+
+      final expiryDate = DateTime.fromMillisecondsSinceEpoch(exp * 1000);
+      final now = DateTime.now();
+
+      if (debug) {
+        print('🕒 현재 시각: $now');
+        print('🧭 토큰 만료 시각: $expiryDate');
+        print('📌 남은 시간: ${expiryDate.difference(now).inSeconds}초');
+      }
+
+      return now.isAfter(expiryDate);
+    } catch (e) {
+      print('❌ 토큰 디코딩 실패: $e');
+      return true;
+    }
+  }
+
+  // ✅ exp만 따로 뽑는 함수 (로그용)
+  int? _getTokenExp(String token) {
+    try {
+      final parts = token.split('.');
+      final payload = json.decode(
+        utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))),
+      );
+      return payload['exp'];
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // ✅ 사용자 이름 불러오기
   Future<void> _loadUserName() async {
     if (_accessToken == null) return;
 
@@ -58,11 +117,11 @@ class AuthProvider extends ChangeNotifier {
         print('🌱 marimo 사용자: 샘플 OBD + 거리 삽입 완료');
       }
     } catch (e) {
-      print('사용자 이름 로드 실패: $e');
+      print('❌ 사용자 이름 로드 실패: $e');
     }
   }
 
-  void logout() async {
+  Future<void> logout() async {
     _accessToken = null;
     _userName = null;
     await secureStorage.delete(key: 'accessToken');

@@ -19,7 +19,7 @@ class CarService {
 
     final response = await http.get(url, headers: headers);
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 || response.statusCode == 201) {
       final body = utf8.decode(response.bodyBytes);
       final json = jsonDecode(body);
       print("✅ 차량 목록 응답: $json");
