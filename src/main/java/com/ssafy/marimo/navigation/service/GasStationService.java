@@ -164,9 +164,9 @@ public class GasStationService {
 
         // 카드 혜택 적용
         // [수정] cardBenefitRepository 호출 제거, cardBenefitDetails 사용
-        if (isOilCardRegistered && isOilCardMonthlyRequirementSatisfied && cardBenefitDetails != null) {
+        if (price != null && isOilCardRegistered && isOilCardMonthlyRequirementSatisfied && cardBenefitDetails != null) {
             for (CardBenefitDetail cardBenefitDetail : cardBenefitDetails) {
-                if (price != null || cardBenefitDetail.getAppliesToAllBrands()
+                if (cardBenefitDetail.getAppliesToAllBrands()
                         || cardBenefitDetail.getGasStationBrand().name().equals(s.getBrand())) {
 
                     discountedPrice = applyCardBenefit(price,
