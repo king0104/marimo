@@ -94,7 +94,7 @@ class _MonitoringScreenState extends State<MonitoringScreen>
                   SizedBox(
                     width: double.infinity,
                     height: 200.h,
-                    child: Image.asset(topImage, fit: BoxFit.cover),
+                    child: Image.asset(topImage, fit: BoxFit.contain),
                   ),
                   SizedBox(height: 16.h),
                   SizedBox(
