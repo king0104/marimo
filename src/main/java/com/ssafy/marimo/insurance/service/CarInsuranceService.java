@@ -118,7 +118,6 @@ public class CarInsuranceService {
 
         int discountDifferenceWithNextStage = nextRule != null ? currentDiscountAmount - nextDiscountAmount : currentDiscountAmount;
 
-
         double value = (double) (calculatedDistance - currentRule.getDiscountFromKm()) /
                 (double) (currentRule.getDiscountToKm() - currentRule.getDiscountFromKm());
 
