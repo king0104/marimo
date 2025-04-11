@@ -1,111 +1,200 @@
-# <img src="https://i.namu.wiki/i/glc3dzjaC39w71F6q1R3nI7hmtdnKG1xGEvBT0zsW4AAwCgItKHRZNrbu8C43Dyo9WrwV9IHv_bgL9qEv59lkNkLyw5PbjNcSzwxHV1PA7A3i9y8zT20wMKYrvkRfcgr6-1W1uQnxflMMWyEJ2hgYQ.webp" alt="Marimo Logo" width="30" height="30"> 마리모: 마이 리틀 모빌리티
+# 💖 마리모
 
-**AI 기반 차량 상태 정밀진단 서비스**
-
-[![Website](https://img.shields.io/badge/Link-marimo-blue?style=flat-square)](https://www.juice-fintech.com) [![API Status](https://img.shields.io/badge/API-Swagger-green?style=flat-square)](https://api.juice-fintech.com/swagger-ui/index.html) ![Version](https://img.shields.io/badge/Version-0.1.0-yellow?style=flat-square)
+> **프로젝트 기간:** 2025.03.03 ~ 2025.04.01 (총 6주)  
 
 ---
 
-<img src="images/README/20250311_wireframe_0.png" alt="리드미 메인0" width="150" height="300">
-<img src="images/README/20250311_wireframe_1.png" alt="리드미 메인1" width="150" height="300">
-<img src="images/README/20250311_wireframe_2.png" alt="리드미 메인2" width="150" height="300">
-<img src="images/README/20250311_wireframe_3.png" alt="리드미 메인3" width="150" height="300">
-<img src="images/README/20250311_wireframe_4.png" alt="리드미 메인4" width="150" height="300">
-<img src="images/README/20250311_wireframe_5.png" alt="리드미 메인5" width="150" height="300">
-<img src="images/README/20250311_wireframe_6.png" alt="리드미 메인6" width="150" height="300">
-<img src="images/README/20250311_wireframe_7.png" alt="리드미 메인7" width="150" height="300">
-<img src="images/README/20250311_wireframe_8.png" alt="리드미 메인8" width="150" height="300">
-<img src="images/README/20250311_wireframe_9.png" alt="리드미 메인9" width="150" height="300">
-<img src="images/README/20250311_wireframe_10.png" alt="리드미 메인10" width="150" height="300">
+## 🎯 프로젝트 소개
 
-## ✨ 소개
+**"차량 정비소에서 차량 점검을 위해 사용하는 OBD2 스캐너를 아세요?"**
 
-**마리모**는 AI와 실시간 차량 데이터 모니터링을 접목한 차세대 차량 진단 및 관리 솔루션입니다.  
-사용자는 별도의 서비스센터 방문 없이도 언제 어디서나 차량의 상태를 실시간으로 자세하게 진단하고,  
-최적의 연료 구매 시점, 소모품 교체 알림, 소모품 견적 제공 이미지 인식 AI 기반 타이어 마모 분석 등 다양한 정보를 한눈에 확인할 수 있습니다.
-또한, 주행 기록 및 사고 이력을 기반으로 자동차 보험 관리, 음성 알림 및 AI 챗봇 어드바이저 기능까지 지원하며 다방면에서 비용을 절약하고 스마트하게 차량을 관리할 수 있도록 도와줍니다.
+최근 고속도로에서 화물차 바퀴가 빠져, 반대 차선의 버스를 덮쳐 사상자가 발생하는 사고가 있었습니다. 순식간에 일어났지만, 차량 정기 점검을 했더라면 예방할 수 있는 사고였습니다. 실제로, 차량 점검을 통해 예방할 수 있는 사고는 약 44000만 건(도로교통공단, 2023)이였습니다. 전체 사고 횟수인 194,283회(경찰청, 2023) 중 약 22% 정도나 되는 것입니다.
 
----
+실제 정비소에서는 OBD2 스캐너를 이용해 차량 점검을 진행합니다. 해당 모듈과 블루투스 연결을 해서 다양한 코드 값을 받아오는 것이죠. 저희 마리모는 OBD2 모듈을 이용해서 데이터를 받아온다면, 앱을 만들어 운전자도 스스로 차량 점검을 할 수 있도록 도울 수 있지 않을까? 라는 생각에서 탄생했습니다.
 
-## 🔍 주요 기능
+OBD2 스캐너를 이용해 받아온 고장 코드를 AI를 통해 분석해주고, 마리모 만의 알고리즘을 통해 차량 상태를 분석해줍니다. OBD2 스캐너를 통해 받지 못하는 타이어 정보는, 자체 제작 AI 모델을 통해 타이어 마모도를 확인하고 타이어 교체 시기를 알려줍니다.
 
--   **AI 기반 차량 상태 정밀진단**  
-    엔진오일 교체 여부, 배터리 상태 등 실시간으로 차량의 고장 여부와 상태를 진단합니다.
+**"차량을 움직이게 하는 건, 결국 돈이다"**
 
--   **구매 필요 예상 소모품 견적 제공**  
-    차량 소모품 교체 시기를 미리 예측하고, 예상 견적을 자동으로 제공하여 불필요한 비용 발생을 방지합니다.
+차량을 움직이게 하는 건 뭘까요? 기름? 엔진? 바퀴? 아닙니다. 저희는 결국 '돈'이라고 생각했습니다. 차를 운전하기 위해 주유를 해야하고, 고장나면 고쳐야 하고, 보험도 가입해야하고... 결국 돈으로 차를 움직이는 것이죠.
 
--   **최적의 연료 공급처 및 시점 안내**  
-    연료 구매 시점과 공급처를 분석하여 최적의 옵션을 안내, 비용과 시간을 절감합니다.
+그래서 저희는 카드 혜택과 거리, 가격 기반으로 주유소를 추천해주고, 가까운 정비소를 알려줍니다. 운전자라면 모두 갖고 있는 마일리지 특약 할인율을 보여주고 제출 시기를 최적화해줍니다. 또한 차량 관련 결제 내역도 관리할 수 있는 차계부까지 지원합니다.
 
--   **이미지 인식 AI 기반 타이어 교체 여부 알림**  
-    MobileNet을 U-Net의 인코더(백본)로 활용하여 타이어 홈과 표면을 구분하고,  
-    MobileNet 기반 모델을 사용해 타이어 홈 깊이를 정밀하게 추정, 교체 필요 여부를 판단합니다.
+저희 마리모를 통해 차량을 손쉽게, 한눈에, 빠르게 관리하세요!
 
--   **주행 기록 및 사고 이력 기반 자동차 보험 관리**  
-    차량의 주행 데이터와 사고 이력을 분석하여 보험 관련 혜택 및 비용 최적화를 지원합니다.
 
 ---
 
-## 🎯 프로젝트의 특장점 (기능 관점)
+## ✅ 핵심 목표
 
--   **실시간 차량 모니터링**  
-    서비스센터 방문 없이도 언제든지 내 손안에서 차량 상태를 수시로 확인할 수 있습니다.
-
--   **자동 견적서 제공**  
-    별도의 검색 없이도 필요한 소모품 견적서를 자동으로 제공하여 사용자의 편의성을 높입니다.
-
--   **비용 절감**  
-    차량 관리의 효율성을 극대화하여 유지비용 및 보험 비용 등 전반적인 비용을 절감합니다.
-
--   **전문 가이드 제공**  
-    개인이 판단하기 어려운 부품 교체 등 중요한 의사결정에 대해 명확한 가이드를 제공합니다.
-
--   **보험 혜택 및 비용 최적화**  
-    주행 기록과 사고 이력을 기반으로 한 보험 관리로 마일리지 혜택과 비용 최적화를 실현합니다.
+- **OBD2 모듈과 블루투스 통신을 통해 차량 데이터 분석 및 AI, 알고리즘을 활용한 결과 제공**
+- **자체 구축 AI를 통해 타이어 마모도 분석**
+- **내 카드 및 거리 기반 최적 주유소 추천 후, 카카오 네비 활용 길 찾기**
+- **On-Device AI를 활용해 차계부 음성 입력, 차량 관련 정보 제공**
+- **마일리지 특약 최적화 기능**
 
 ---
 
-## 🚀 프로젝트의 차별점 (기술 관점)
+## ✨ 주요 기능
 
--   **실시간 데이터 모니터링**  
-    CAN 통신(OBD II 프로토콜)을 활용해 차량 데이터를 실시간으로 수집, 모니터링합니다.
+### 고장 코드 분석
+- OBD2 데이터를 통해 차량의 고장 코드를 받아오고 확인합니다.
+- 고장 코드가 발생하면, 홈 화면에서 알림을 통해 한 눈에 확인할 수 있습니다.
+- 자세한 내용은, AI를 활용해 원인과 해결 방안에 대한 분석 정보를 제공합니다.
 
--   **고장 코드 분석**  
-    OBD2 DCT (고장코드) 분석을 통해 차량의 상태를 신속하고 정확하게 진단합니다.
+### 차량 상태 분석
+- OBD2로 수집한 상태 정보를 바탕으로 자체 알고리즘이 차량의 전반적인 상태를 분석하고, 사용자에게 직관적인 분석 결과를 제공합니다.
+
+### OBD2 상세 정보 조회
+- RPM, 속도, 엔진 부하 등 실시간으로 변하는 데이터를 한 눈에 확인할 수 있습니다.
+
+### 타이어 마모도 점검
+- 직접 제작한 AI 모델을 활용하여 타이어의 마모 상태를 점검하고, 교체 시점을 알려줍니다.
+
+### 주유소 추천
+- 내가 가지고 있는 카드를 불러오고, 혜택을 적용할 주유 카드를 등록할 수 있습니다.
+- 등록한 카드의 전월실적을 확인한 뒤 혜택과 현재 위치, 주유소 가격 정보를 종합해 사용자에게 가장 유리한 주유소를 추천합니다.
+
+### 마일리지 특약 보험 정보 제공
+- 현재 할인율, 다음 할인율, 현재 구간 정보, 다음 구간까지 남은 거리, 현재 구간 환급 예상액, 예상 총 주행거리 (만기일 기준), 보험료 관리 팁을 제공합니다.
+- 마일리지 특약을 제출해야 하는 달이 되면, 특약 제출 일자를 최적화하여 알려줍니다.
+
+### 차계부
+- 차량 관련 지출 내역을 손쉽게 관리할 수 있는 차계부 기능을 제공합니다.
+
+### AI 차계부 음성입력
+- 차계부에 차량 관련 지출을 입력할 때, 온디바이스 AI를 통해 음성으로 간편하게 입력할 수 있습니다.
+
+### 차량 전문가 AI
+- 차량에 대한 궁금증이 생겼을 때, 온디바이스 AI에게 질문하면 관련 정보를 빠르게 확인할 수 있습니다.
+
+
+
+## 🖼 서비스 화면
+
+> 아래는 대표 기능 GIF입니다.  
+
+### 고장 코드 분석
+<br>
+<img src="gif/errorcode.gif" alt="고장 코드" width="300">
+<br>
+
+
+### 차량 상태 분석
+<br>
+<img src="gif/carstatus.gif" alt="Car Status" width="300">
+<br>
+
+### OBD2 상세 정보 조회
+<br>
+<img src="gif/obd2detail.gif" alt="OBD2 Detail" width="300">
+<br>
+
+
+### 타이어 마모도 점검
+<br>
+<img src="gif/tire.gif" alt="Tire Analysis" width="300">
+<br>
+
+
+### 주유소 추천
+<br>
+<img src="gif/oilstation.gif" alt="Oil Station" width="300">
+<br>
+
+
+### 마일리지 특약 보험 정보 제공
+<br>
+<img src="gif/insurance.gif" alt="Insurance" width="300">
+<br>
+
+
+### 차계부
+<br>
+<img src="gif/payment.gif" alt="Payment" width="300">
+<br>
+
+
+### AI 차계부 음성입력
+<br>
+<img src="gif/paymentai.gif" alt="Payment AI" width="300">
+<br>
+
+
+### 차량 전문가 AI
+<br>
+<img src="gif/expertai.gif" alt="Expert AI" width="300">
+<br>
+
 
 ---
 
-## 🤖 AI 기술 활용
+## 🛠 기술 스택
 
--   **타이어 이미지 분석**  
-    MobileNet을 U-Net의 인코더(백본)로 사용하여 타이어의 홈과 표면을 구분합니다.
+### 📌 Frontend
 
--   **타이어 홈 깊이 추정**  
-    MobileNet 기반 모델을 이용하여 타이어 홈의 깊이를 정밀하게 추정, 교체 시기를 예측합니다.
+- Dart v3.7.0
+- Flutter v3.29.0
+- flutter_bluetooth_serial v0.4.0
+- Provider v6.1.2
+
+### 📌 Backend
+
+- Java 21
+- Spring Boot 3.4.3
+- Spring Security 3.4.3
+- Spring Data JPA 3.4.3
+- MySQL 8.0.40
+- Redis 7.0
+
+### 📌 Database
+
+- MySQL 8.0.40
+- Redis 7.0
+
+### 📌 인프라 & DevOps
+
+- AWS EC2, AWS RDS
+- Jenkins 2.492.1
+- Docker 28.0.1
+- Nginx 1.27.4
+ 
 
 ---
+## 기술 차별점
+### AI
+- 정보 검색 및 자체 서비스 기능 연동
+Google Gemma 3 모델을 모바일 온디바이스에 탑재하여, 간단한 정보 검색이 가능하도록 구현했습니다. 사용자의 음성은 STT 기술을 통해 텍스트로 변환되며, 변환된 텍스트는 Gemma 3 모델이 추론을 수행하고, 이를 바탕으로 데이터를 재가공하여 새로운 텍스트 결과를 생성합니다. 이 결과값은 자체 서비스의 다양한 기능과 연동되어 사용자에게 즉각적인 피드백을 제공합니다. 또한 모델 경량화를 통해 모바일 환경에서 원활히 작동하도록 최적화되었으며, 오프라인 사용 가능성(Offline Availability), 비용 절감(No cost), API 서버 호출 지연 제거(No API Server Latency), 그리고 개인정보 보호(Privacy)까지 고려한 설계를 반영했습니다.
 
-## 🛠️ 기술 스택
 
-### FE
+- 타이어 마모도 분석
+차량의 타이어 상태를 분석하기 위해, 사용자가 촬영한 타이어 이미지를 MobileNetV2 기반의 AI 모델로 분석하는 기능을 구현했습니다. 이미지 전처리, 특징 추출, 분류, 그리고 마모도를 나타내는 레이블(타겟값)을 기준으로 한 Fine Tuning을 진행하였습니다. 또한 경량화 과정을 거쳐 모바일 온디바이스에서 작동하도록 설계되었으며, 오프라인 환경에서도 사용 가능하고, 서버 비용 없이 빠르게 추론이 가능한 구조입니다.
 
-[![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev/) [![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev/)
+- 차량 상태 코드 분석 프롬프팅
+표준차량진단코드 3300개를 ChatGPT 4o 모델 프롬프트 시 활용
 
-### BE
 
-[![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)](https://spring.io/projects/spring-boot) [![Spring Data JPA](https://img.shields.io/badge/Spring_Data_JPA-6DB33F?style=for-the-badge&logo=spring&logoColor=white)](https://spring.io/projects/spring-data-jpa) [![Spring Security](https://img.shields.io/badge/Spring_Security-6DB33F?style=for-the-badge&logo=spring&logoColor=white)](https://spring.io/projects/spring-security)
+### Backend
+- SSAFY 금융망을 사용해 사용자 카드 결제 정보 및 헤택 정보 연동
+주유소 가격에 혜택을 적용할 때, 사용자가 주유 카드로 등록한 카드의 사용내역을 확인합니다. 전월실적이 만족하는 경우에만 혜택을 적용하여, 사용자 맞춤 가격을 제공합니다.
 
-### DB
+- Redis를 활용한 사용자 전월실적 캐싱 및 카드 혜택 조회 N+1 해결
+매번 외부 API를 사용하여 전월실적을 확인하는 부분을, Redis의 캐싱을 이용하여 속도를 개선하였습니다.
+또한 카드 혜택 조회 시 N+1 문제가 발생했지만, fetch join을 활용해 쿼리의 갯수를 줄였습니다. 이를 통해 실제로 13초의 지연 시간을 3초로 줄일 수 있었습니다. 
 
-[![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com/) [![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io/)
-
-### Infra
-
-[![AWS EC2](https://img.shields.io/badge/AWS_EC2-FF9900?style=for-the-badge&logo=amazon-aws&logoColor=white)](https://aws.amazon.com/ec2/) [![Jenkins](https://img.shields.io/badge/Jenkins-D24939?style=for-the-badge&logo=jenkins&logoColor=white)](https://www.jenkins.io/) [![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/) [![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white)](https://www.nginx.com/)
+- 오피넷 유가 API를 활용하여 유가 정보 업데이트
+실제 업데이트 되는 유가 정보를 오피넷 유가 API를 통해 업데이트합니다.
 
 ---
+## ERD
+<img src="image/ERD.png" alt="ERD" width="800">
 
+---
+## 아키텍처
+
+<img src="image/Service%20Architecture.jpg" alt="Service Architecture" width="800">
+
+---
 ## 👨‍👩‍👧‍👦 팀원 소개
 
 |                                Backend, Infra / 팀장                                 |                                Backend / 백엔드 리드                                 |                               Frontend / 프론트엔드 리드                               |                                   Frontend / DevOps                                    |                           Frontend, Backend / UI&UX, 디자인                           |                                 Frontend / Data, AI                                  |
@@ -115,17 +204,14 @@
 
 <br>
 
-## 🚀 향후 로드맵
-
-마리모는 지속적인 기능 확장을 통해 더욱 스마트하고 편리한 차량 관리 경험을 제공할 예정입니다:
-
--   **진단 기능 확장**: 더 다양한 센서 데이터 및 차량 부품 진단 기능 추가
--   **예측 정비 및 예약 시스템**: AI 기반 예측 정비 알림과 연계한 정비 예약 서비스 도입
--   **사용자 맞춤형 대시보드**: 개인 차량 사용 패턴에 따른 맞춤 알림 및 비용 분석 제공
--   **IoT 및 커넥티드 카 연동**: 차량 외부 환경 및 상태 통합 모니터링 기능 강화
--   **보험 연계 서비스 강화**: 주행 기록 및 사고 이력 분석을 통한 보험 혜택 최적화 고도화
 
 ---
 
-> **마리모**는 차량 관리의 새로운 패러다임을 제시하며, <br>
-> AI와 최신 기술을 접목해 사용자가 언제 어디서나 차량 상태를 쉽고 스마트하게 관리할 수 있도록 돕습니다.
+## 🪞 회고
+김두철 : 팀원들과 함께한 덕분에 마리모를 할 수 있었습니다. 진심으로 감사합니다.
+김지훈 : 진짜 정말 많이 웃고, 즐거웠고, 알찼습니다. 저에게 정말 많은 힘이 되는 팀이자 프로젝트였습니다. 마리모 대성하길!
+오승원 : 힘들지만, 힘들지 않았다. 처음 해보는 플러터도 이 사람들과 함께면 어렵지 않았다.
+윤수빈 : 좋은 팀원들과 함께 할 수 있어서 행복했습니다 :)
+이가영 : 아름다운 청춘을 팀원들과 함께 할 수 있어서 좋았습니다 .
+조현희 : 열심히 참여해주신 모든 팀원분들에게 감사드리고, 마리모를 개발하며 좋은 팀워크를 경험할 수 있어서 정말 좋았습니다. 
+
