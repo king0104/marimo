@@ -21,7 +21,7 @@ class CarPaymentDetailForm extends StatefulWidget {
   final int amount;
 
   // ✅ 저장 로직은 외부에서 주입하도록 옵션화
-  final Future<void> Function()? onSave;
+  final Future<void> Function(BuildContext context)? onSave;
 
   const CarPaymentDetailForm({
     super.key,
@@ -43,7 +43,8 @@ class _CarPaymentDetailFormState extends State<CarPaymentDetailForm> {
 
     // 외부에서 onSave 콜백이 주어진 경우 → 그것만 실행
     if (widget.onSave != null) {
-      await widget.onSave!();
+      _formItemKey.currentState?.saveInputsToProvider();
+      await widget.onSave!(context);
       return;
     }
 
@@ -99,12 +100,41 @@ class _CarPaymentDetailFormState extends State<CarPaymentDetailForm> {
       carPaymentProvider.resetInput();
 
       // ✅ 저장 성공 후 View 페이지로 이동
+      // ✅ 저장 성공 후 서버에서 최신 내역 다시 조회
+      // await carPaymentProvider.fetchPaymentsForSelectedMonth(
+      //   accessToken: accessToken,
+      //   carId: carId,
+      // );
+
+      // ✅ 상세 정보 다시 조회해서 정확한 detailData 확보
+      final detailData = await CarPaymentService.fetchPaymentDetail(
+        paymentId: paymentId,
+        category: widget.selectedCategory, // '주유', '정비', '세차'
+        accessToken: accessToken,
+      );
+
+      // // ✅ 최신 entry 찾아서 View로 이동
+      // final updatedEntry = carPaymentProvider.entries.firstWhere(
+      //   (e) => e.paymentId == paymentId,
+      // );
+
+      // ✅ CarPaymentEntry 인스턴스 생성 (필요 시)
+      final updatedEntry = CarPaymentEntry(
+        paymentId: paymentId,
+        category: widget.selectedCategory,
+        amount: detailData['price'], // 서버 응답 기준으로 설정
+        date: DateTime.parse(detailData['paymentDate']),
+        details: detailData,
+      );
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder:
-              (_) =>
-                  CarPaymentDetailView(entry: entry, detailData: entry.details),
+              (_) => CarPaymentDetailView(
+                entry: updatedEntry,
+                detailData: updatedEntry.details,
+              ),
         ),
       );
     } catch (e, stack) {

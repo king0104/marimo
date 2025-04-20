@@ -183,6 +183,20 @@ class CarPaymentProvider with ChangeNotifier {
     'LPG': 'LPG',
   };
 
+  // CarPaymentProvider에 추가할 코드
+  final Map<String, String> fuelEnumToDisplay = {
+    'NORMAL_GASOLINE': '일반 휘발유',
+    'PREMIUM_GASOLINE': '고급 휘발유',
+    'DIESEL': '경유',
+    'LPG': 'LPG',
+  };
+
+  // 영어를 한글로 변환하는 메서드
+  String getFuelTypeDisplay(String? eng) {
+    if (eng == null || eng.isEmpty) return '';
+    return fuelEnumToDisplay[eng] ?? eng;
+  }
+
   Map<String, dynamic> toJsonForDB({
     required String carId,
     String? category,
@@ -191,6 +205,15 @@ class CarPaymentProvider with ChangeNotifier {
     String? fuelType,
     List<String>? repairParts,
   }) {
+    // ✅ 여기에 작성
+    print('✅ toJsonForDB 호출됨');
+    print('📌 carId: $carId');
+    print('📌 category: $category');
+    print('📌 location: $location (${location.runtimeType})');
+    print('📌 memo: $memo (${memo.runtimeType})');
+    print('📌 fuelType: $fuelType (${fuelType.runtimeType})');
+    print('📌 repairParts: $repairParts (${repairParts.runtimeType})');
+
     final baseJson = {
       "carId": carId,
       "price": selectedAmount,
@@ -205,7 +228,7 @@ class CarPaymentProvider with ChangeNotifier {
       case '주유':
         return {
           ...baseJson,
-          if (fuelType != null && fuelType.isNotEmpty)
+          if (fuelType != null && fuelType.trim().isNotEmpty)
             "fuelType": fuelDisplayToEnum[fuelType] ?? fuelType,
         };
       case '정비':

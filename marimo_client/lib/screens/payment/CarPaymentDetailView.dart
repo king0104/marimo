@@ -4,12 +4,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:marimo_client/providers/car_payment_provider.dart';
 import 'package:marimo_client/providers/member/auth_provider.dart';
+import 'package:marimo_client/providers/car_provider.dart';
 import 'package:marimo_client/services/payment/car_payment_service.dart';
 import 'package:marimo_client/models/payment/car_payment_entry.dart';
 import 'package:marimo_client/commons/CustomAppHeader.dart';
 import 'widgets/detail_form/CategoryAndAmount.dart';
 import 'widgets/detail_form/CarDetailFormItemList.dart';
 import 'package:marimo_client/screens/payment/CarPaymentDetailList.dart';
+import 'package:marimo_client/screens/payment/CarPaymentDetailForm.dart';
 import 'package:marimo_client/theme.dart';
 
 class CarPaymentDetailView extends StatefulWidget {
@@ -58,6 +60,12 @@ class _CarPaymentDetailViewState extends State<CarPaymentDetailView> {
         updateData: updateData,
       );
 
+      // ✅ 수정 후 전체 목록 다시 불러오기
+      await context.read<CarPaymentProvider>().fetchPaymentsForSelectedMonth(
+        accessToken: accessToken,
+        carId: context.read<CarProvider>().firstCarId ?? '',
+      );
+
       if (!mounted) return;
       setState(() => _isEditMode = false);
 
@@ -83,6 +91,18 @@ class _CarPaymentDetailViewState extends State<CarPaymentDetailView> {
         paymentId: paymentId,
         category: category,
         accessToken: accessToken!,
+      );
+
+      // ✅ 삭제 후 최신 데이터 다시 불러오기
+      final carProvider = context.read<CarProvider>();
+      final carId =
+          widget.entry.details['carId'] is String
+              ? widget.entry.details['carId']
+              : carProvider.firstCarId;
+
+      await context.read<CarPaymentProvider>().fetchPaymentsForSelectedMonth(
+        accessToken: accessToken,
+        carId: carId,
       );
 
       // 삭제 성공 후 이전 페이지로 이동 (리스트 리프레시 고려)
@@ -115,7 +135,132 @@ class _CarPaymentDetailViewState extends State<CarPaymentDetailView> {
 
         actions: [
           TextButton(
-            onPressed: _toggleEditMode,
+            onPressed: () {
+              final provider = context.read<CarPaymentProvider>();
+
+              // ✅ 기존 데이터 provider에 세팅
+              provider.setSelectedCategory(widget.entry.categoryKr);
+              provider.setSelectedAmount(widget.entry.amount);
+              provider.setSelectedDate(widget.entry.date);
+              provider.setLocation(widget.detailData['location'] ?? '');
+              provider.setMemo(widget.detailData['memo'] ?? '');
+              if (widget.entry.categoryKr == '주유') {
+                final fuelTypeEng =
+                    widget.detailData['fuelType']?.toString() ?? '';
+                provider.setFuelType(provider.getFuelTypeDisplay(fuelTypeEng));
+              }
+              ;
+              provider.setSelectedRepairItems(
+                widget.detailData['repairParts'] is List
+                    ? List<String>.from(widget.detailData['repairParts'])
+                    : (widget.detailData['repairParts'] != null
+                        ? widget.detailData['repairParts']
+                            .toString()
+                            .split(',')
+                            .map((e) => e.trim())
+                            .where((e) => e.isNotEmpty)
+                            .toList()
+                        : []),
+              );
+
+              // ✅ 수정 화면으로 이동
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (_) => CarPaymentDetailForm(
+                        selectedCategory: widget.entry.categoryKr,
+                        amount: widget.entry.amount,
+                        onSave: (newContext) async {
+                          final accessToken =
+                              newContext.read<AuthProvider>().accessToken!;
+                          final provider =
+                              newContext.read<CarPaymentProvider>();
+                          final carProvider = newContext.read<CarProvider>();
+
+                          print('🚨 DEBUG');
+                          print(
+                            'memo: ${provider.memo} (${provider.memo.runtimeType})',
+                          );
+                          print(
+                            'location: ${provider.location} (${provider.location.runtimeType})',
+                          );
+                          print(
+                            'fuelType: ${provider.fuelType} (${provider.fuelType.runtimeType})',
+                          );
+
+                          final updateData = provider.toJsonForDB(
+                            carId:
+                                newContext.read<CarProvider>().firstCarId ?? '',
+                            category: widget.entry.categoryKr,
+                            location: provider.location ?? '', // 🛠️ null 방지
+                            memo: provider.memo ?? '', // 🛠️ null 방지
+                            fuelType:
+                                widget.entry.categoryKr == '주유' &&
+                                        provider.fuelType.trim().isNotEmpty
+                                    ? provider.fuelType
+                                    : null,
+                            repairParts:
+                                widget.entry.categoryKr == '정비'
+                                    ? provider.selectedRepairItems
+                                    : null,
+                          );
+
+                          // ✅ 디버깅용 출력
+                          print('🛠️ [UPDATE DATA]');
+                          updateData.forEach((key, value) {
+                            print('🔑 $key: $value');
+                          });
+
+                          await CarPaymentService.updatePayment(
+                            paymentId: widget.entry.paymentId,
+                            category: widget.entry.categoryEng,
+                            accessToken: accessToken,
+                            updateData: updateData,
+                          );
+
+                          // ✅ 전체 내역 다시 불러오기
+                          await provider.fetchPaymentsForSelectedMonth(
+                            accessToken: accessToken,
+                            carId: carProvider.firstCarId ?? '',
+                          );
+
+                          // final updatedEntry = CarPaymentEntry(
+                          //   paymentId: widget.entry.paymentId,
+                          //   category: widget.entry.category,
+                          //   amount: provider.selectedAmount,
+                          //   date: provider.selectedDate, // ✅ 수정된 날짜
+                          //   details: updateData,
+                          // );
+
+                          // ✅ paymentId로 최신 entry 다시 가져오기
+                          final latestEntry = provider.entries.firstWhere(
+                            (e) => e.paymentId == widget.entry.paymentId,
+                          );
+
+                          // ✅ 최신 detailData를 서버에서 다시 조회
+                          final detailData =
+                              await CarPaymentService.fetchPaymentDetail(
+                                paymentId: widget.entry.paymentId,
+                                category: widget.entry.categoryEng,
+                                accessToken: accessToken,
+                              );
+
+                          Navigator.pushReplacement(
+                            newContext,
+                            MaterialPageRoute(
+                              builder:
+                                  (_) => CarPaymentDetailView(
+                                    entry: latestEntry,
+                                    detailData: detailData,
+                                  ),
+                            ),
+                          );
+                        },
+                      ),
+                ),
+              );
+            },
             child: Text(
               '수정',
               style: TextStyle(
