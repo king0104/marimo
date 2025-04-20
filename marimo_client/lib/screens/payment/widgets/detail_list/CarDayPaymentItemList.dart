@@ -50,12 +50,21 @@ class CarDayPaymentItemList extends StatelessWidget {
                       category: entry.categoryEng.toLowerCase(),
                       accessToken: accessToken!,
                     );
+                    // ✅ 서버에서 받은 detail로 entry.details 덮어씌운 새 객체 만들기
+                    final updatedEntry = CarPaymentEntry(
+                      paymentId: entry.paymentId,
+                      category: entry.category,
+                      amount: entry.amount,
+                      date: entry.date,
+                      details: detail, // 🔥 최신 detail 반영
+                    );
+
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder:
                             (_) => CarPaymentDetailView(
-                              entry: entry,
+                              entry: updatedEntry,
                               detailData: detail,
                             ),
                       ),

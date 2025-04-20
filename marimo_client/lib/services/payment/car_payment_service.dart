@@ -215,7 +215,7 @@ class CarPaymentService {
     final url = Uri.parse('$baseUrl$endpoint');
     final headers = await buildHeaders(token: accessToken);
 
-    final response = await http.put(
+    final response = await http.patch(
       url,
       headers: headers,
       body: jsonEncode(updateData),

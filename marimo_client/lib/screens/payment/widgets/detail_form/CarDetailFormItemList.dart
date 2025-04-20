@@ -56,6 +56,16 @@ class CarDetailFormItemListState extends State<CarDetailFormItemList> {
     // 기본값으로 현재 날짜 설정
     _selectedDate = widget.initialDate ?? DateTime.now();
     _dateController.text = DateFormat('yyyy년 M월 d일').format(_selectedDate);
+
+    final provider = Provider.of<CarPaymentProvider>(context, listen: false);
+
+    // ✅ provider에 세팅된 값 우선 반영
+    // _placeController.text = provider.location;
+    // _memoController.text = provider.memo;
+    // _typeController.text =
+    //     widget.category == '정비'
+    //         ? provider.selectedRepairItems.join(', ')
+    //         : (provider.fuelType.isNotEmpty ? provider.fuelType : '');
   }
 
   @override
@@ -63,7 +73,43 @@ class CarDetailFormItemListState extends State<CarDetailFormItemList> {
     super.didChangeDependencies();
     // Provider의 현재 상태로 각 컨트롤러 초기화 (편집 모드라면)
     final provider = Provider.of<CarPaymentProvider>(context);
+    _placeController.text = widget.detailData?['location'] ?? '';
+    _memoController.text = widget.detailData?['memo'] ?? '';
+    if (widget.isEditMode) {
+      // 수정 모드일 때만 Provider 사용
+      _placeController.text = provider.location;
+      _memoController.text = provider.memo;
+      _typeController.text =
+          widget.category == '정비'
+              ? provider.selectedRepairItems.join(', ')
+              : (provider.fuelType.isNotEmpty ? provider.fuelType : '');
+    } else if (widget.detailData != null) {
+      // 읽기 모드일 땐 detailData만 사용
 
+      if (widget.category == '주유') {
+        final fuel = widget.detailData?['fuelType'];
+        if (fuel is String && fuel.isNotEmpty) {
+          final fuelDisplay =
+              fuelEnumToDisplay[fuel.trim().toUpperCase()] ??
+              fuelEnumToDisplay.entries
+                  .firstWhere(
+                    (entry) => entry.key == fuel || entry.value == fuel,
+                    orElse: () => const MapEntry('', ''),
+                  )
+                  .value;
+          _typeController.text = fuelDisplay;
+        }
+      } else if (widget.category == '정비') {
+        final repairParts = widget.detailData?['repairParts'];
+        if (repairParts != null) {
+          if (repairParts is List) {
+            _typeController.text = repairParts.join(', ');
+          } else if (repairParts is String) {
+            _typeController.text = repairParts;
+          }
+        }
+      }
+    }
     if (widget.initialDate == null) {
       // 날짜: provider에 값이 있으면 적용 (날짜는 기본적으로 항상 있음)
       _selectedDate = provider.selectedDate;
@@ -87,11 +133,17 @@ class CarDetailFormItemListState extends State<CarDetailFormItemList> {
     // 유형: 주유면 fuelType, 정비면 selectedRepairItems
     // ✅ detailData 있을 경우에도 초기화
     if (widget.category == '주유') {
-      if (_typeController.text.isEmpty) {
-        final fuel = widget.detailData?['fuelType'] ?? provider.fuelType;
-        if (fuel is String && fuel.isNotEmpty) {
-          _typeController.text = fuelEnumToDisplay[fuel] ?? fuel;
-        }
+      final fuel = widget.detailData?['fuelType'] ?? provider.fuelType;
+      if (fuel is String && fuel.isNotEmpty) {
+        final fuelDisplay =
+            fuelEnumToDisplay[fuel.trim().toUpperCase()] ??
+            fuelEnumToDisplay.entries
+                .firstWhere(
+                  (entry) => entry.key == fuel || entry.value == fuel,
+                  orElse: () => const MapEntry('', ''),
+                )
+                .value;
+        _typeController.text = fuelDisplay;
       }
     } else if (widget.category == '정비') {
       if (_typeController.text.isEmpty) {
