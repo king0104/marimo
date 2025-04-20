@@ -128,4 +128,4 @@ flutter:
     - assets/models/generic_sedan.glb
     - assets/models/uberXL.glb
     - assets/ai/tire_depth_model.tflite
-    - assets/ai/gemma3-1B-it-int4.task
+    # - assets/ai/gemma3-1B-it-int4.task

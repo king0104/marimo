@@ -1,3 +1,4 @@
+// CarDetailFormItemList.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -33,6 +34,13 @@ class CarDetailFormItemList extends StatefulWidget {
 }
 
 class CarDetailFormItemListState extends State<CarDetailFormItemList> {
+  final Map<String, String> fuelEnumToDisplay = {
+    'NORMAL_GASOLINE': '일반 휘발유',
+    'PREMIUM_GASOLINE': '고급 휘발유',
+    'DIESEL': '경유',
+    'LPG': 'LPG',
+  };
+
   final _formKey = GlobalKey<FormState>();
   final _dateController = TextEditingController();
   final _placeController = TextEditingController(); // 주유소/정비소/세차장
@@ -62,22 +70,27 @@ class CarDetailFormItemListState extends State<CarDetailFormItemList> {
       _dateController.text = DateFormat('yyyy년 M월 d일').format(_selectedDate);
     }
 
-    // 장소
-    if (_placeController.text.isEmpty && provider.location.isNotEmpty) {
-      _placeController.text = provider.location;
+    // ✅ detailData에서 location, memo 반영
+    if (widget.detailData != null) {
+      final location = widget.detailData!['location'];
+      final memo = widget.detailData!['memo'];
+
+      if (location != null && location is String && location.isNotEmpty) {
+        _placeController.text = location;
+      }
+
+      if (memo != null && memo is String && memo.isNotEmpty) {
+        _memoController.text = memo;
+      }
     }
 
-    // 메모
-    if (_memoController.text.isEmpty && provider.memo.isNotEmpty) {
-      _memoController.text = provider.memo;
-    }
     // 유형: 주유면 fuelType, 정비면 selectedRepairItems
     // ✅ detailData 있을 경우에도 초기화
     if (widget.category == '주유') {
       if (_typeController.text.isEmpty) {
         final fuel = widget.detailData?['fuelType'] ?? provider.fuelType;
         if (fuel is String && fuel.isNotEmpty) {
-          _typeController.text = fuel;
+          _typeController.text = fuelEnumToDisplay[fuel] ?? fuel;
         }
       }
     } else if (widget.category == '정비') {
