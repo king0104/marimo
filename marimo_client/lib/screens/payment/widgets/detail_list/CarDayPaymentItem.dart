@@ -12,7 +12,7 @@ class CarDayPaymentItem extends StatelessWidget {
   final int amount;
   final String? subText;
   final String paymentId;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   const CarDayPaymentItem({
     super.key,
@@ -20,7 +20,7 @@ class CarDayPaymentItem extends StatelessWidget {
     required this.amount,
     this.subText,
     required this.paymentId,
-    required this.onTap,
+    this.onTap,
   });
 
   Widget _getCategoryIcon(String category) {

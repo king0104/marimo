@@ -20,9 +20,12 @@ class CarDayPaymentItemList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ✅ 날짜 + 시간 기준으로 최신순 정렬
+    final sortedEntries = [...entries]
+      ..sort((a, b) => b.date.compareTo(a.date));
     return Column(
       children:
-          entries.map((entry) {
+          sortedEntries.map((entry) {
             // print('🛠 paymentId: ${entry.paymentId}');
             // print('🛠 entry.category: ${entry.category}'); // 영문 (예: OIL)
             // print('🛠 entry.categoryKr: ${entry.categoryKr}'); // 한글 (예: 주유)
@@ -30,22 +33,21 @@ class CarDayPaymentItemList extends StatelessWidget {
 
             return Padding(
               padding: EdgeInsets.only(left: 6.w, right: 6.w, bottom: 20.h),
-              child: CarDayPaymentItem(
-                category: entry.categoryKr,
-                amount: entry.amount,
-                subText: _getSubText(entry),
-                paymentId: entry.paymentId,
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
                 onTap: () async {
                   final accessToken = context.read<AuthProvider>().accessToken;
-                  final actualCategory =
-                      entry.category; // 'OIL', 'REPAIR', 'WASH'
+                  final actualCategory = entry.category;
+
                   print('📍 paymentId: ${entry.paymentId}');
                   print('📍 실제 category: $actualCategory');
+                  print('📋 entry.category: ${entry.category}');
+                  print('📋 entry.details["type"]: ${entry.details['type']}');
 
                   try {
                     final detail = await CarPaymentService.fetchPaymentDetail(
                       paymentId: entry.paymentId,
-                      category: entry.category,
+                      category: entry.categoryEng.toLowerCase(),
                       accessToken: accessToken!,
                     );
                     Navigator.push(
@@ -65,6 +67,12 @@ class CarDayPaymentItemList extends StatelessWidget {
                     );
                   }
                 },
+                child: CarDayPaymentItem(
+                  category: entry.categoryKr,
+                  amount: entry.amount,
+                  subText: _getSubText(entry),
+                  paymentId: entry.paymentId,
+                ),
               ),
             );
           }).toList(),

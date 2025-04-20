@@ -164,20 +164,9 @@ class CarPaymentService {
     required String category,
     required String accessToken,
   }) async {
-    String endpoint;
-    switch (category.toUpperCase()) {
-      case 'OIL':
-        endpoint = '/api/v1/payments/$paymentId/oil';
-        break;
-      case 'REPAIR':
-        endpoint = '/api/v1/payments/$paymentId/repair';
-        break;
-      case 'WASH':
-        endpoint = '/api/v1/payments/$paymentId/wash';
-        break;
-      default:
-        throw Exception('알 수 없는 카테고리: $category');
-    }
+    final lowerCategory = category.toLowerCase(); // ✅ 소문자로 변환
+    final endpoint =
+        '/api/v1/payments/$lowerCategory/$paymentId'; // ✅ 고정된 경로 형식
 
     final url = Uri.parse('$baseUrl$endpoint');
     final headers = await buildHeaders(token: accessToken);
@@ -192,6 +181,7 @@ class CarPaymentService {
 
     if (response.statusCode == 200) {
       final decoded = jsonDecode(utf8.decode(response.bodyBytes));
+      print('📦 상세 응답 본문: $decoded');
       return decoded;
     } else {
       print('❌ 서버 응답 상태 코드: ${response.statusCode}');
