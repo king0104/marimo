@@ -19,6 +19,8 @@ import 'package:marimo_client/screens/payment/CarPaymentDetailView.dart'; // ✅
 class CarPaymentDetailForm extends StatefulWidget {
   final String selectedCategory;
   final int amount;
+  final bool isEditMode; // ✅ 생성/수정 모드 플래그
+  final CarPaymentEntry? existingEntry; // ✅ 수정 시 기존 entry
 
   // ✅ 저장 로직은 외부에서 주입하도록 옵션화
   final Future<void> Function(BuildContext context)? onSave;
@@ -28,6 +30,8 @@ class CarPaymentDetailForm extends StatefulWidget {
     required this.selectedCategory,
     required this.amount,
     this.onSave,
+    this.isEditMode = false,
+    this.existingEntry,
   });
 
   @override
@@ -67,65 +71,119 @@ class _CarPaymentDetailFormState extends State<CarPaymentDetailForm> {
 
     _formItemKey.currentState?.saveInputsToProvider();
 
-    if (carPaymentProvider.selectedDate == null) {
-      carPaymentProvider.setSelectedDate(DateTime.now());
-    }
+    // if (carPaymentProvider.selectedDate == null) {
+    //   carPaymentProvider.setSelectedDate(DateTime.now());
+    // }
+
+    // try {
+    //   final paymentId = await CarPaymentService.savePayment(
+    //     provider: carPaymentProvider,
+    //     carId: carId,
+    //     accessToken: accessToken,
+    //     category: widget.selectedCategory,
+    //   );
+
+    //   // ✅ CarPaymentEntry 생성해서 Provider에 추가
+    //   final entry = CarPaymentEntry(
+    //     paymentId: paymentId,
+    //     category: carPaymentProvider.selectedCategory ?? '주유',
+    //     amount: carPaymentProvider.selectedAmount,
+    //     date: carPaymentProvider.selectedDate,
+    //     details: {
+    //       "location": carPaymentProvider.location,
+    //       "memo": carPaymentProvider.memo,
+    //       "fuelType": carPaymentProvider.fuelType,
+    //       "repairParts": carPaymentProvider.selectedRepairItems,
+    //     },
+    //   );
+    //   carPaymentProvider.addEntry(entry);
+
+    //   print('🎉 저장 및 Provider 반영 완료');
+
+    //   _isSaved = true; // ✅ 저장 완료 표시
+    //   carPaymentProvider.resetInput();
+
+    //   // ✅ 상세 정보 다시 조회해서 정확한 detailData 확보
+    //   final detailData = await CarPaymentService.fetchPaymentDetail(
+    //     paymentId: paymentId,
+    //     category: widget.selectedCategory, // '주유', '정비', '세차'
+    //     accessToken: accessToken,
+    //   );
+
+    //   // ✅ CarPaymentEntry 인스턴스 생성 (필요 시)
+    //   final updatedEntry = CarPaymentEntry(
+    //     paymentId: paymentId,
+    //     category: widget.selectedCategory,
+    //     amount: detailData['price'], // 서버 응답 기준으로 설정
+    //     date: DateTime.parse(detailData['paymentDate']),
+    //     details: detailData,
+    //   );
 
     try {
-      final paymentId = await CarPaymentService.savePayment(
-        provider: carPaymentProvider,
-        carId: carId,
-        accessToken: accessToken,
-        category: widget.selectedCategory,
-      );
+      String paymentId;
 
-      // ✅ CarPaymentEntry 생성해서 Provider에 추가
-      final entry = CarPaymentEntry(
-        paymentId: paymentId,
-        category: carPaymentProvider.selectedCategory ?? '주유',
-        amount: carPaymentProvider.selectedAmount,
-        date: carPaymentProvider.selectedDate,
-        details: {
-          "location": carPaymentProvider.location,
-          "memo": carPaymentProvider.memo,
-          "fuelType": carPaymentProvider.fuelType,
-          "repairParts": carPaymentProvider.selectedRepairItems,
-        },
-      );
-      carPaymentProvider.addEntry(entry);
+      if (widget.isEditMode && widget.existingEntry != null) {
+        final updateData = carPaymentProvider.toJsonForDB(
+          carId: carId,
+          category: widget.selectedCategory,
+          location: carPaymentProvider.location ?? '',
+          memo: carPaymentProvider.memo ?? '',
+          fuelType:
+              widget.selectedCategory == '주유'
+                  ? (carPaymentProvider.fuelType.trim().isNotEmpty
+                      ? carPaymentProvider.fuelType
+                      : null)
+                  : null,
+          repairParts:
+              widget.selectedCategory == '정비'
+                  ? carPaymentProvider.selectedRepairItems
+                  : null,
+        );
 
-      print('🎉 저장 및 Provider 반영 완료');
+        await CarPaymentService.updatePayment(
+          paymentId: widget.existingEntry!.paymentId,
+          category: widget.existingEntry!.categoryEng,
+          accessToken: accessToken,
+          updateData: updateData,
+        );
 
-      _isSaved = true; // ✅ 저장 완료 표시
-      carPaymentProvider.resetInput();
+        paymentId = widget.existingEntry!.paymentId;
+      } else {
+        paymentId = await CarPaymentService.savePayment(
+          provider: carPaymentProvider,
+          carId: carId,
+          accessToken: accessToken,
+          category: widget.selectedCategory,
+        );
+      }
 
-      // ✅ 저장 성공 후 View 페이지로 이동
-      // ✅ 저장 성공 후 서버에서 최신 내역 다시 조회
-      // await carPaymentProvider.fetchPaymentsForSelectedMonth(
-      //   accessToken: accessToken,
-      //   carId: carId,
-      // );
-
-      // ✅ 상세 정보 다시 조회해서 정확한 detailData 확보
       final detailData = await CarPaymentService.fetchPaymentDetail(
         paymentId: paymentId,
-        category: widget.selectedCategory, // '주유', '정비', '세차'
+        category:
+            widget.existingEntry?.categoryEng ??
+            CarPaymentEntry(
+              paymentId: '',
+              category: widget.selectedCategory,
+              amount: 0,
+              date: DateTime.now(),
+              details: {},
+            ).categoryEng,
         accessToken: accessToken,
       );
 
-      // // ✅ 최신 entry 찾아서 View로 이동
-      // final updatedEntry = carPaymentProvider.entries.firstWhere(
-      //   (e) => e.paymentId == paymentId,
-      // );
-
-      // ✅ CarPaymentEntry 인스턴스 생성 (필요 시)
       final updatedEntry = CarPaymentEntry(
         paymentId: paymentId,
         category: widget.selectedCategory,
-        amount: detailData['price'], // 서버 응답 기준으로 설정
+        amount: detailData['price'],
         date: DateTime.parse(detailData['paymentDate']),
         details: detailData,
       );
+
+      if (!widget.isEditMode) {
+        carPaymentProvider.addEntry(updatedEntry);
+      }
+
+      carPaymentProvider.resetInput();
 
       Navigator.pushReplacement(
         context,
@@ -133,7 +191,7 @@ class _CarPaymentDetailFormState extends State<CarPaymentDetailForm> {
           builder:
               (_) => CarPaymentDetailView(
                 entry: updatedEntry,
-                detailData: updatedEntry.details,
+                detailData: detailData,
               ),
         ),
       );
